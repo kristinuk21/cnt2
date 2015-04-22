@@ -1,5 +1,5 @@
     <!doctype html>
-    <html ng-app="todoApp">
+    <html ng-app="cntApp">
       <head>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
         <script src="project.js"></script>
@@ -7,27 +7,27 @@
       </head>
       <body>
         <h2>Cnt3</h2>
-        <div ng-controller="TodoListController as todoList">
-          <span>{{todoList.todos.length}} stats</span>
+        <div ng-controller="CntController as cnt">
+          <span>{{cnt.stats.length}} stats</span>
           <ul class="unstyled">
-            <li ng-repeat="todo in todoList.todos">
-              <span>{{todo.text}} - {{todo.value}}</span>
+            <li ng-repeat="stat in cnt.stats">
+              <span>{{stat.text}} - {{stat.value}}</span>
             </li>
           </ul>
-          <form ng-submit="todoList.addTodo()">
+          <form ng-submit="cnt.compute()">
             <table>
               <tbody>
               <tr>
                 <td>Start Value</td>
-                <td><input type="text" ng-model="todoList.start" size="30" placeholder="2000"></td>
+                <td><input type="text" ng-model="cnt.start" size="30" placeholder="2000"></td>
               </tr>
               <tr>
                 <td>End Date</td>
-                <td><input type="text" ng-model="todoList.end"   size="30" placeholder="20"></td>
+                <td><input type="text" ng-model="cnt.end"   size="30" placeholder="20"></td>
               </tr>
               <tr>
                 <td>Count Rate</td>
-                <td> <input type="text" ng-model="todoList.rate"  size="30" placeholder="-2000/31"></td>
+                <td> <input type="text" ng-model="cnt.rate"  size="30" placeholder="-2000/31"></td>
               </tr>
               <tr>
                 <td></td>
