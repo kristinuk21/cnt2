@@ -5,7 +5,7 @@ angular.module('cntApp', [])
       {text:'tbd', value:'not computed'}];
  
     cnt.compute = function() {
-       var current_date = new Date().getDate();
+       //var current_date = new Date().getDate();
        
        if (text:cnt.end == ''){
          cnt.end = 20;
