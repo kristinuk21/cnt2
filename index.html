@@ -6,20 +6,20 @@
         <!-- link rel="stylesheet" href="todo.css"-->
       </head>
       <body>
-        <h2>Todo</h2>
+        <h2>Cnt3</h2>
         <div ng-controller="TodoListController as todoList">
-          <span>{{todoList.remaining()}} of {{todoList.todos.length}} remaining</span>
-          [ <a href="" ng-click="todoList.archive()">archive</a> ]
+          <span>{{todoList.todos.length}} stats</span>
           <ul class="unstyled">
             <li ng-repeat="todo in todoList.todos">
-              <input type="checkbox" ng-model="todo.done">
-              <span class="done-{{todo.done}}">{{todo.text}}</span>
+              <span>{{todo.text}} - {{todo.value}}</span>
             </li>
           </ul>
           <form ng-submit="todoList.addTodo()">
-            <input type="text" ng-model="todoList.todoText"  size="30"
-                   placeholder="add new todo here">
-            <input class="btn-primary" type="submit" value="add">
+            Start Value <input type="text" ng-model="todoList.start" size="30" placeholder="2000">
+            End Date    <input type="text" ng-model="todoList.end"   size="30" placeholder="20">
+            Count Rate  <input type="text" ng-model="todoList.rate"  size="30" placeholder="-2000/31">
+            <br>
+            <input class="btn-primary" type="submit" value="Compute">
           </form>
         </div>
       </body>
