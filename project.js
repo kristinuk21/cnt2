@@ -5,10 +5,10 @@ angular.module('cntApp', [])
       {text:'tbd', value:'not computed'}];
  
     cnt.compute = function() {
-       var current_date = new Date().getDate();
+       //var current_date = new Date().getDate();
       
-      var remain = Math.abs(text:cnt.end - current_date)*text:cnt.rate + text:cnt.start;
-      
+      //var remain = Math.abs(text:cnt.end - current_date)*text:cnt.rate + text:cnt.start;
+      var remain =2;
       cnt.stats.push({text:'Remaining', value:remain});
       // clean-up / update
       cnt.start = '';
