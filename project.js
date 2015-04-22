@@ -5,7 +5,7 @@ angular.module('cntApp', [])
       {text:'tbd', value:'not computed'}];
  
     cnt.compute = function() {
-       //var current_date = new Date().getDate();
+       var current_date = new Date().getDate();
       
       //var remain = Math.abs(text:cnt.end - current_date)*text:cnt.rate + text:cnt.start;
       var remain =2;
