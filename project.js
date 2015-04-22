@@ -20,7 +20,7 @@ angular.module('cntApp', [])
 
       //var remain = Math.abs(cnt.end - current_date)*cnt.rate + cnt.start;
       //var remain = cnt.end  + "|" + current_date  + "|" + cnt.rate  + "|" + cnt.start;
-      var remain = text:cnt.end  + "|" + current_date  + "|" + text:cnt.rate  + "|" + text:cnt.start;
+      var remain = cnt.end  + "|" + current_date  + "|" + cnt.rate  + "|" + cnt.start;
       //var remain =2;
       cnt.stats.push({text:'Remaining', value:remain});
       // clean-up / update
