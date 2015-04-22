@@ -1,28 +1,20 @@
-angular.module('todoApp', [])
-  .controller('TodoListController', function() {
-    var todoList = this;
-    todoList.todos = [
-      {text:'learn angular', done:true},
-      {text:'build an angular app', done:false}];
+angular.module('cntApp', [])
+  .controller('CntController', function() {
+    var cnt = this;
+    cnt.stats = [
+      {text:'tbd', value:'not computed'}];
  
-    todoList.addTodo = function() {
-      todoList.todos.push({text:todoList.todoText, done:false});
-      todoList.todoText = '';
+    cnt.compute = function() {
+       var current_date = new Date().getDate();
+      
+      var remain = Math.abs(text:cnt.end - current_date)*text:cnt.rate + text:cnt.start;
+      
+      cnt.stats.push({text:'Remaining', value:remain});
+      // clean-up / update
+      cnt.start = '';
+      cnt.end = '';
+      cnt.rate = '';
+      
     };
  
-    todoList.remaining = function() {
-      var count = 0;
-      angular.forEach(todoList.todos, function(todo) {
-        count += todo.done ? 0 : 1;
-      });
-      return count;
-    };
- 
-    todoList.archive = function() {
-      var oldTodos = todoList.todos;
-      todoList.todos = [];
-      angular.forEach(oldTodos, function(todo) {
-        if (!todo.done) todoList.todos.push(todo);
-      });
-    };
   });
