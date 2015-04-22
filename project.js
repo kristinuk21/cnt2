@@ -6,7 +6,7 @@ angular.module('cntApp', [])
  
     cnt.compute = function() {
        //var current_date = new Date().getDate();
-       
+       /*
        if (text:cnt.end){
          cnt.end = text:cnt.end;
        } else {
@@ -24,9 +24,10 @@ angular.module('cntApp', [])
        } else {
          cnt.rate = -2000/31;
        }
-      
+      */
       //var remain = Math.abs(cnt.end - current_date)*cnt.rate + cnt.start;
-      var remain = cnt.end  + "|" + current_date  + "|" + cnt.rate  + "|" + cnt.start;
+      //var remain = cnt.end  + "|" + current_date  + "|" + cnt.rate  + "|" + cnt.start;
+      var remain = text:cnt.end  + "|" + current_date  + "|" + text:cnt.rate  + "|" + text:cnt.start;
       //var remain =2;
       cnt.stats.push({text:'Remaining', value:remain});
       // clean-up / update
