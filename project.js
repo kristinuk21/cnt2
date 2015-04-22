@@ -5,26 +5,19 @@ angular.module('cntApp', [])
       {text:'tbd', value:'not computed'}];
  
     cnt.compute = function() {
-       //var current_date = new Date().getDate();
-       /*
-       if (text:cnt.end){
-         cnt.end = text:cnt.end;
-       } else {
+       var current_date = new Date().getDate();
+       if (!cnt.end){
          cnt.end = 20;
        }
        
-       if (text:cnt.start){
-         cnt.start = text:cnt.start;
-       } else {
+       if (!cnt.start){
          cnt.start = 2000;
        }
        
-      if (text:cnt.rate){
-         cnt.rate = text:cnt.rate;
-       } else {
+      if (!cnt.rate){
          cnt.rate = -2000/31;
        }
-      */
+
       //var remain = Math.abs(cnt.end - current_date)*cnt.rate + cnt.start;
       //var remain = cnt.end  + "|" + current_date  + "|" + cnt.rate  + "|" + cnt.start;
       var remain = text:cnt.end  + "|" + current_date  + "|" + text:cnt.rate  + "|" + text:cnt.start;
