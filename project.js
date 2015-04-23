@@ -21,10 +21,10 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
   
   var date3 = date2;
     if (date2.getMonth() > 1) {
-      date2.setMonth(date2.getMonth()-1);
+      date3.setMonth(date3.getMonth()-1);
     } else {
-      date2.setMonth(11);
-      date2.setYear(date2.getYear()-1);
+      date3.setMonth(11);
+      date3.setYear(date3.getYear()-1);
     }
   
   var t_timeDiff = Math.abs(date3.getTime() - date2.getTime());
