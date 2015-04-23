@@ -1,5 +1,5 @@
 var myApp = angular.module('cntApp', ['ui.bootstrap']);
-myApp..controller('Progress', function ($scope) {
+myApp.controller('Progress', function ($scope) {
   $scope.max = 200;
 
   $scope.random = function() {
