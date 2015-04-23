@@ -1,7 +1,9 @@
 angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($scope) {
   $scope.max = 100;
-  days_p = Math.floor((Math.random() * 100) + 1);
-  amount_p = Math.floor((Math.random() * 100) + 1);
+  $scope.days =2;
+  $scope.amount =3;
+  $scope.days_p = Math.floor((Math.random() * 100) + 1);
+  $scope.amount_p = Math.floor((Math.random() * 100) + 1);
   $scope.random = function() {
     var value = Math.floor((Math.random() * 100) + 1);
 
