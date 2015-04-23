@@ -32,9 +32,9 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
   
  $scope.days_p = Math.floor(100*diffDays/t_diffDays);
 
-  $scope.amount = 2000 - ((2000/t_diffDays)*diffDays);
-  
-  $scope.amount_p = Math.floor(100*amount/2000);
+  var remain = 2000 - ((2000/t_diffDays)*diffDays);
+  $scope.amount = remain;
+  $scope.amount_p = Math.floor(100*remian/2000);
   };
   $scope.random();
 
