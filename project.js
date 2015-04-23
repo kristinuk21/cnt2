@@ -19,7 +19,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
   var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
   $scope.days =   diffDays;
   
-  var date3 = date2;
+  var date3 = new Date(date2.getTime());;
     if (date2.getMonth() > 1) {
       date3.setMonth(date3.getMonth()-1);
     } else {
