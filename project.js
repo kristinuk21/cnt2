@@ -32,7 +32,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
   
  $scope.days_p = Math.floor(100*diffDays/t_diffDays);
 
-  var remain = 2000 - ((2000*(t_diffDays - diffDays))/t_diffDays);
+  var remain = Math.floor(2000 - ((2000*(t_diffDays - diffDays))/t_diffDays));
   $scope.amount = remain;
   //$scope.amount_p = Math.floor(100*remain/2000);
   };
