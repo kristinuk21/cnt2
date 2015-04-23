@@ -1,19 +1,19 @@
     <!doctype html>
     <html ng-app="cntApp">
       <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
         <script src="project.js"></script>
-        <!-- link rel="stylesheet" href="todo.css"-->
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+        <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>-->
+        <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.12.1.js"></script>
+        <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
       </head>
       <body>
-        <h2>Cnt3</h2>
+        <h2>Custom down counter</h2>
         <div ng-controller="CntController as cnt">
-          <span>{{cnt.stats.length}} stats</span>
-          <ul class="unstyled">
-            <li ng-repeat="stat in cnt.stats">
-              <span>{{stat.text}} - {{stat.value}}</span>
-            </li>
-          </ul>
+        <div class="row">
+            <div class="col-sm-4"><progressbar class="progress-striped" value="22" type="warning">22</progressbar></div>
+            <div class="col-sm-4"><progressbar class="progress-striped active" value="15" type="danger">15</progressbar></div>
+        </div>
           <form ng-submit="cnt.compute()">
             <table>
               <tbody>
