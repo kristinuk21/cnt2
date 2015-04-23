@@ -2,7 +2,8 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
   $scope.max = 100;
   $scope.random = function() {
   var date1 = new Date();
-  var date2 = new Date().setDate(20); //end_date
+  var date2 = new Date();
+  date2.setDate(20); //end_date
   
   if (date1.getDate()  > 20){
     // move date2 to next month
