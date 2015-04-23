@@ -14,12 +14,12 @@
             <table>
               <tbody>
               <tr>
-                <td>Start Value</td>
-                <td><div class="col-sm-4"><progressbar class="progress-striped" value="{{ProgressBar.days_left_percent}}">{{ProgressBar.days_left}}</progressbar></div></td>
+                <td><b>{{days}}</b></td>
+                <td><progressbar animate="false" value="dynamic" type="success"><b>{{days_p}}</b></progressbar></td>
               </tr>
               <tr>
-                <td>End Date</td>
-                <td><div class="col-sm-4"><progressbar class="progress-striped active" value="{{ProgressBar.amount_left_percent}}" >{{ProgressBar.amount_left}}</progressbar></div></td>
+                <td><b>{{amount}}</b>/td>
+                <td><progressbar animate="false" value="dynamic" type="success"><b>{{amount_p}}</b></progressbar></td>
               </tr>
               </tbody>
             </table>
