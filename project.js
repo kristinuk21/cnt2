@@ -1,6 +1,6 @@
 angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($scope) {
   $scope.max = 100;
-  
+  $scope.random = function() {
   var date1 = new Date();
   var date2 = new Date().setDate(20); //end_date
   
@@ -34,7 +34,8 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
   $scope.amount = 2000 - ((2000/t_diffDays)*diffDays);
   
   $scope.amount_p = Math.floor(100*amount/2000);
-  
+  };
+  $scope.random();
 
 });
 
