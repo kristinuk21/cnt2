@@ -10,10 +10,12 @@
       <body>
         <div ng-controller="ProgressBar" style="width: 60%; margin: 0px auto;">
             <h2>Custom down counter</h2>
-{{days}}
-<progressbar animate="false" value="dynamic" type="success"><b>{{days_p}}</b></progressbar></td>
 
-{{amount}}<progressbar animate="false" value="dynamic" type="success"><b>{{amount_p}}</b></progressbar></td>
+<small><em>Days</em></small>
+<progressbar animate="false" value="days_p" type="success"><b>{{days}}</b></progressbar></td>
+
+<small><em>Amount</em></small>
+<progressbar animate="false" value="amount_p" type="success"><b>{{amount}}</b></progressbar></td>
 
         </div>
         <!--
