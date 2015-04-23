@@ -9,11 +9,13 @@
       </head>
       <body>
         <h2>Custom down counter</h2>
-        <div ng-controller="CntController as cnt">
-        <div class="row">
-            <div class="col-sm-4"><progressbar class="progress-striped" value="22" type="warning">22</progressbar></div>
-            <div class="col-sm-4"><progressbar class="progress-striped active" value="15" type="danger">15</progressbar></div>
+        <div ng-controller="ProgressBar">
+            <div class="row">
+                <div class="col-sm-4"><progressbar class="progress-striped" value="22" type="warning">22</progressbar></div>
+                <div class="col-sm-4"><progressbar class="progress-striped active" value="15" type="danger">15</progressbar></div>
+            </div>
         </div>
+        <div ng-controller="CntController as cnt">
           <form ng-submit="cnt.compute()">
             <table>
               <tbody>
