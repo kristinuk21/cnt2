@@ -8,22 +8,13 @@
         <link href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
       </head>
       <body>
-        <h2>Custom down counter</h2>
         <div ng-controller="ProgressBar" style="width: 60%; margin: 0px auto;">
-          <div class="row">
-            <table>
-              <tbody>
-              <tr>
-                <td><b>{{days}}</b></td>
-                <td><progressbar animate="false" value="dynamic" type="success"><b>{{days_p}}</b></progressbar></td>
-              </tr>
-              <tr>
-                <td><b>{{amount}}</b></td>
-                <td><progressbar animate="false" value="dynamic" type="success"><b>{{amount_p}}</b></progressbar></td>
-              </tr>
-              </tbody>
-            </table>
-           </div>
+            <h2>Custom down counter</h2>
+{{days}}
+<progressbar animate="false" value="dynamic" type="success"><b>{{days_p}}</b></progressbar></td>
+
+{{amount}}<progressbar animate="false" value="dynamic" type="success"><b>{{amount_p}}</b></progressbar></td>
+
         </div>
         <!--
         <div ng-controller="CntController as cnt">
