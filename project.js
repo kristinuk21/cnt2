@@ -1,21 +1,43 @@
 angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($scope) {
   $scope.max = 100;
-  $scope.days = Math.floor((Math.random() * 100) + 1);
-  $scope.amount = Math.floor((Math.random() * 100) + 1);
-  $scope.days_p = Math.floor((Math.random() * 100) + 1);
-  $scope.amount_p = Math.floor((Math.random() * 100) + 1);
-  $scope.random = function() {
-    var value = Math.floor((Math.random() * 100) + 1);
+  
+  var date1 = new Date();
+  var date2 = new Date().setDate(20); //end_date
+  
+  if (date1.getDate()  > 20){
+    // move date2 to next month
+    if (date2.getMonth() < 11) {
+      date2.setMonth(date2.getMonth()+1);
+    } else {
+      date2.setMonth(0);
+      date2.setYear(date2.getYear()+1);
+    }
+  }
+  
+  var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+  var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+  $scope.days =   diffDays;
+  
+  var date3 = date2;
+    if (date2.getMonth() > 1) {
+      date2.setMonth(date2.getMonth()-1);
+    } else {
+      date2.setMonth(11);
+      date2.setYear(date2.getYear()-1);
+    }
+  
+  var t_timeDiff = Math.abs(date3.getTime() - date2.getTime());
+  var t_diffDays = Math.ceil(t_timeDiff / (1000 * 3600 * 24)); 
+  
+ $scope.days_p = Math.floor(100*diffDays/t_diffDays);
 
-    $scope.dynamic = value;
-  };
-  $scope.random();
+  $scope.amount = 2000 - ((2000/t_diffDays)*diffDays);
+  
+  $scope.amount_p = Math.floor(100*amount/2000);
+  
 
 });
 
  
 
-//         cnt.end = 20;
-//         cnt.start = 2000;
-//         cnt.rate = -2000/31;
-//      var remain = Math.abs(cnt.end - current_date)*cnt.rate + cnt.start;
+
