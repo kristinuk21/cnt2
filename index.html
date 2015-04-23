@@ -12,15 +12,13 @@
             Custom down counter
 <br>
 <br>
-<small><em>Days</em></small>
-<progressbar animate="false" value="days_p" type="success"><b>{{days}}</b></progressbar>
+<small><em>Days / Ammount</em></small>
+<progressbar animate="true" value="days_p" type="success"><b>{{days}} / {{amount}}</b></progressbar>
 
-<small><em>Amount</em></small> -- {{amount}} {{amount_p}}
-<progressbar animate="false" value="amount_p" type="success"><b>{{amount}}</b></progressbar>
 <br>
-<button class="btn btn-sm btn-primary" type="button" ng-click="random()">Randomize</button>
+
         </div>
-        <!--
+        <!--<button class="btn btn-sm btn-primary" type="button" ng-click="random()">Randomize</button>
         <div ng-controller="CntController as cnt">
           <form ng-submit="cnt.compute()">
             <table>
