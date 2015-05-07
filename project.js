@@ -40,7 +40,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
     var restart_time = Math.abs(next_date.getTime() - prev_date.getTime());
     
     // Days percentage - progrss bar values
-    $scope.days_p_precise = Math.floor(100*100*remain_time/restart_time)/100;
+    //$scope.days_p_precise = Math.floor(100*100*remain_time/restart_time)/100;
     $scope.days_p = Math.floor((one_day_ms*100*remain_time/restart_time)/one_day_ms);
     
     // days remiang[%]
@@ -61,9 +61,9 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
       remain_time_p = Math.abs(next_time.getTime() - now_date.getTime());
     }
 
-    $scope.days_precise = Math.floor(100*remain_time_p/one_day_ms)/100;
+    $scope.days_precise = Math.floor(100*remain_time_p/(1000*3600))/100;
 
-  };
+    $scope.days_p_precise = Math.floor(100*remain_time_p/one_day_ms);  };
   $scope.compute();
 
 });
