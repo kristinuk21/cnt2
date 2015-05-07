@@ -35,21 +35,33 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
       prev_date.setYear(prev_date.getYear()-1);
     }
     
-    //compute delat dates
+    // Compute delat dates
     var remain_time = Math.abs(next_date.getTime() - now_date.getTime());
     var restart_time = Math.abs(next_date.getTime() - prev_date.getTime());
     
-    //days percentage - progrss bar values
+    // Days percentage - progrss bar values
     $scope.days_p_precise = Math.floor(100*100*remain_time/restart_time)/100;
     $scope.days_p = Math.floor((one_day_ms*100*remain_time/restart_time)/one_day_ms);
     
-    $scope.days_precise = Math.floor(100*remain_time/one_day_ms)/100;
+    // days remiang[%]
     $scope.days = Math.floor(remain_time/one_day_ms);
-    
+
     //compute amount
     var remain = budget - ((restart_time - remain_time)*budget/restart_time);
     $scope.amount_precise = Math.floor(remain*100)/100; //two digits
     $scope.amount = budget_rounding*Math.ceil(remain/budget_rounding); // rounded
+    
+    // Time untill the above(non precise) will change (%)
+    var next_time = new Date(now_date.getTime()); 
+    next_time.setHours(18,00);
+    var remain_time_p;
+    if (now_date.getTime() > next_time.getTime()) {
+      remain_time_p = one_day_ms - Math.abs(next_time.getTime() - now_date.getTime());
+    } else {
+      remain_time_p = Math.abs(next_time.getTime() - now_date.getTime());
+    }
+
+    $scope.days_precise = Math.floor(100*remain_time_p/one_day_ms)/100;
 
   };
   $scope.compute();
