@@ -34,7 +34,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
   var t_timeDiff = Math.abs(date3.getTime() - date2.getTime());
   var t_diffDays = Math.ceil(t_timeDiff / (1000 * 3600 * 24)); 
  
- $scope.days_p_precise = Math.floor(100*diffDays/(t_timeDiff / (1000 * 3600 * 24)))); 
+ $scope.days_p_precise = Math.floor(100*diffDays/(t_timeDiff / (1000 * 3600 * 24))); 
  $scope.days_p = Math.floor(100*diffDays/t_diffDays);
 
   var remain = Math.floor(2000 - ((2000*(t_diffDays - diffDays))/t_diffDays));
