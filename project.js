@@ -64,7 +64,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
     var num = remain_time_p/(1000*3600);
     $scope.days_precise = num.toFixed(4);
     
-    var day_remain = (budget/restart_time)*(num/one_day_ms);
+    var day_remain = ((num*budget)/restart_time);
     $scope.amount_precise = day_remain.toFixed(2); //four digits
 
     $scope.days_p_precise = Math.floor(100*remain_time_p/one_day_ms); 
