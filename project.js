@@ -49,7 +49,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
 
     //compute amount
     var remain = budget - ((restart_time - remain_time)*budget/restart_time);
-    $scope.amount_precise = Math.floor(remain*100)/100; //two digits
+    $scope.amount_precise = remain.toFixed(4); //four digits
     $scope.amount = budget_rounding*Math.ceil(remain/budget_rounding); // rounded
     
     // Time untill the above(non precise) will change (%)
