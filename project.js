@@ -53,7 +53,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
     
     // Time untill the above(non precise) will change (%)
     var next_time = new Date(now_date.getTime()); 
-    next_time.setHours(18,00);
+    next_time.setHours(18,0,0,0); // 18:00:00:000
     var remain_time_p;
     if (now_date.getTime() > next_time.getTime()) {
       remain_time_p = one_day_ms - Math.abs(next_time.getTime() - now_date.getTime());
