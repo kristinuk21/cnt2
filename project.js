@@ -1,7 +1,7 @@
 angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($scope,$interval) {
 
-  $scope.compute = function() {
-    
+  $scope.callAtInterval = function() {
+
     var one_day_ms = (1000 * 3600 * 24);
     var budget = 2000;
     var budget_rounding = 50;
@@ -64,9 +64,9 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
 
     $scope.days_precise =  Math.floor(1000*remain_time_p/(1000*3600))/1000;
 
-    $scope.days_p_precise = Math.floor(100*remain_time_p/one_day_ms);  };
-  $scope.compute();
+    $scope.days_p_precise = Math.floor(100*remain_time_p/one_day_ms); 
+  }
 
-  $interval( $scope.compute(), 1000);
+  $interval( function(){ $scope.callAtInterval(); }, 500);
 
 });
