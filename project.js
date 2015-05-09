@@ -42,6 +42,7 @@ angular.module('cntApp', ['ui.bootstrap','angular-progress-arc']).controller('Pr
     
     // Days percentage - progrss bar values
     //$scope.days_p_precise = Math.floor(100*100*remain_time/restart_time)/100;
+    $scope.days_percentage = Math.floor((one_day_ms*remain_time/restart_time)/one_day_ms);
     $scope.days_p = Math.floor((one_day_ms*100*remain_time/restart_time)/one_day_ms);
     
     // days remiang[%]
