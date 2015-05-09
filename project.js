@@ -1,4 +1,4 @@
-angular.module('cntApp', ['$scope', 'ui.bootstrap', 'angular-progress-arc']).controller('ProgressBar', function ($scope,$interval) {
+angular.module('cntApp', ['angular-progress-arc']).controller('ProgressBar', function ($scope,$interval) {
 
   $scope.callAtInterval = function() {
 
