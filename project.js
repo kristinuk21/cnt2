@@ -17,7 +17,7 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
     // check and increment month
     if (now_date.getTime() > next_date.getTime()){
       // move next_date to next month
-      if (next_date.getMonth() < 11) {
+      if (now_date.getMonth() < 11) {
         next_date.setMonth(next_date.getMonth()+1);
       } else {
         next_date.setMonth(0);
