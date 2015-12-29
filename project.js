@@ -21,19 +21,19 @@ angular.module('cntApp', ['ui.bootstrap']).controller('ProgressBar', function ($
         next_date.setMonth(next_date.getMonth()+1);
       } else {
         next_date.setMonth(0);
-        next_date.setYear(next_date.getYear()+1);
+        next_date.setFullYear(next_date.getFullYear()+1);
       }
     }
     
-    // prevvious restart
-    var prev_date = new Date(next_date.getTime()); //previos restart
+    // previous restart
+    var prev_date = new Date(next_date.getTime()); //previous restart
     
     // decrement a month
     if (next_date.getMonth() > 1) {
       prev_date.setMonth(prev_date.getMonth()-1);
     } else {
       prev_date.setMonth(11);
-      prev_date.setYear(prev_date.getYear()-1);
+      prev_date.setFullYear(prev_date.getFullYear()-1);
     }
     
     // Compute delat dates
