@@ -1324,13 +1324,23 @@
         elements.dayProgress.setAttribute('data-width-low', isLowProgress);
 
         // Enhanced overall progress text - show days until payday and budget per day
-        const dailyAmount = Math.round((amountRemaining / Math.max(daysUntilReset, 1)) / 10) * 10;
-        let overallText = `${daysUntilReset} days • ${symbol}${amountRemaining} remaining • ${symbol}${dailyAmount}/day`;
+        // Always use total calendar days for budget calculation (budget applies to all days)
+        const daysForBudgetCalc = Math.max(daysUntilReset, 1);
+        // Calculate daily budget by dividing total configured budget by total days remaining
+        const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
+
+        // Show appropriate day count in progress text (can still show working days if enabled)
+        const dayDisplayText = workingDaysEnabled ?
+          `${Math.max(calculateWorkingDays(now, resetDates.next), 1)} business days` :
+          `${daysUntilReset} days`;
+        let overallText = `${dayDisplayText} • ${symbol}${amountRemaining} remaining • ${symbol}${dailyAmount}/day`;
 
         if (overallProgressPercentage < 15) {
-          overallText = `${daysUntilReset} days until payday`;
+          overallText = workingDaysEnabled ?
+            `${Math.max(calculateWorkingDays(now, resetDates.next), 1)} business days until payday` :
+            `${daysUntilReset} days until payday`;
         } else if (overallProgressPercentage < 35) {
-          overallText = `${daysUntilReset} days • ${symbol}${amountRemaining} remaining`;
+          overallText = `${dayDisplayText} • ${symbol}${amountRemaining} remaining`;
         }
         elements.dayProgressText.textContent = overallText;
 
@@ -1390,7 +1400,10 @@
 
         // Update merged budget information
         elements.budgetRemaining.textContent = symbol + amountRemaining;
-        elements.dailyBudgetInfo.textContent = symbol + dailyAmount + ' per day remaining';
+        const dailyBudgetText = workingDaysEnabled ?
+          symbol + dailyAmount + ' per business day remaining' :
+          symbol + dailyAmount + ' per day remaining';
+        elements.dailyBudgetInfo.textContent = dailyBudgetText;
 
         // Update next payday date
         elements.nextResetDate.textContent = resetDates.next.toLocaleDateString('en-US', {
