@@ -1,2106 +1,1242 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Budget & Time Tracker</title>
-  <meta name="description"
-    content="Track days until next payday and manage daily budget with real-time countdown and working hours progress">
-  <style>
-    /* ===== CSS VARIABLES FOR THEMING ===== */
-    :root {
-      /* Light Theme Colors */
-      --bg-primary: #f5f5f5;
-      --bg-secondary: #ffffff;
-      --bg-tertiary: #f8f9fa;
-      --bg-quaternary: #f8f9fc;
-      --bg-hover: rgba(0, 123, 255, 0.05);
-
-      --text-primary: #2c3e50;
-      --text-secondary: #333333;
-      --text-muted: #6c757d;
-      --text-light: #666666;
-
-      --border-primary: #e9ecef;
-      --border-secondary: #dee2e6;
-      --border-tertiary: #e3e6f0;
-      --border-focus: #007bff;
-
-      --shadow-light: rgba(0, 0, 0, 0.08);
-      --shadow-medium: rgba(0, 0, 0, 0.1);
-      --shadow-dark: rgba(0, 0, 0, 0.2);
-
-      --accent-primary: #007bff;
-      --accent-success: #28a745;
-      --accent-warning: #ffc107;
-      --accent-danger: #dc3545;
-      --accent-info: #17a2b8;
-
-      --progress-low: #dc2626;
-      --progress-medium: #f59e0b;
-      --progress-high: #10b981;
-    }
-
-    /* Dark Theme Colors */
-    [data-theme="dark"] {
-      --bg-primary: #1a1a1a;
-      --bg-secondary: #2d2d2d;
-      --bg-tertiary: #363636;
-      --bg-quaternary: #404040;
-      --bg-hover: rgba(59, 130, 246, 0.1);
-
-      --text-primary: #e5e7eb;
-      --text-secondary: #f3f4f6;
-      --text-muted: #9ca3af;
-      --text-light: #d1d5db;
-
-      --border-primary: #4b5563;
-      --border-secondary: #6b7280;
-      --border-tertiary: #374151;
-      --border-focus: #3b82f6;
-
-      --shadow-light: rgba(0, 0, 0, 0.3);
-      --shadow-medium: rgba(0, 0, 0, 0.4);
-      --shadow-dark: rgba(0, 0, 0, 0.6);
-
-      --accent-primary: #3b82f6;
-      --accent-success: #10b981;
-      --accent-warning: #f59e0b;
-      --accent-danger: #ef4444;
-      --accent-info: #06b6d4;
-
-      --progress-low: #ef4444;
-      --progress-medium: #f59e0b;
-      --progress-high: #10b981;
-    }
-
-    /* ===== BASE STYLES ===== */
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: var(--bg-primary);
-      color: var(--text-secondary);
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    /* ===== THEME TOGGLE BUTTON ===== */
-    .theme-toggle {
-      position: fixed;
-      top: 20px;
-      right: 80px;
-      background: var(--accent-primary);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1002;
-    }
-
-    .theme-toggle:hover {
-      background: var(--accent-primary);
-      transform: rotate(180deg) scale(1.05);
-      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-      filter: brightness(1.1);
-    }
-
-    /* ===== MAIN CONTAINER ===== */
-    .counter-container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      padding-top: 70px;
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      box-shadow: 0 4px 20px var(--shadow-light);
-      position: relative;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    /* ===== TITLE ===== */
-    .counter-title {
-      text-align: center;
-      color: var(--text-primary);
-      margin-bottom: 35px;
-      font-size: 2.2em;
-      font-weight: 300;
-      letter-spacing: -0.5px;
-      border-bottom: 3px solid var(--border-primary);
-      padding-bottom: 20px;
-      transition: color 0.3s ease, border-color 0.3s ease;
-    }
-
-    /* ===== PROGRESS CONTAINERS ===== */
-    .progress-container {
-      margin-bottom: 15px;
-      background: var(--bg-quaternary);
-      padding: 15px;
-      border-radius: 10px;
-      border: 1px solid var(--border-tertiary);
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    .progress-container.overall-progress {
-      background: transparent;
-      border: none;
-      padding: 0;
-    }
-
-    .progress-section {
-      margin-bottom: 20px;
-      background-color: var(--bg-tertiary);
-      border-radius: 8px;
-      padding: 15px;
-      border: 1px solid var(--border-primary);
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    /* ===== PROGRESS LABELS ===== */
-    .progress-label {
-      font-size: 1.1em;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-      display: block;
-      cursor: help;
-      transition: color 0.3s ease;
-    }
-
-    .progress-label[title]:hover {
-      color: var(--accent-primary);
-    }
-
-    /* ===== PROGRESS BARS ===== */
-    .progress-bar {
-      width: 100%;
-      height: 40px;
-      background-color: var(--border-primary);
-      border-radius: 8px;
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 10px;
-      border: 2px solid var(--border-secondary);
-      box-shadow: inset 0 2px 4px var(--shadow-medium);
-      min-height: 45px;
-      transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background-color: var(--accent-success);
-      transition: width 0.3s ease, background-color 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      min-width: 0;
-      font-size: 13px;
-      line-height: 1.2;
-      position: relative;
-    }
-
-    .progress-fill span {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding: 0 8px;
-      font-size: 12px;
-      font-weight: 600;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-      position: relative;
-      z-index: 2;
-      color: transparent;
-    }
-
-    /* Enhanced text visibility for all progress levels */
-    .progress-bar::after {
-      content: attr(data-text);
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: var(--text-primary);
-      font-size: 14px;
-      font-weight: 700;
-      text-shadow:
-        0 0 3px var(--bg-secondary),
-        0 0 6px var(--bg-secondary),
-        1px 1px 2px var(--shadow-medium);
-      z-index: 10;
-      pointer-events: none;
-      white-space: nowrap;
-      letter-spacing: 0.5px;
-      transition: color 0.3s ease, text-shadow 0.3s ease;
-    }
-
-    .progress-fill[data-width-low="true"] span {
-      color: transparent !important;
-    }
-
-    /* ===== PROGRESS ANIMATIONS ===== */
-    .progress-striped .progress-fill {
-      background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-      background-size: 1rem 1rem;
-      animation: progress-bar-stripes 1s linear infinite;
-    }
-
-    @keyframes progress-bar-stripes {
-      0% {
-        background-position: 1rem 0;
-      }
-
-      100% {
-        background-position: 0 0;
-      }
-    }
-
-    /* ===== HOURLY PROGRESS STYLING ===== */
-    #hourProgress {
-      background: linear-gradient(90deg, var(--accent-success) 0%, var(--accent-warning) 50%, #fd7e14 80%, var(--accent-danger) 100%);
-      position: relative;
-      overflow: hidden;
-    }
-
-    #hourProgress::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(45deg, rgba(255, 255, 255, .1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .1) 50%, rgba(255, 255, 255, .1) 75%, transparent 75%, transparent);
-      background-size: 8px 8px;
-      animation: hourly-progress-animation 2s linear infinite;
-    }
-
-    @keyframes hourly-progress-animation {
-      0% {
-        background-position: 0 0;
-      }
-
-      100% {
-        background-position: 16px 0;
-      }
-    }
-
-    .hourly-progress-container {
-      position: relative;
-    }
-
-    /* ===== SLIDER CONTAINERS ===== */
-    .slider-container {
-      margin-top: 30px;
-      padding: 20px;
-      background-color: var(--bg-tertiary);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      transition: background-color 0.3s ease;
-    }
-
-    .slider-container label {
-      font-weight: 500;
-      color: var(--text-secondary);
-      min-width: 120px;
-      transition: color 0.3s ease;
-    }
-
-    .slider-container input[type="range"] {
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .slider-value {
-      font-weight: bold;
-      color: var(--text-secondary);
-      min-width: 80px;
-      text-align: center;
-      background: var(--accent-primary);
-      color: white;
-      padding: 5px 10px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-    }
-
-    /* ===== PROGRESS DETAILS ===== */
-    .reset-info {
-      margin-top: 20px;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9em;
-      transition: color 0.3s ease;
-    }
-
-    .progress-details {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 8px;
-      font-size: 0.9em;
-      color: var(--text-light);
-      align-items: center;
-      transition: color 0.3s ease;
-    }
-
-    .progress-details strong {
-      color: var(--text-secondary);
-      font-weight: 600;
-      transition: color 0.3s ease;
-    }
-
-    /* ===== RESPONSIVE DESIGN ===== */
-    @media (max-width: 768px) {
-      .counter-container {
-        margin: 10px;
-        padding: 15px;
-        padding-top: 80px;
-        /* More space for theme toggle */
-      }
-
-      .counter-title {
-        font-size: 1.5em;
-        margin-bottom: 20px;
-      }
-
-      .progress-details {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-      }
-
-      .budget-controls {
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-
-      .budget-btn {
-        min-width: 45px;
-        padding: 5px 8px;
-        font-size: 10px;
-      }
-
-      .settings-toggle {
-        width: 45px;
-        height: 45px;
-        font-size: 16px;
-      }
-
-      .theme-toggle {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-        right: 70px;
-      }
-
-      .settings-panel {
-        min-width: 280px;
-        max-width: calc(100vw - 20px);
-        max-height: calc(100vh - 40px);
-        padding: 12px;
-      }
-
-      .slider-container {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .slider-container label {
-        min-width: auto;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .counter-container {
-        margin: 5px;
-        padding: 10px;
-        padding-top: 70px;
-      }
-
-      .counter-title {
-        font-size: 1.3em;
-        margin-bottom: 15px;
-      }
-
-      .progress-section {
-        padding: 10px;
-      }
-
-      .budget-controls {
-        gap: 4px;
-      }
-
-      .budget-btn {
-        min-width: 40px;
-        padding: 4px 6px;
-        font-size: 9px;
-      }
-
-      .setting-controls {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 6px;
-      }
-
-      .radio-group {
-        justify-content: center;
-      }
-
-      .theme-toggle {
-        width: 35px;
-        height: 35px;
-        font-size: 14px;
-        right: 65px;
-      }
-    }
-
-    /* ===== SETTINGS PANEL STYLES ===== */
-    .settings-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 999;
-    }
-
-    [data-theme="dark"] .settings-backdrop {
-      background: rgba(0, 0, 0, 0.7);
-    }
-
-    .settings-backdrop.open {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .settings-toggle {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--accent-primary);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1001;
-    }
-
-    .settings-toggle:hover {
-      background: var(--accent-primary);
-      transform: rotate(90deg) scale(1.05);
-      box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
-      filter: brightness(1.1);
-    }
-
-    .settings-toggle.active {
-      background: var(--accent-success);
-      transform: rotate(180deg);
-    }
-
-    .settings-toggle.active:hover {
-      background: var(--accent-success);
-      transform: rotate(180deg) scale(1.05);
-      filter: brightness(1.1);
-    }
-
-    .settings-panel {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.95);
-      background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 8px 32px var(--shadow-dark);
-      border: 1px solid var(--border-primary);
-      min-width: 320px;
-      max-width: 420px;
-      max-height: 80vh;
-      overflow-y: auto;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 1000;
-    }
-
-    .settings-panel.open {
-      opacity: 1;
-      visibility: visible;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .settings-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid var(--border-tertiary);
-      transition: border-color 0.3s ease;
-    }
-
-    .settings-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin: 0;
-      transition: color 0.3s ease;
-    }
-
-    /* ===== SETTINGS SECTIONS ===== */
-    .settings-section {
-      margin-bottom: 8px;
-      padding: 8px;
-      background: var(--bg-tertiary);
-      border-radius: 8px;
-      border-left: 4px solid var(--accent-primary);
-      border: 1px solid var(--border-primary);
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    .settings-section:last-child {
-      margin-bottom: 0;
-    }
-
-    .settings-section-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin: 0 0 4px 0;
-      padding-bottom: 2px;
-      border-bottom: 1px solid var(--border-secondary);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: color 0.3s ease, border-color 0.3s ease;
-    }
-
-    .settings-group {
-      margin-bottom: 0;
-    }
-
-    .settings-group:last-child {
-      margin-bottom: 0;
-    }
-
-    .settings-label {
-      display: block;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      font-size: 14px;
-      transition: color 0.3s ease;
-    }
-
-    /* ===== FORM CONTROLS ===== */
-    .settings-slider-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .settings-slider {
-      flex: 1;
-      height: 6px;
-      border-radius: 3px;
-      background: var(--border-primary);
-      outline: none;
-      -webkit-appearance: none;
-      appearance: none;
-      transition: background-color 0.3s ease;
-    }
-
-    .settings-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent-primary);
-      cursor: pointer;
-      border: 2px solid var(--bg-secondary);
-      box-shadow: 0 2px 4px var(--shadow-medium);
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    .settings-slider::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--accent-primary);
-      cursor: pointer;
-      border: 2px solid var(--bg-secondary);
-      box-shadow: 0 2px 4px var(--shadow-medium);
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    .settings-value {
-      background: var(--accent-primary);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-weight: bold;
-      min-width: 70px;
-      text-align: center;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-    }
-
-    .settings-select,
-    .compact-select,
-    .currency-select {
-      width: 100%;
-      padding: 8px 12px;
-      border: 2px solid var(--border-primary);
-      border-radius: 6px;
-      font-size: 14px;
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      outline: none;
-      transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .settings-select:focus,
-    .compact-select:focus,
-    .currency-select:focus {
-      border-color: var(--accent-primary);
-    }
-
-    .settings-input,
-    .budget-input,
-    .time-input,
-    .compact-input,
-    .settings-input-small {
-      width: 100%;
-      max-width: 100%;
-      padding: 8px 12px;
-      border: 2px solid var(--border-primary);
-      border-radius: 6px;
-      font-size: 14px;
-      background: var(--bg-secondary);
-      color: var(--text-secondary);
-      outline: none;
-      transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-      box-sizing: border-box;
-    }
-
-    .settings-input:focus,
-    .budget-input:focus,
-    .time-input:focus,
-    .compact-input:focus,
-    .settings-input-small:focus {
-      border-color: var(--accent-primary);
-    }
-
-    /* Specific sizing overrides */
-    .compact-select {
-      width: auto;
-      min-width: 60px;
-    }
-
-    .currency-select {
-      width: auto;
-      min-width: 60px;
-      flex-shrink: 0;
-    }
-
-    .compact-input {
-      width: 80px;
-      text-align: center;
-    }
-
-    .settings-input-small {
-      width: 80px;
-    }
-
-    .time-input {
-      width: 100px;
-    }
-
-    /* ===== SETTING ROWS AND LAYOUTS ===== */
-    .settings-input-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .budget-input-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .budget-input {
-      flex: 1;
-      min-width: 120px;
-    }
-
-    .setting-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 4px 0;
-      border-bottom: 1px solid var(--border-tertiary);
-      gap: 12px;
-      transition: background-color 0.3s ease, border-color 0.3s ease;
-    }
-
-    .setting-row:last-child {
-      border-bottom: none;
-    }
-
-    .setting-row:hover {
-      background-color: var(--bg-hover);
-      margin: 0 -12px;
-      padding-left: 12px;
-      padding-right: 12px;
-      border-radius: 6px;
-    }
-
-    .setting-label {
-      font-weight: 500;
-      color: var(--text-secondary);
-      font-size: 14px;
-      min-width: 85px;
-      flex-shrink: 0;
-      padding-top: 2px;
-      transition: color 0.3s ease;
-    }
-
-    .setting-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    /* Force 24h format for time inputs */
-    input[type="time"] {
-      -webkit-appearance: none;
-      -moz-appearance: textfield;
-      appearance: none;
-    }
-
-    input[type="time"]::-webkit-datetime-edit-ampm-field {
-      display: none;
-    }
-
-    /* ===== RADIO BUTTONS AND CHECKBOXES ===== */
-    .radio-group {
-      display: flex;
-      gap: 12px;
-    }
-
-    .radio-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text-secondary);
-      transition: color 0.3s ease;
-    }
-
-    .radio-item input[type="radio"] {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--accent-primary);
-    }
-
-    .toggle-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text-secondary);
-      transition: color 0.3s ease;
-    }
-
-    .settings-checkbox-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .settings-checkbox {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent-primary);
-      cursor: pointer;
-    }
-
-    .settings-checkbox-label {
-      font-size: 14px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      margin: 0;
-      transition: color 0.3s ease;
-    }
-
-    .settings-radio-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .settings-radio-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .settings-radio {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--accent-primary);
-      cursor: pointer;
-    }
-
-    .settings-radio-label {
-      font-size: 14px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      margin: 0;
-      transition: color 0.3s ease;
-    }
-
-    /* ===== UTILITY CLASSES ===== */
-    .input-separator {
-      color: var(--text-light);
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .input-suffix {
-      color: var(--text-light);
-      font-size: 13px;
-      transition: color 0.3s ease;
-    }
-
-    .settings-time-container {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    /* ===== BUDGET CONTROLS ===== */
-    .counter-container {
-      position: relative;
-    }
-
-    .budget-controls {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin: 5px 0 0 0;
-      padding: 0;
-      background: transparent;
-    }
-
-    .budget-btn {
-      background: var(--bg-secondary);
-      border: 2px solid var(--accent-primary);
-      color: var(--accent-primary);
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-width: 55px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0, 123, 255, 0.15);
-      margin: 0 1px;
-    }
-
-    .budget-btn:hover {
-      background: var(--accent-primary);
-      color: var(--bg-secondary);
-    }
-
-    .budget-btn.negative {
-      border-color: var(--accent-danger);
-      color: var(--accent-danger);
-    }
-
-    .budget-btn.negative:hover {
-      background: var(--accent-danger);
-      color: var(--bg-secondary);
-    }
-
-    .budget-btn.positive {
-      border-color: var(--accent-success);
-      color: var(--accent-success);
-    }
-
-    .budget-btn.positive:hover {
-      background: var(--accent-success);
-      color: var(--bg-secondary);
-    }
-
-    /* ===== SECTION SEPARATOR ===== */
-    .section-separator {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--border-secondary), transparent);
-      margin: 25px 0;
-      transition: background 0.3s ease;
-    }
-  </style>
-
+    <meta chars        .result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+        }
+        .info {
+            margin-bottom: 20px;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            font-weight: 500;
+        }ta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Calculator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        .container {
+            background: rgba(30, 30, 45, 0.95);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 {
+            color: #e0e0e0;
+            text-align: center;
+            margin: 0 0 24px 0;
+            font-weight: 600;
+            font-size: 1.8em;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+            .container {
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.6em;
+                margin-bottom: 20px;
+            }
+        }
+        .input-group {
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+        .input-group.hidden {
+            display: none;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b0b0b0;
+            font-size: 0.95em;
+        }
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(30, 30, 45, 0.8);
+            color: #e0e0e0;
+        }
+        input:focus {
+            border-color: #667eea;
+            outline: none;
+            background: rgba(30, 30, 45, 0.95);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        input::placeholder {
+            color: #777;
+        }
+        
+        /* Mobile input optimizations */
+        @media (max-width: 768px) {
+            .input-group {
+                margin-bottom: 20px;
+            }
+            input {
+                padding: 16px;
+                font-size: 16px; /* Prevents zoom on iOS */
+                appearance: none;
+                -webkit-appearance: none;
+                border-radius: 12px;
+                -webkit-border-radius: 12px;
+            }
+        }
+        .result {
+            background: linear-gradient(135deg, #2d3561 0%, #3d4a75 100%);
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .info {
+            margin-bottom: 16px;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        .clear-button {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 12px;
+            float: right;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+        }
+        .clear-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255,107,107,0.3);
+        }
+        .clear-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Mobile button optimizations */
+        @media (max-width: 768px) {
+            .result {
+                padding: 16px;
+            }
+            .clear-button {
+                float: none;
+                display: block;
+                width: auto;
+                margin-top: 16px;
+                padding: 10px 16px;
+                font-size: 0.85em;
+                max-width: 200px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        .storage-indicator {
+            font-size: 0.85em;
+            color: #4ac3ff;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-weight: 600;
+        }
+        .storage-indicator.show {
+            opacity: 1;
+        }
+        .progress-container {
+            background: rgba(45, 53, 97, 0.6);
+            padding: 16px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin: 16px 0 0 0;
+        }
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .progress-label {
+            font-size: 1em;
+            color: white;
+            font-weight: 600;
+        }
+        .progress-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
+        .progress-stat {
+            text-align: center;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 10px;
+            border-radius: 8px;
+            min-width: 55px;
+        }
+        
+        /* Mobile progress optimizations */
+        @media (max-width: 768px) {
+            .progress-container {
+                padding: 14px;
+            }
+            .progress-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .progress-stats {
+                width: 100%;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .progress-stat {
+                flex: 1;
+                padding: 10px 8px;
+                min-width: auto;
+            }
+            .progress-label {
+                font-size: 0.95em;
+            }
+        }
+        .progress-stat-number {
+            font-weight: 700;
+            color: white;
+            display: block;
+            font-size: 1.2em;
+        }
+        .progress-stat-label {
+            font-size: 0.8em;
+            color: rgba(255,255,255,0.8);
+            margin-top: 2px;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ac3ff, #667eea);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.85em;
+            font-weight: 700;
+            color: white;
+            z-index: 1;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .next-working-day {
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.9);
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .budget-rate {
+            font-size: 1.1em;
+            color: white;
+            margin-top: 12px;
+            text-align: center;
+            font-weight: 600;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        
+        /* Mobile budget rate and text optimizations */
+        @media (max-width: 768px) {
+            .budget-rate {
+                font-size: 1em;
+                padding: 10px 12px;
+            }
+            .next-working-day {
+                font-size: 0.85em;
+                margin-top: 10px;
+            }
+        }
+        .hours-progress-container {
+            background: rgba(45, 53, 97, 0.6);
+            padding: 16px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 16px;
+        }
+        .hours-progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .hours-progress-label {
+            font-size: 1em;
+            color: white;
+            font-weight: 600;
+        }
+        .hours-progress-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
+        .hours-progress-stat {
+            text-align: center;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 10px;
+            border-radius: 8px;
+            min-width: 55px;
+        }
+        .hours-progress-stat-number {
+            font-weight: 700;
+            color: white;
+            display: block;
+            font-size: 1.2em;
+        }
+        .hours-progress-stat-label {
+            font-size: 0.8em;
+            color: rgba(255,255,255,0.8);
+            margin-top: 2px;
+        }
+        .hours-progress-bar-container {
+            width: 100%;
+            height: 24px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .hours-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        .hours-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.85em;
+            font-weight: 700;
+            color: white;
+            z-index: 1;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        /* Mobile hours progress optimizations */
+        @media (max-width: 768px) {
+            .hours-progress-container {
+                padding: 14px;
+            }
+            .hours-progress-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .hours-progress-stats {
+                width: 100%;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .hours-progress-stat {
+                flex: 1;
+                padding: 10px 8px;
+                min-width: auto;
+            }
+            .hours-progress-label {
+                font-size: 0.95em;
+            }
+        }
+        .daily-budget-detail {
+            margin-top: 20px;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .error {
+            color: #ff6b8a;
+            background: rgba(255,107,138,0.15);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            border: 1px solid rgba(255,107,138,0.3);
+        }
+        
+        /* Touch-friendly interactions */
+        @media (hover: none) {
+            .clear-button:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+        
+        /* Budget adjustment buttons */
+        .budget-adjustment-panel {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .budget-adjustment-panel.show {
+            display: block;
+        }
+        .budget-adjustment-title {
+            text-align: center;
+            color: white;
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .budget-adjustment-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .budget-adjust-btn {
+            padding: 12px 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+            text-align: center;
+        }
+        .budget-adjust-btn.decrease {
+            background: linear-gradient(135deg, #ff6b8a, #ff5722);
+            color: white;
+        }
+        .budget-adjust-btn.increase {
+            background: linear-gradient(135deg, #4ac3ff, #667eea);
+            color: white;
+        }
+        .budget-adjust-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .budget-adjust-btn:active {
+            transform: translateY(0);
+        }
+        .budget-adjustment-close {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        
+        /* Mobile budget adjustment optimizations */
+        @media (max-width: 768px) {
+            .budget-adjustment-panel {
+                margin-top: 12px;
+                padding: 12px;
+            }
+            .budget-adjust-btn {
+                padding: 14px 10px;
+                font-size: 0.9em;
+            }
+        }
+        
+        /* Ensure good contrast and readability on mobile */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+                font-size: 14px;
+            }
+            .container {
+                padding: 16px;
+            }
+            h1 {
+                font-size: 1.4em;
+            }
+            .progress-stat-number,
+            .hours-progress-stat-number {
+                font-size: 1.1em;
+            }
+            .progress-stat-label,
+            .hours-progress-stat-label {
+                font-size: 0.75em;
+            }
+        }
+    </style>
 </head>
-
 <body>
-  <div class="counter-container">
-    <div class="settings-backdrop" id="settingsBackdrop"></div>
-
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode" title="Toggle Dark/Light Theme">
-      🌙
-    </button>
-
-    <button class="settings-toggle" id="settingsToggle" aria-label="Toggle Settings">
-      ●●●
-    </button>
-
-    <div class="settings-panel" id="settingsPanel">
-      <div class="settings-header">
-        <h3 class="settings-title">Settings</h3>
-      </div>
-
-      <!-- Budget Section -->
-      <div class="settings-section">
-        <div class="settings-section-title">Budget Configuration</div>
-        <div class="settings-group">
-          <div class="setting-row" title="Set your monthly budget amount and preferred currency">
-            <span class="setting-label">Amount</span>
-            <div class="setting-controls">
-              <input type="number" id="budgetInput" class="compact-input" value="1000" min="100" max="50000" step="50"
-                placeholder="1000" style="width: 100px;">
-              <select id="currencySelect" class="compact-select" style="width: 80px;">
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="RON">RON</option>
-                <option value="CAD">CAD (C$)</option>
-                <option value="AUD">AUD (A$)</option>
-              </select>
-            </div>
-          </div>
+    <div class="container">
+        <h1>Budget Calculator</h1>
+        
+        <div class="input-group">
+            <label for="budget">Total Budget (RON)</label>
+            <input type="number" id="budget" min="0" step="0.01" placeholder="Enter your total budget in RON">
+            <div class="storage-indicator" id="storageIndicator">✓ Budget saved automatically</div>
+            <button class="clear-button" id="clearButton" style="display: none;">Clear Saved Budget</button>
         </div>
-      </div>
-
-      <!-- Schedule Section -->
-      <div class="settings-section">
-        <div class="settings-section-title">Payday Schedule</div>
-        <div class="settings-group">
-          <div class="setting-row" title="Configure your payday frequency">
-            <span class="setting-label">Frequency</span>
-            <div class="setting-controls">
-              <div class="radio-group">
-                <label class="radio-item">
-                  <input type="radio" id="payDaySingle" name="payDaySchedule" value="single" class="settings-radio">
-                  <span>Monthly</span>
-                </label>
-                <label class="radio-item">
-                  <input type="radio" id="payDayDouble" name="payDaySchedule" value="double" class="settings-radio"
-                    checked>
-                  <span>Bi-monthly</span>
-                </label>
-              </div>
+        
+        <div class="result" id="result">
+            <div class="info" id="info">Enter your budget to see daily spending limit</div>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-header">
+                    <div class="progress-label" id="progressLabel">Budget Cycle Progress</div>
+                    <div class="progress-stats">
+                        <div class="progress-stat">
+                            <span class="progress-stat-number" id="totalDaysProgress">0</span>
+                            <span class="progress-stat-label">Total Days</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-stat-number" id="workingDaysProgress">0</span>
+                            <span class="progress-stat-label">Working Days</span>
+                        </div>
+                        <div class="progress-stat">
+                            <span class="progress-stat-number" id="nonWorkingDaysProgress">0</span>
+                            <span class="progress-stat-label">Weekends</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                    <div class="progress-text" id="progressText">0%</div>
+                </div>
+                <div class="budget-rate" id="dailyBudget">Budget Rate: 0 RON/day</div>
+                <div class="next-working-day" id="nextWorkingDayInfo">Next working day: -</div>
+                
+                <!-- Budget Adjustment Panel -->
+                <div class="budget-adjustment-panel" id="budgetAdjustmentPanel">
+                    <div class="budget-adjustment-title">Adjust Budget</div>
+                    <div class="budget-adjustment-buttons">
+                        <button class="budget-adjust-btn decrease" id="decreaseHalf">-½ Rate</button>
+                        <button class="budget-adjust-btn decrease" id="decreaseDouble">-2x Rate</button>
+                        <button class="budget-adjust-btn increase" id="increaseHalf">+½ Rate</button>
+                        <button class="budget-adjust-btn increase" id="increaseDouble">+2x Rate</button>
+                    </div>
+                    <button class="budget-adjustment-close" id="closeBudgetAdjustment">Close</button>
+                </div>
             </div>
-          </div>
-          <div class="setting-row" title="Configure your payday dates">
-            <span class="setting-label">Dates</span>
-            <div class="setting-controls">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span id="payDateLabel" style="font-size: 13px; color: #666;">day(s):</span>
-                <input type="number" id="payDay" class="compact-input" value="25" min="1" max="31" step="1"
-                  placeholder="25" style="display: none; width: 60px;">
-                <input type="number" id="payDay1" class="compact-input" value="10" min="1" max="31" step="1"
-                  placeholder="10" style="width: 60px;">
-                <span class="input-separator" id="paySeparator">&</span>
-                <input type="number" id="payDay2" class="compact-input" value="25" min="1" max="31" step="1"
-                  placeholder="25" style="width: 60px;">
-              </div>
+            
+            <div class="hours-progress-container" id="hoursProgressContainer">
+                <div class="hours-progress-header">
+                    <div class="hours-progress-label" id="hoursProgressLabel">Today's Working Hours</div>
+                    <div class="hours-progress-stats">
+                        <div class="hours-progress-stat">
+                            <span class="hours-progress-stat-number" id="hoursElapsed">0</span>
+                            <span class="hours-progress-stat-label">Elapsed</span>
+                        </div>
+                        <div class="hours-progress-stat">
+                            <span class="hours-progress-stat-number" id="hoursRemaining">8</span>
+                            <span class="hours-progress-stat-label">Remaining</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hours-progress-bar-container">
+                    <div class="hours-progress-bar" id="hoursProgressBar" style="width: 0%"></div>
+                    <div class="hours-progress-text" id="hoursProgressText">0%</div>
+                </div>
             </div>
-          </div>
+            
         </div>
-      </div>
-
-      <!-- Time Section -->
-      <div class="settings-section">
-        <div class="settings-section-title">Time Settings</div>
-        <div class="settings-group">
-          <div class="setting-row" title="Time when your salary is deposited into your account">
-            <span class="setting-label">Pay Time</span>
-            <div class="setting-controls">
-              <input type="time" id="payDayTime" class="compact-input" value="18:00" style="width: 120px;" step="3600">
-            </div>
-          </div>
-
-          <div class="setting-row" title="Time when your work day ends for progress tracking">
-            <span class="setting-label">Work End</span>
-            <div class="setting-controls">
-              <input type="time" id="endWorkTime" class="compact-input" value="18:00" style="width: 120px;" step="3600">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Advanced Section -->
-      <div class="settings-section">
-        <div class="settings-group">
-          <div class="setting-row" title="Move paydays to next working day if they fall on weekends">
-            <span class="setting-label">Working Days</span>
-            <div class="setting-controls">
-              <label class="toggle-item">
-                <input type="checkbox" id="workingDaysEnabled" class="settings-checkbox">
-                <span>Enabled</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <h1 class="counter-title">Budget & Time Tracker</h1>
-
-    <!-- Overall Progress Section with Budget Controls -->
-    <div class="progress-section">
-      <div class="progress-container overall-progress">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-          <div class="progress-label"
-            title="Progress through your current pay cycle - shows days remaining and daily budget allocation">Overall
-            Progress</div>
-          <div style="font-size: 0.9em; color: #666; text-align: right;">
-            <div><span>Remaining: <strong id="monthProgressPercent">0%</strong> | <span
-                  id="totalBudgetDisplay">$0</span></span></div>
-          </div>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="dayProgress">
-            <span id="dayProgressText">Loading...</span>
-          </div>
-        </div>
-
-        <!-- Daily Budget Section with better organization -->
-        <div
-          style="background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-quaternary) 100%); padding: 12px; border-radius: 8px; margin-top: 10px; border: 1px solid var(--border-primary);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <div style="font-size: 0.85em; color: #6c757d; font-weight: 600;">
-              <div class="working-days-info" id="workingDaysInfo" style="display: none;">
-                0 business days
-              </div>
-            </div>
-            <div style="text-align: right; font-size: 0.85em; color: #6c757d; font-weight: 600;">
-              <div style="font-size: 0.75em;">DueDate</div>
-              <div style="color: #495057; font-weight: 700;" id="nextResetDate">Calculating...</div>
-            </div>
-          </div>
-
-          <!-- Budget Adjustment Controls - centered -->
-          <div class="budget-controls" style="display: flex; justify-content: center; gap: 6px; margin: 5px 0;">
-            <button class="budget-btn negative" id="budgetBtn500Minus" title="Decrease budget by dynamic amount">-<span
-                id="btn500MinusValue">500</span></button>
-            <button class="budget-btn negative" id="budgetBtn100Minus" title="Decrease budget by dynamic amount">-<span
-                id="btn100MinusValue">100</span></button>
-            <button class="budget-btn positive" id="budgetBtn100Plus" title="Increase budget by dynamic amount">+<span
-                id="btn100PlusValue">100</span></button>
-            <button class="budget-btn positive" id="budgetBtn500Plus" title="Increase budget by dynamic amount">+<span
-                id="btn500PlusValue">500</span></button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section Separator -->
-    <div class="section-separator"></div>
-
-    <!-- Today's Progress Section -->
-    <div class="progress-container">
-      <div class="progress-label" title="Time remaining until end of working day">Today's Progress</div>
-      <div class="progress-bar hourly-progress-container">
-        <div class="progress-fill progress-striped" id="hourProgress">
-          <span id="hourProgressText">Loading...</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Vanilla JavaScript version for VS Code preview compatibility
-
-    // Add error handling
-    window.addEventListener('error', function (e) {
-      console.error('JavaScript Error:', e.error);
-      document.body.innerHTML += '<div style="color:red;padding:20px;background:#ffe6e6;margin:10px;border-radius:5px;">Error: ' + e.error.message + '</div>';
-    });
-
-    (function () {
-      'use strict';
-
-      // Configuration constants
-      const CONFIG = {
-        RESET_DAY: 25,
-        RESET_HOUR: 18,
-        RESET_MINUTE: 0,
-        UPDATE_INTERVAL: 1000,
-        BUDGET_ROUNDING: 50,
-        MS_PER_DAY: 24 * 60 * 60 * 1000,
-        MS_PER_HOUR: 60 * 60 * 1000
-      };
-
-      // Theme management
-      const THEME_STORAGE_KEY = 'countdown-timer-theme';
-      let currentTheme = 'light';
-
-      // Load theme from localStorage
-      function loadTheme() {
-        try {
-          const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-          if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-            return savedTheme;
-          }
-        } catch (e) {
-          console.warn('Failed to load theme from localStorage:', e);
-        }
-
-        // Check system preference
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          return 'dark';
-        }
-
-        return 'light';
-      }
-
-      // Save theme to localStorage
-      function saveTheme(theme) {
-        try {
-          localStorage.setItem(THEME_STORAGE_KEY, theme);
-        } catch (e) {
-          console.warn('Failed to save theme to localStorage:', e);
-        }
-      }
-
-      // Apply theme to document
-      function applyTheme(theme) {
-        currentTheme = theme;
-        document.documentElement.setAttribute('data-theme', theme);
-
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-          themeToggle.title = theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
-        }
-
-        saveTheme(theme);
-      }
-
-      // Toggle theme
-      function toggleTheme() {
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        applyTheme(newTheme);
-      }
-
-      // State variables
-      let monthlyBudget = 1000;
-      let currency = 'USD';
-      let payDaySchedule = 'double'; // 'single' or 'double'
-      let payDay = 25;         // Single pay day
-      let payDay1 = 10;        // First pay day for double schedule
-      let payDay2 = 25;        // Second pay day for double schedule
-      let payDayHour = 18;
-      let payDayMinute = 0;
-      let endWorkHour = 18;    // End of working day hour
-      let endWorkMinute = 0;   // End of working day minute
-      let workingDaysEnabled = false;
-      let updateTimer;
-
-      // Currency symbols
-      const currencySymbols = {
-        USD: '$',
-        EUR: '€',
-        GBP: '£',
-        RON: 'RON ',
-        CAD: '$ CAD ',
-        AUD: '$ AUD '
-      };
-
-      // Local storage key
-      const STORAGE_KEY = 'countdown-timer-settings';
-
-      // Default settings
-      const defaultSettings = {
-        monthlyBudget: 1000,
-        currency: 'USD',
-        payDaySchedule: 'double',
-        payDay: 25,
-        payDay1: 10,
-        payDay2: 25,
-        payDayHour: 18,
-        payDayMinute: 0,
-        endWorkHour: 18,
-        endWorkMinute: 0,
-        workingDaysEnabled: false
-      };
-
-      // Load settings from localStorage
-      function loadSettings() {
-        try {
-          const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved) {
-            const settings = JSON.parse(saved);
-            return { ...defaultSettings, ...settings };
-          }
-        } catch (e) {
-          console.warn('Failed to load settings from localStorage:', e);
-        }
-        return defaultSettings;
-      }
-
-      // Save settings to localStorage
-      function saveSettings() {
-        try {
-          const settings = {
-            monthlyBudget,
-            currency,
-            payDaySchedule,
-            payDay,
-            payDay1,
-            payDay2,
-            payDayHour,
-            payDayMinute,
-            endWorkHour,
-            endWorkMinute,
-            workingDaysEnabled
-          };
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-        } catch (e) {
-          console.warn('Failed to save settings to localStorage:', e);
-        }
-      }
-
-      // Apply loaded settings to variables and UI
-      function applySettings(settings) {
-        monthlyBudget = settings.monthlyBudget;
-        currency = settings.currency;
-        payDaySchedule = settings.payDaySchedule;
-        payDay = settings.payDay;
-        payDay1 = settings.payDay1;
-        payDay2 = settings.payDay2;
-        payDayHour = settings.payDayHour;
-        payDayMinute = settings.payDayMinute;
-        endWorkHour = settings.endWorkHour;
-        endWorkMinute = settings.endWorkMinute;
-        workingDaysEnabled = settings.workingDaysEnabled;
-
-        // Update CONFIG
-        CONFIG.RESET_DAY = payDay;
-        CONFIG.RESET_HOUR = payDayHour;
-        CONFIG.RESET_MINUTE = payDayMinute;
-      }
-
-      // Update UI elements with current settings
-      // Helper functions for time formatting
-      function formatTimeForInput(hour, minute) {
-        return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-      }
-
-      function parseTimeFromInput(timeString) {
-        const [hour, minute] = timeString.split(':').map(s => parseInt(s, 10));
-        return { hour: hour || 0, minute: minute || 0 };
-      }
-
-      function updateUIFromSettings() {
-        if (elements.currencySelect) elements.currencySelect.value = currency;
-        if (elements.budgetInput) {
-          // Show calculated amount to match main display
-          const now = new Date();
-          const resetDates = calculateResetDates(now);
-          const timeRemaining = calculateTimeRemaining(now, resetDates);
-          const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
-          const daysForBudgetCalc = Math.max(daysUntilReset, 1);
-          const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
-          const calculatedBudget = dailyAmount * daysUntilReset;
-          elements.budgetInput.value = calculatedBudget;
-        }
-        if (elements.payDaySingle) elements.payDaySingle.checked = payDaySchedule === 'single';
-        if (elements.payDayDouble) elements.payDayDouble.checked = payDaySchedule === 'double';
-        if (elements.payDay) elements.payDay.value = payDay;
-        if (elements.payDay1) elements.payDay1.value = payDay1;
-        if (elements.payDay2) elements.payDay2.value = payDay2;
-        if (elements.payDayTime) elements.payDayTime.value = formatTimeForInput(payDayHour, payDayMinute);
-        if (elements.endWorkTime) elements.endWorkTime.value = formatTimeForInput(endWorkHour, endWorkMinute);
-        if (elements.workingDaysEnabled) elements.workingDaysEnabled.checked = workingDaysEnabled;
-
-        updatePayDayVisibility();
-      }
-
-      // Update visibility of pay day sections based on schedule
-      function updatePayDayVisibility() {
-        const payDay = document.getElementById('payDay');
-        const payDay1 = document.getElementById('payDay1');
-        const payDay2 = document.getElementById('payDay2');
-        const paySeparator = document.getElementById('paySeparator');
-        const payDateLabel = document.getElementById('payDateLabel');
-
-        if (payDaySchedule === 'single') {
-          if (payDay) payDay.style.display = 'block';
-          if (payDay1) payDay1.style.display = 'none';
-          if (payDay2) payDay2.style.display = 'none';
-          if (paySeparator) paySeparator.style.display = 'none';
-          if (payDateLabel) payDateLabel.textContent = 'day:';
-        } else {
-          if (payDay) payDay.style.display = 'none';
-          if (payDay1) payDay1.style.display = 'block';
-          if (payDay2) payDay2.style.display = 'block';
-          if (paySeparator) paySeparator.style.display = 'inline';
-          if (payDateLabel) payDateLabel.textContent = 'day(s):';
-        }
-      }
-
-      // DOM elements
-      const elements = {
-        dayProgress: document.getElementById('dayProgress'),
-        dayProgressText: document.getElementById('dayProgressText'),
-        hourProgress: document.getElementById('hourProgress'),
-        hourProgressText: document.getElementById('hourProgressText'),
-        budgetInput: document.getElementById('budgetInput'),
-        currencySelect: document.getElementById('currencySelect'),
-        workingDaysInfo: document.getElementById('workingDaysInfo'),
-        monthProgressPercent: document.getElementById('monthProgressPercent'),
-        nextResetDate: document.getElementById('nextResetDate'),
-        themeToggle: document.getElementById('themeToggle'),
-        settingsToggle: document.getElementById('settingsToggle'),
-        settingsPanel: document.getElementById('settingsPanel'),
-        settingsBackdrop: document.getElementById('settingsBackdrop'),
-        counterContainer: document.querySelector('.counter-container'),
-        payDaySingle: document.getElementById('payDaySingle'),
-        payDayDouble: document.getElementById('payDayDouble'),
-        payDay: document.getElementById('payDay'),
-        payDay1: document.getElementById('payDay1'),
-        payDay2: document.getElementById('payDay2'),
-        payDayTime: document.getElementById('payDayTime'),
-        endWorkTime: document.getElementById('endWorkTime'),
-        workingDaysEnabled: document.getElementById('workingDaysEnabled'),
-        remainingBudgetDisplay: document.getElementById('remainingBudgetDisplay'),
-        totalBudgetDisplay: document.getElementById('totalBudgetDisplay'),
-        budgetBtn500Minus: document.getElementById('budgetBtn500Minus'),
-        budgetBtn100Minus: document.getElementById('budgetBtn100Minus'),
-        budgetBtn100Plus: document.getElementById('budgetBtn100Plus'),
-        budgetBtn500Plus: document.getElementById('budgetBtn500Plus'),
-        btn500MinusValue: document.getElementById('btn500MinusValue'),
-        btn100MinusValue: document.getElementById('btn100MinusValue'),
-        btn100PlusValue: document.getElementById('btn100PlusValue'),
-        btn500PlusValue: document.getElementById('btn500PlusValue')
-      };
-
-      function init() {
-        // Check if critical elements exist (some elements are optional)
-        const criticalElements = [
-          'dayProgress', 'dayProgressText', 'hourProgress', 'hourProgressText',
-          'budgetInput', 'currencySelect', 'nextResetDate',
-          'themeToggle', 'settingsToggle', 'settingsPanel', 'monthProgressPercent'
-        ];
-
-        for (const elementName of criticalElements) {
-          if (!elements[elementName]) {
-            console.error('Missing critical element:', elementName);
-            document.body.innerHTML += '<div style="color:red;">Missing element: ' + elementName + '</div>';
-            return;
-          }
-        }
-
-        setupEventListeners();
-        setupSettings();
-
-        // Initialize theme
-        const savedTheme = loadTheme();
-        applyTheme(savedTheme);
-
-        // Load settings from localStorage
-        const savedSettings = loadSettings();
-        applySettings(savedSettings);
-        updateUIFromSettings();
-
-        // Initialize budget button values
-        updateBudgetButtonValues();
-
-        startTimer();
-      }
-
-      function setupSettings() {
-        // Settings panel toggle
-        elements.settingsToggle.addEventListener('click', function () {
-          const panel = elements.settingsPanel;
-          const toggle = elements.settingsToggle;
-          const backdrop = elements.settingsBackdrop;
-
-          if (panel.classList.contains('open')) {
-            panel.classList.remove('open');
-            toggle.classList.remove('active');
-            if (backdrop) backdrop.classList.remove('open');
-          } else {
-            panel.classList.add('open');
-            toggle.classList.add('active');
-            if (backdrop) backdrop.classList.add('open');
-          }
-        });
-
-        // Close settings when clicking backdrop or outside
-        function closeSettings() {
-          const panel = elements.settingsPanel;
-          const toggle = elements.settingsToggle;
-          const backdrop = elements.settingsBackdrop;
-
-          panel.classList.remove('open');
-          toggle.classList.remove('active');
-          if (backdrop) backdrop.classList.remove('open');
-        }
-
-        // Close when clicking backdrop
-        if (elements.settingsBackdrop) {
-          elements.settingsBackdrop.addEventListener('click', closeSettings);
-        }
-
-        // Close settings when clicking outside
-        document.addEventListener('click', function (e) {
-          const panel = elements.settingsPanel;
-          const toggle = elements.settingsToggle;
-
-          if (!panel.contains(e.target) && !toggle.contains(e.target)) {
-            closeSettings();
-          }
-        });
-
-        // Currency selection
-        elements.currencySelect.addEventListener('change', function () {
-          currency = this.value;
-          updateCountdown();
-          saveSettings();
-        });
-
-        // Budget input field
-        elements.budgetInput.addEventListener('input', function () {
-          const value = parseInt(this.value);
-          if (!isNaN(value) && value >= 100) {
-            // Reverse-calculate monthly budget from the displayed calculated amount
-            const now = new Date();
-            const resetDates = calculateResetDates(now);
-            const timeRemaining = calculateTimeRemaining(now, resetDates);
-            const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
-            const daysForBudgetCalc = Math.max(daysUntilReset, 1);
-
-            // Calculate what the monthly budget should be to achieve this calculated amount
-            const targetDailyAmount = Math.round(value / daysUntilReset / 10) * 10;
-            monthlyBudget = targetDailyAmount * daysForBudgetCalc;
-
-            updateCountdown();
-            saveSettings();
-          }
-        });
-
-        // Pay day schedule radio buttons
-        elements.payDaySingle.addEventListener('change', function () {
-          if (this.checked) {
-            payDaySchedule = 'single';
-            updatePayDayVisibility();
-            updateCountdown();
-            saveSettings();
-          }
-        });
-
-        elements.payDayDouble.addEventListener('change', function () {
-          if (this.checked) {
-            payDaySchedule = 'double';
-            updatePayDayVisibility();
-            updateCountdown();
-            saveSettings();
-          }
-        });
-
-        // Pay day input (single)
-        elements.payDay.addEventListener('input', function () {
-          payDay = parseInt(this.value);
-          CONFIG.RESET_DAY = payDay;
-          updateCountdown();
-          saveSettings();
-        });
-
-        // Pay day inputs (double)
-        if (elements.payDay1) {
-          elements.payDay1.addEventListener('input', function () {
-            payDay1 = parseInt(this.value);
-            updateCountdown();
-            saveSettings();
-          });
-        }
-
-        if (elements.payDay2) {
-          elements.payDay2.addEventListener('input', function () {
-            payDay2 = parseInt(this.value);
-            updateCountdown();
-            saveSettings();
-          });
-        }
-
-        // Pay day time input
-        elements.payDayTime.addEventListener('change', function () {
-          const time = parseTimeFromInput(this.value);
-          payDayHour = time.hour;
-          payDayMinute = time.minute;
-          CONFIG.RESET_HOUR = payDayHour;
-          CONFIG.RESET_MINUTE = payDayMinute;
-          updateCountdown();
-          saveSettings();
-        });
-
-        // End of working day time input
-        elements.endWorkTime.addEventListener('change', function () {
-          const time = parseTimeFromInput(this.value);
-          endWorkHour = time.hour;
-          endWorkMinute = time.minute;
-          updateCountdown();
-          saveSettings();
-        });
-
-        // Working days checkbox
-        elements.workingDaysEnabled.addEventListener('change', function () {
-          workingDaysEnabled = this.checked;
-          updateCountdown();
-          saveSettings();
-        });
-
-        // Budget adjustment buttons
-        elements.budgetBtn500Minus.addEventListener('click', function () {
-          adjustBudget(-getBudgetAdjustmentValue(2)); // -2 days worth
-        });
-
-        elements.budgetBtn100Minus.addEventListener('click', function () {
-          adjustBudget(-getBudgetAdjustmentValue(0.5)); // -0.5 days worth
-        });
-
-        elements.budgetBtn100Plus.addEventListener('click', function () {
-          adjustBudget(getBudgetAdjustmentValue(0.5)); // +0.5 days worth
-        });
-
-        elements.budgetBtn500Plus.addEventListener('click', function () {
-          adjustBudget(getBudgetAdjustmentValue(2)); // +2 days worth
-        });
-      }
-
-      // Calculate dynamic budget adjustment values based on daily rate multiples
-      function getBudgetAdjustmentValue(multiplier) {
-        // Calculate current daily rate
-        const now = new Date();
-        const resetDates = calculateResetDates(now);
-        const timeRemaining = calculateTimeRemaining(now, resetDates);
-        const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
-        const daysForBudgetCalc = Math.max(daysUntilReset, 1);
-        const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
-
-        // Calculate adjustment based on daily rate
-        const baseValue = dailyAmount * multiplier;
-        // Round to nearest 10 for cleaner values
-        return Math.round(baseValue / 10) * 10;
-      }
-
-      // Adjust budget and update UI
-      function adjustBudget(amount) {
-        const newBudget = Math.max(100, monthlyBudget + amount); // Minimum budget of 100
-        monthlyBudget = newBudget;
-
-        // Update settings input to show the calculated amount that matches the display
-        if (elements.budgetInput) {
-          // Calculate the same values as in updateDisplay
-          const now = new Date();
-          const resetDates = calculateResetDates(now);
-          const timeRemaining = calculateTimeRemaining(now, resetDates);
-          const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
-          const daysForBudgetCalc = Math.max(daysUntilReset, 1);
-          const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
-          const calculatedBudget = dailyAmount * daysUntilReset;
-
-          elements.budgetInput.value = calculatedBudget;
-        }
-
-        // Update button values
-        updateBudgetButtonValues();
-
-        // Refresh display
-        updateCountdown();
-        saveSettings();
-      }
-
-      // Update dynamic values on budget buttons based on daily rate
-      function updateBudgetButtonValues() {
-        const smallValue = getBudgetAdjustmentValue(0.5); // 0.5 days worth
-        const largeValue = getBudgetAdjustmentValue(2);   // 2 days worth
-
-        if (elements.btn100MinusValue) elements.btn100MinusValue.textContent = smallValue;
-        if (elements.btn100PlusValue) elements.btn100PlusValue.textContent = smallValue;
-        if (elements.btn500MinusValue) elements.btn500MinusValue.textContent = largeValue;
-        if (elements.btn500PlusValue) elements.btn500PlusValue.textContent = largeValue;
-      }
-
-      // Reset all settings to defaults
-      function resetToDefaults() {
-        if (confirm('Reset all settings to default values? This will restore:\n• Budget: 1000 USD\n• Pay times: 18:00 (6 PM)\n• Paydays: 10th & 25th of month')) {
-          console.log('Resetting to defaults...');
-
-          // Clear localStorage to ensure fresh start
-          try {
-            localStorage.removeItem(STORAGE_KEY);
-            console.log('localStorage cleared successfully');
-          } catch (e) {
-            console.warn('Failed to clear localStorage:', e);
-          }
-
-          // Apply default values
-          monthlyBudget = defaultSettings.monthlyBudget;
-          currency = defaultSettings.currency;
-          payDaySchedule = defaultSettings.payDaySchedule;
-          payDay = defaultSettings.payDay;
-          payDay1 = defaultSettings.payDay1;
-          payDay2 = defaultSettings.payDay2;
-          payDayHour = defaultSettings.payDayHour;
-          payDayMinute = defaultSettings.payDayMinute;
-          endWorkHour = defaultSettings.endWorkHour;
-          endWorkMinute = defaultSettings.endWorkMinute;
-          workingDaysEnabled = defaultSettings.workingDaysEnabled;
-
-          console.log('Applied default settings:', {
-            monthlyBudget,
-            currency,
-            payDayHour,
-            endWorkHour
-          });
-
-          // Update CONFIG
-          CONFIG.RESET_DAY = payDay;
-          CONFIG.RESET_HOUR = payDayHour;
-          CONFIG.RESET_MINUTE = payDayMinute;
-
-          // Update UI
-          updateUIFromSettings();
-          updateCountdown();
-          saveSettings();
-
-          console.log('Reset completed successfully');
-
-          // Show success message
-          setTimeout(() => {
-            alert('Settings have been reset to defaults successfully!');
-          }, 100);
-        }
-      }
-
-      function isWorkingDay(date) {
-        const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-        return day !== 0 && day !== 6; // Monday to Friday
-      }
-
-      function getNextWorkingDay(date) {
-        const nextDay = new Date(date);
-        while (!isWorkingDay(nextDay)) {
-          nextDay.setDate(nextDay.getDate() + 1);
-        }
-        return nextDay;
-      }
-
-      function setupEventListeners() {
-        // Theme toggle button
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          themeToggle.addEventListener('click', toggleTheme);
-        }
-
-        // Listen for system theme changes
-        if (window.matchMedia) {
-          const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-          mediaQuery.addEventListener('change', function (e) {
-            // Only auto-switch if user hasn't manually set a preference
-            try {
-              const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-              if (!savedTheme) {
-                applyTheme(e.matches ? 'dark' : 'light');
-              }
-            } catch (error) {
-              console.warn('Failed to handle system theme change:', error);
+    <script>
+        // Single Responsibility Principle: Each class has one specific purpose
+        class DateCalculator {
+            constructor() {}
+            
+            // Calculate working and non-working days between 10th and 25th of next month
+            calculateDays() {
+                const now = new Date();
+                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                const startDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 10);
+                const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 25);
+                
+                let workingDays = 0;
+                let nonWorkingDays = 0;
+                let totalDays = 0;
+                const currentDate = new Date(startDate);
+                
+                while (currentDate <= endDate) {
+                    const dayOfWeek = currentDate.getDay();
+                    totalDays++;
+                    
+                    // Check if it's a weekend (0 = Sunday, 6 = Saturday)
+                    if (dayOfWeek === 0 || dayOfWeek === 6) {
+                        nonWorkingDays++;
+                    } else {
+                        workingDays++;
+                    }
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                
+                return {
+                    workingDays,
+                    nonWorkingDays,
+                    totalDays
+                };
             }
-          });
+            
+            // Legacy method for backward compatibility
+            calculateWorkingDays() {
+                return this.calculateDays().workingDays;
+            }
+            
+            getNextMonthInfo() {
+                const now = new Date();
+                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                return {
+                    month: monthNames[nextMonth.getMonth()],
+                    year: nextMonth.getFullYear()
+                };
+            }
+            
+            getNextWorkingDayInfo() {
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                const currentDate = now.getDate();
+                
+                // Check if we're before the 10th of current month
+                if (currentDate < 10) {
+                    // Find next working day on or after 10th of current month
+                    const targetDate = new Date(currentYear, currentMonth, 10);
+                    const nextWorkingDay = this.findNextWorkingDay(targetDate);
+                    return {
+                        date: nextWorkingDay,
+                        monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                        isCurrentMonth: true
+                    };
+                } else if (currentDate <= 25) {
+                    // We're between 10th and 25th - find next working day from today
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(now.getDate() + 1);
+                    const nextWorkingDay = this.findNextWorkingDay(tomorrow);
+                    
+                    // Check if next working day is still within the 25th of current month
+                    if (nextWorkingDay.getMonth() === currentMonth && nextWorkingDay.getDate() <= 25) {
+                        return {
+                            date: nextWorkingDay,
+                            monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                            isCurrentMonth: true
+                        };
+                    } else {
+                        // Next working day is past 25th, so show 10th of next month
+                        const nextMonth = new Date(currentYear, currentMonth + 1, 10);
+                        const nextWorkingDay = this.findNextWorkingDay(nextMonth);
+                        return {
+                            date: nextWorkingDay,
+                            monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                            isCurrentMonth: false
+                        };
+                    }
+                } else {
+                    // We're past 25th - find next working day on or after 10th of next month
+                    const nextMonth = new Date(currentYear, currentMonth + 1, 10);
+                    const nextWorkingDay = this.findNextWorkingDay(nextMonth);
+                    return {
+                        date: nextWorkingDay,
+                        monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                        isCurrentMonth: false
+                    };
+                }
+            }
+            
+            findNextWorkingDay(startDate) {
+                const date = new Date(startDate);
+                while (date.getDay() === 0 || date.getDay() === 6) { // Skip weekends
+                    date.setDate(date.getDate() + 1);
+                }
+                return date;
+            }
+            
+            getProgressInfo() {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
+                const currentDate = now.getDate();
+                
+                let lastCriteriaDate, nextCriteriaDate;
+                
+                // Determine last and next criteria dates (10th or 25th)
+                if (currentDate < 10) {
+                    // Before 10th of current month
+                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25); // 25th of previous month
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 10); // 10th of current month
+                } else if (currentDate <= 25) {
+                    // Between 10th and 25th of current month
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 10); // 10th of current month
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 25); // 25th of current month
+                } else {
+                    // After 25th of current month
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 25); // 25th of current month
+                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10); // 10th of next month
+                }
+                
+                // Calculate progress
+                const totalDays = Math.ceil((nextCriteriaDate - lastCriteriaDate) / (1000 * 60 * 60 * 24));
+                const daysPassed = Math.ceil((now - lastCriteriaDate) / (1000 * 60 * 60 * 24));
+                const progressPercentage = Math.min(Math.max((daysPassed / totalDays) * 100, 0), 100);
+                
+                return {
+                    lastDate: lastCriteriaDate,
+                    nextDate: nextCriteriaDate,
+                    daysPassed: Math.max(daysPassed, 0),
+                    totalDays: totalDays,
+                    progressPercentage: progressPercentage
+                };
+            }
+            
+            getWorkingHoursProgress() {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                const currentDay = now.getDay(); // 0 = Sunday, 6 = Saturday
+                
+                // Check if it's a working day (Monday-Friday)
+                const isWorkingDay = currentDay >= 1 && currentDay <= 5;
+                
+                if (!isWorkingDay) {
+                    return {
+                        isWorkingDay: false,
+                        hoursElapsed: 0,
+                        hoursRemaining: 8,
+                        progressPercentage: 0,
+                        status: 'Weekend'
+                    };
+                }
+                
+                const workStart = 10; // 10:00 AM
+                const workEnd = 18;   // 6:00 PM
+                const totalWorkHours = workEnd - workStart; // 8 hours
+                
+                const currentTimeInHours = currentHour + (currentMinute / 60);
+                
+                let hoursElapsed, hoursRemaining, progressPercentage, status;
+                
+                if (currentTimeInHours < workStart) {
+                    // Before work hours
+                    hoursElapsed = 0;
+                    hoursRemaining = totalWorkHours;
+                    progressPercentage = 0;
+                    status = 'Before work hours';
+                } else if (currentTimeInHours >= workEnd) {
+                    // After work hours
+                    hoursElapsed = totalWorkHours;
+                    hoursRemaining = 0;
+                    progressPercentage = 100;
+                    status = 'Work day complete';
+                } else {
+                    // During work hours
+                    hoursElapsed = currentTimeInHours - workStart;
+                    hoursRemaining = workEnd - currentTimeInHours;
+                    progressPercentage = (hoursElapsed / totalWorkHours) * 100;
+                    status = 'In progress';
+                }
+                
+                return {
+                    isWorkingDay: true,
+                    hoursElapsed: Math.max(0, hoursElapsed),
+                    hoursRemaining: Math.max(0, hoursRemaining),
+                    progressPercentage: Math.min(Math.max(progressPercentage, 0), 100),
+                    status: status
+                };
+            }
+            
+            getMonthName(monthIndex) {
+                const monthNames = [
+                    "January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                return monthNames[monthIndex];
+            }
         }
-      }
-
-      function startTimer() {
-        updateCountdown();
-        updateTimer = setInterval(updateCountdown, CONFIG.UPDATE_INTERVAL);
-      }
-
-      // Calculate working days between current date and target date
-      function calculateWorkingDays(currentDate, targetDate) {
-        let workingDays = 0;
-        const current = new Date(currentDate);
-        const target = new Date(targetDate);
-
-        // Make sure we're starting from the current date
-        current.setHours(0, 0, 0, 0);
-        target.setHours(0, 0, 0, 0);
-
-        while (current < target) {
-          const dayOfWeek = current.getDay();
-          // 0 = Sunday, 6 = Saturday
-          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-            workingDays++;
-          }
-          current.setDate(current.getDate() + 1);
+        
+        // Single Responsibility: Handles local storage operations
+        class StorageManager {
+            constructor() {
+                this.storageKey = 'budgetCalculator_budget';
+            }
+            
+            saveBudget(budget) {
+                try {
+                    localStorage.setItem(this.storageKey, budget.toString());
+                } catch (error) {
+                    console.warn('Unable to save to localStorage:', error);
+                }
+            }
+            
+            loadBudget() {
+                try {
+                    const savedBudget = localStorage.getItem(this.storageKey);
+                    return savedBudget ? parseFloat(savedBudget) : null;
+                } catch (error) {
+                    console.warn('Unable to load from localStorage:', error);
+                    return null;
+                }
+            }
+            
+            clearBudget() {
+                try {
+                    localStorage.removeItem(this.storageKey);
+                } catch (error) {
+                    console.warn('Unable to clear localStorage:', error);
+                }
+            }
         }
-
-        return workingDays;
-      }
-
-      function updateCountdown() {
-        const now = new Date();
-        const resetDates = calculateResetDates(now);
-        const timeRemaining = calculateTimeRemaining(now, resetDates);
-
-        updateDisplay(timeRemaining, resetDates, now);
-      }
-
-      function calculateResetDates(currentDate) {
-        let nextReset, previousReset;
-
-        if (payDaySchedule === 'double') {
-          // Handle twice monthly pay days (using configurable dates)
-          const payDay1Date = new Date(currentDate);
-          payDay1Date.setDate(payDay1);
-          payDay1Date.setHours(CONFIG.RESET_HOUR, CONFIG.RESET_MINUTE, 0, 0);
-
-          const payDay2Date = new Date(currentDate);
-          payDay2Date.setDate(payDay2);
-          payDay2Date.setHours(CONFIG.RESET_HOUR, CONFIG.RESET_MINUTE, 0, 0);
-
-          // Determine which pay day is next
-          if (currentDate.getTime() <= payDay1Date.getTime()) {
-            nextReset = new Date(payDay1Date);
-            previousReset = new Date(payDay2Date);
-            previousReset.setMonth(previousReset.getMonth() - 1);
-          } else if (currentDate.getTime() <= payDay2Date.getTime()) {
-            nextReset = new Date(payDay2Date);
-            previousReset = new Date(payDay1Date);
-          } else {
-            // Both pay days have passed, move to next month's first pay day
-            nextReset = new Date(payDay1Date);
-            nextReset.setMonth(nextReset.getMonth() + 1);
-            previousReset = new Date(payDay2Date);
-          }
-        } else {
-          // Single monthly pay day
-          nextReset = new Date(currentDate);
-          nextReset.setDate(payDay);
-          nextReset.setHours(CONFIG.RESET_HOUR, CONFIG.RESET_MINUTE, 0, 0);
-
-          // If we've passed this month's pay day time, move to next month
-          if (currentDate.getTime() > nextReset.getTime()) {
-            if (nextReset.getMonth() === 11) {
-              nextReset.setMonth(0);
-              nextReset.setFullYear(nextReset.getFullYear() + 1);
+        
+        // Open/Closed Principle: Open for extension, closed for modification
+        class BudgetCalculator {
+            constructor(dateCalculator) {
+                this.dateCalculator = dateCalculator;
+            }
+            
+            calculate(budget) {
+                if (!this.isValidBudget(budget)) {
+                    throw new Error('Budget must be a positive number');
+                }
+                
+                const dayInfo = this.dateCalculator.calculateDays();
+                if (dayInfo.totalDays === 0) {
+                    throw new Error('No days found in the specified period');
+                }
+                
+                return {
+                    dailyBudget: budget / dayInfo.totalDays, // Use total days instead of working days
+                    workingDays: dayInfo.workingDays,
+                    nonWorkingDays: dayInfo.nonWorkingDays,
+                    totalDays: dayInfo.totalDays,
+                    totalBudget: budget
+                };
+            }
+            
+            isValidBudget(budget) {
+                return budget && budget > 0 && !isNaN(budget);
+            }
+        }
+        
+        // Single Responsibility: Handles only display logic
+        class DisplayManager {
+            constructor(elements, dateCalculator) {
+                this.elements = elements;
+                this.dateCalculator = dateCalculator;
+            }
+            
+            updateResult(calculation, monthInfo) {
+                this.elements.dailyBudget.textContent = `Budget Rate: ${calculation.dailyBudget.toFixed(2)} RON/day`;
+                this.elements.info.textContent = `Daily budget calculated`;
+                
+                // Update progress bar with all information consolidated
+                this.updateProgressBar(calculation);
+                
+                this.clearError();
+            }
+            
+            updateProgressBar(calculation = null) {
+                const progressInfo = this.dateCalculator.getProgressInfo();
+                
+                // Update progress bar
+                this.elements.progressBar.style.width = `${progressInfo.progressPercentage}%`;
+                this.elements.progressText.textContent = `${Math.round(progressInfo.progressPercentage)}%`;
+                
+                // Simplified progress label without duplicate day counts
+                this.elements.progressLabel.textContent = `Budget Cycle Progress`;
+                
+                // Update consolidated stats
+                if (calculation) {
+                    this.elements.totalDaysProgress.textContent = calculation.totalDays;
+                    this.elements.workingDaysProgress.textContent = calculation.workingDays;
+                    this.elements.nonWorkingDaysProgress.textContent = calculation.nonWorkingDays;
+                } else {
+                    // Default values when no calculation is available
+                    const defaultDayInfo = this.dateCalculator.calculateDays();
+                    this.elements.totalDaysProgress.textContent = defaultDayInfo.totalDays;
+                    this.elements.workingDaysProgress.textContent = defaultDayInfo.workingDays;
+                    this.elements.nonWorkingDaysProgress.textContent = defaultDayInfo.nonWorkingDays;
+                }
+                
+                // Show budget progress end date instead of next working day
+                const endDateInfo = this.dateCalculator.getProgressInfo();
+                const endDate = endDateInfo.nextDate;
+                const endDayName = endDate.toLocaleDateString('en-US', { weekday: 'long' });
+                this.elements.nextWorkingDayInfo.textContent = 
+                    `Budget cycle ends: ${endDayName}, ${this.getShortMonthName(endDate.getMonth())} ${endDate.getDate()}`;
+                
+                // Update working hours progress
+                this.updateWorkingHoursProgress();
+            }
+            
+            updateWorkingHoursProgress() {
+                const hoursInfo = this.dateCalculator.getWorkingHoursProgress();
+                
+                // Update hours progress bar
+                this.elements.hoursProgressBar.style.width = `${hoursInfo.progressPercentage}%`;
+                this.elements.hoursProgressText.textContent = `${Math.round(hoursInfo.progressPercentage)}%`;
+                
+                // Update hours stats
+                this.elements.hoursElapsed.textContent = hoursInfo.hoursElapsed.toFixed(1);
+                this.elements.hoursRemaining.textContent = hoursInfo.hoursRemaining.toFixed(1);
+                
+                // Update label based on status
+                if (!hoursInfo.isWorkingDay) {
+                    this.elements.hoursProgressLabel.textContent = 'Weekend - No Work Hours';
+                    this.elements.hoursElapsed.textContent = '-';
+                    this.elements.hoursRemaining.textContent = '-';
+                } else {
+                    this.elements.hoursProgressLabel.textContent = `Today's Working Hours (${hoursInfo.status})`;
+                }
+            }
+            
+            getOrdinal(n) {
+                const s = ["th", "st", "nd", "rd"];
+                const v = n % 100;
+                return n + (s[(v - 20) % 10] || s[v] || s[0]);
+            }
+            
+            getShortMonthName(monthIndex) {
+                const shortMonthNames = [
+                    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                ];
+                return shortMonthNames[monthIndex];
+            }
+            
+            showError(message) {
+                this.elements.dailyBudget.textContent = '0 RON';
+                this.elements.info.innerHTML = `<span class="error">${message}</span>`;
+                this.elements.dayBreakdown.style.display = 'none';
+            }
+            
+            clearError() {
+                const errorElements = this.elements.info.querySelectorAll('.error');
+                errorElements.forEach(el => el.remove());
+            }
+        }
+        
+        // Dependency Inversion: Depends on abstractions, not concretions
+        class BudgetApp {
+            constructor(calculator, displayManager, dateCalculator, storageManager) {
+                this.calculator = calculator;
+                this.displayManager = displayManager;
+                this.dateCalculator = dateCalculator;
+                this.storageManager = storageManager;
+                this.currentBudget = 0;
+            }
+            
+            handleBudgetInput(budget) {
+                try {
+                    this.currentBudget = parseFloat(budget);
+                    const calculation = this.calculator.calculate(this.currentBudget);
+                    const monthInfo = this.dateCalculator.getNextMonthInfo();
+                    this.displayManager.updateResult(calculation, monthInfo);
+                    
+                    // Save budget to localStorage
+                    this.storageManager.saveBudget(budget);
+                    this.showStorageIndicator();
+                    
+                    // Hide the input group after budget is set
+                    this.hideInputGroup();
+                } catch (error) {
+                    this.displayManager.showError(error.message);
+                }
+            }
+            
+            hideInputGroup() {
+                const inputGroup = document.querySelector('.input-group');
+                inputGroup.classList.add('hidden');
+            }
+            
+            showInputGroup() {
+                const inputGroup = document.querySelector('.input-group');
+                inputGroup.classList.remove('hidden');
+            }
+            
+            adjustBudget(adjustmentType) {
+                if (!this.currentBudget || this.currentBudget <= 0) {
+                    return;
+                }
+                
+                // Calculate current daily rate
+                try {
+                    const calculation = this.calculator.calculate(this.currentBudget);
+                    const dailyRate = calculation.dailyBudget;
+                    const totalDays = calculation.totalDays;
+                    
+                    let rateAdjustment = 0;
+                    
+                    switch(adjustmentType) {
+                        case 'decreaseHalf':
+                            rateAdjustment = -dailyRate * 0.5; // Decrease by half the daily rate
+                            break;
+                        case 'decreaseDouble':
+                            rateAdjustment = -dailyRate * 2; // Decrease by double the daily rate
+                            break;
+                        case 'increaseHalf':
+                            rateAdjustment = dailyRate * 0.5; // Increase by half the daily rate
+                            break;
+                        case 'increaseDouble':
+                            rateAdjustment = dailyRate * 2; // Increase by double the daily rate
+                            break;
+                    }
+                    
+                    // Calculate new total budget based on rate adjustment
+                    const newDailyRate = dailyRate + rateAdjustment;
+                    const newBudget = Math.max(0, newDailyRate * totalDays); // Use total days for budget calculation
+                    
+                    // Update the input field and recalculate
+                    elements.budget.value = newBudget.toFixed(2);
+                    this.handleBudgetInput(newBudget);
+                    
+                } catch (error) {
+                    console.error('Error adjusting budget:', error);
+                }
+                
+                // Hide the adjustment panel
+                this.hideBudgetAdjustment();
+            }
+            
+            showBudgetAdjustment() {
+                // Update button labels with current rate amounts
+                this.updateAdjustmentButtonLabels();
+                elements.budgetAdjustmentPanel.classList.add('show');
+            }
+            
+            updateAdjustmentButtonLabels() {
+                if (!this.currentBudget || this.currentBudget <= 0) {
+                    return;
+                }
+                
+                try {
+                    const calculation = this.calculator.calculate(this.currentBudget);
+                    const dailyRate = calculation.dailyBudget;
+                    
+                    // Calculate the daily rate adjustments (not total budget adjustments)
+                    const halfRate = (dailyRate * 0.5).toFixed(0);
+                    const doubleRate = (dailyRate * 2).toFixed(0);
+                    
+                    // Update button labels with daily rate changes
+                    elements.decreaseHalf.textContent = `-${halfRate} RON/day`;
+                    elements.decreaseDouble.textContent = `-${doubleRate} RON/day`;
+                    elements.increaseHalf.textContent = `+${halfRate} RON/day`;
+                    elements.increaseDouble.textContent = `+${doubleRate} RON/day`;
+                    
+                } catch (error) {
+                    console.error('Error updating button labels:', error);
+                    // Fallback labels
+                    elements.decreaseHalf.textContent = '-½ Rate';
+                    elements.decreaseDouble.textContent = '-2x Rate';
+                    elements.increaseHalf.textContent = '+½ Rate';
+                    elements.increaseDouble.textContent = '+2x Rate';
+                }
+            }
+            
+            hideBudgetAdjustment() {
+                elements.budgetAdjustmentPanel.classList.remove('show');
+            }
+            
+            showStorageIndicator() {
+                const indicator = document.getElementById('storageIndicator');
+                const clearButton = document.getElementById('clearButton');
+                
+                indicator.classList.add('show');
+                clearButton.style.display = 'inline-block';
+                
+                // Hide indicator after 2 seconds
+                setTimeout(() => {
+                    indicator.classList.remove('show');
+                }, 2000);
+            }
+            
+            clearSavedBudget() {
+                this.storageManager.clearBudget();
+                const budgetInput = document.getElementById('budget');
+                const clearButton = document.getElementById('clearButton');
+                
+                budgetInput.value = '';
+                clearButton.style.display = 'none';
+                this.currentBudget = 0;
+                this.hideBudgetAdjustment();
+                
+                // Show the input group again
+                this.showInputGroup();
+                
+                this.displayManager.showError('Enter your budget to see daily spending limit');
+            }
+            
+            loadSavedBudget() {
+                const savedBudget = this.storageManager.loadBudget();
+                if (savedBudget && savedBudget > 0) {
+                    return savedBudget;
+                }
+                return null;
+            }
+        }
+        
+        // Interface Segregation: Small, focused interfaces
+        const elements = {
+            budget: document.getElementById('budget'),
+            dailyBudget: document.getElementById('dailyBudget'),
+            info: document.getElementById('info'),
+            storageIndicator: document.getElementById('storageIndicator'),
+            clearButton: document.getElementById('clearButton'),
+            progressContainer: document.getElementById('progressContainer'),
+            progressBar: document.getElementById('progressBar'),
+            progressText: document.getElementById('progressText'),
+            progressLabel: document.getElementById('progressLabel'),
+            totalDaysProgress: document.getElementById('totalDaysProgress'),
+            workingDaysProgress: document.getElementById('workingDaysProgress'),
+            nonWorkingDaysProgress: document.getElementById('nonWorkingDaysProgress'),
+            nextWorkingDayInfo: document.getElementById('nextWorkingDayInfo'),
+            hoursProgressContainer: document.getElementById('hoursProgressContainer'),
+            hoursProgressBar: document.getElementById('hoursProgressBar'),
+            hoursProgressText: document.getElementById('hoursProgressText'),
+            hoursProgressLabel: document.getElementById('hoursProgressLabel'),
+            hoursElapsed: document.getElementById('hoursElapsed'),
+            hoursRemaining: document.getElementById('hoursRemaining'),
+            budgetAdjustmentPanel: document.getElementById('budgetAdjustmentPanel'),
+            decreaseHalf: document.getElementById('decreaseHalf'),
+            decreaseDouble: document.getElementById('decreaseDouble'),
+            increaseHalf: document.getElementById('increaseHalf'),
+            increaseDouble: document.getElementById('increaseDouble'),
+            closeBudgetAdjustment: document.getElementById('closeBudgetAdjustment')
+        };
+        
+        // Dependency Injection: Inject dependencies
+        const dateCalculator = new DateCalculator();
+        const budgetCalculator = new BudgetCalculator(dateCalculator);
+        const displayManager = new DisplayManager(elements, dateCalculator);
+        const storageManager = new StorageManager();
+        const app = new BudgetApp(budgetCalculator, displayManager, dateCalculator, storageManager);
+        
+        // Event handling
+        elements.budget.addEventListener('input', (e) => {
+            const budgetValue = e.target.value;
+            if (budgetValue) {
+                app.handleBudgetInput(budgetValue);
             } else {
-              nextReset.setMonth(nextReset.getMonth() + 1);
+                displayManager.showError('Enter your budget to see daily spending limit');
             }
-          }
-
-          // Calculate previous pay day - always one month before next pay day
-          previousReset = new Date(nextReset);
-          if (previousReset.getMonth() === 0) {
-            previousReset.setMonth(11);
-            previousReset.setFullYear(previousReset.getFullYear() - 1);
-          } else {
-            previousReset.setMonth(previousReset.getMonth() - 1);
-          }
-        }
-
-        // Apply working days logic if enabled
-        if (workingDaysEnabled) {
-          if (!isWorkingDay(nextReset)) {
-            nextReset = getNextWorkingDay(nextReset);
-          }
-          if (!isWorkingDay(previousReset)) {
-            previousReset = getNextWorkingDay(previousReset);
-          }
-        }
-
-        return {
-          next: nextReset,
-          previous: previousReset,
-          cycleDuration: nextReset.getTime() - previousReset.getTime()
-        };
-      }
-
-      function calculateTimeRemaining(currentDate, resetDates) {
-        const msUntilReset = Math.max(0, resetDates.next.getTime() - currentDate.getTime());
-        const currentTime = currentDate.getHours() * CONFIG.MS_PER_HOUR +
-          currentDate.getMinutes() * 60 * 1000 +
-          currentDate.getSeconds() * 1000;
-        const resetTime = CONFIG.RESET_HOUR * CONFIG.MS_PER_HOUR + CONFIG.RESET_MINUTE * 60 * 1000;
-
-        let msUntilTodayReset;
-        if (currentTime < resetTime) {
-          msUntilTodayReset = resetTime - currentTime;
-        } else {
-          msUntilTodayReset = (24 * CONFIG.MS_PER_HOUR) - currentTime + resetTime;
-        }
-
-        return {
-          totalMs: msUntilReset,
-          todayMs: Math.max(0, msUntilTodayReset),
-          cycleDurationMs: Math.max(1, resetDates.cycleDuration) // Prevent division by zero
-        };
-      }
-
-      function updateDisplay(timeRemaining, resetDates, now) {
-        // Calculate days until next reset
-        const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
-
-        // Calculate progress based on payday schedule
-        // Progress represents "freshness" of payday: 100% = just got paid, 0% = about to get paid
-        const totalCycleDurationMs = resetDates.cycleDuration;
-        const totalCycleDurationDays = totalCycleDurationMs / CONFIG.MS_PER_DAY;
-
-        // Calculate days remaining until next payday
-        const daysRemainingFloat = timeRemaining.totalMs / CONFIG.MS_PER_DAY;
-
-        // Progress calculation: Inverted - high percentage when just got paid
-        let overallProgressPercentage;
-
-        if (payDaySchedule === 'double') {
-          // For bi-monthly paydays (~15-day cycle)
-          // 100% when ~15 days remaining (just got paid)
-          // 0% when ~1 day remaining (about to get paid)
-          overallProgressPercentage = Math.max(0, Math.min(100, (daysRemainingFloat / totalCycleDurationDays) * 100));
-        } else {
-          // For monthly paydays (~30-day cycle)  
-          // 100% when ~30 days remaining (just got paid)
-          // 0% when ~1 day remaining (about to get paid)
-          overallProgressPercentage = Math.max(0, Math.min(100, (daysRemainingFloat / totalCycleDurationDays) * 100));
-        }
-
-        // Calculate budget amounts - based on progress through cycle
-        const budgetProgressRatio = overallProgressPercentage / 100;
-        const budgetUsed = budgetProgressRatio * monthlyBudget;
-        const remainingBudget = monthlyBudget - budgetUsed;
-        const amountRemaining = CONFIG.BUDGET_ROUNDING * Math.ceil(Math.max(0, remainingBudget) / CONFIG.BUDGET_ROUNDING);        // Calculate working time progress - focused on hours until end of working day
-        const currentHour = now.getHours();
-        const currentMinute = now.getMinutes();
-        const targetHour = endWorkHour;
-        const targetMinute = endWorkMinute;
-
-        let workingTimeProgress = 0;
-        let timeUntilEndWork = '';
-
-        // Calculate hours and minutes until end of working day
-        let hoursUntilEndWork = targetHour - currentHour;
-        let minutesUntilEndWork = targetMinute - currentMinute;
-
-        if (minutesUntilEndWork < 0) {
-          hoursUntilEndWork -= 1;
-          minutesUntilEndWork += 60;
-        }
-
-        if (hoursUntilEndWork < 0) {
-          // Past end of working day, show as complete
-          workingTimeProgress = 100;
-          timeUntilEndWork = '0h 0m';
-        } else if (hoursUntilEndWork === 0 && minutesUntilEndWork === 0) {
-          // Exactly end of working day
-          workingTimeProgress = 100;
-          timeUntilEndWork = '0h 0m';
-        } else {
-          // Calculate progress from start of day (00:00) to end of working day
-          const totalMinutesInWorkDay = targetHour * 60 + targetMinute;
-          const currentMinutesInDay = currentHour * 60 + currentMinute;
-          workingTimeProgress = Math.min(100, (currentMinutesInDay / totalMinutesInWorkDay) * 100);
-
-          // Format time remaining
-          if (hoursUntilEndWork > 0) {
-            timeUntilEndWork = `${hoursUntilEndWork}h ${minutesUntilEndWork}m`;
-          } else {
-            timeUntilEndWork = `${minutesUntilEndWork}m`;
-          }
-        }
-
-        const symbol = currencySymbols[currency];
-
-        // Update overall progress bar with payday freshness color coding
-        elements.dayProgress.style.width = overallProgressPercentage + '%';
-
-        // Color coding based on payday freshness (high % = good, low % = urgent)
-        if (overallProgressPercentage >= 75) {
-          // Fresh payday: Green
-          elements.dayProgress.style.backgroundColor = '#28a745';
-        } else if (overallProgressPercentage >= 50) {
-          // Mid-cycle: Yellow-green
-          elements.dayProgress.style.backgroundColor = '#ffc107';
-        } else if (overallProgressPercentage >= 25) {
-          // Getting low: Orange
-          elements.dayProgress.style.backgroundColor = '#fd7e14';
-        } else {
-          // Very low/urgent: Red
-          elements.dayProgress.style.backgroundColor = '#dc3545';
-        }
-
-        // Smart text color for low progress values
-        const isLowProgress = overallProgressPercentage < 25;
-        elements.dayProgress.setAttribute('data-width-low', isLowProgress);
-
-        // Enhanced overall progress text - simplified without redundant daily budget info
-        // Always use total calendar days for budget calculation (budget applies to all days)
-        const daysForBudgetCalc = Math.max(daysUntilReset, 1);
-        // Calculate daily budget by dividing total configured budget by total days remaining
-        const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
-
-        // Simplified progress bar text - include days and daily rate
-        let overallText = '';
-        if (workingDaysEnabled) {
-          const businessDays = Math.max(calculateWorkingDays(now, resetDates.next), 1);
-          overallText = `${daysUntilReset} days • ${symbol}${dailyAmount}/day`;
-        } else {
-          overallText = `${daysUntilReset} days • ${symbol}${dailyAmount}/day`;
-        }
-        elements.dayProgressText.textContent = overallText;
-
-        // Add text overlay for better visibility
-        const progressBar = elements.dayProgress.parentElement;
-        if (progressBar) {
-          progressBar.setAttribute('data-text', overallText);
-        }
-
-        // Update working time progress bar
-        elements.hourProgress.style.width = workingTimeProgress + '%';
-
-
-        // Smart text color for working time progress
-        const isWorkingTimeLowProgress = workingTimeProgress < 20;
-        elements.hourProgress.setAttribute('data-width-low', isWorkingTimeLowProgress);
-
-        // Enhanced working time progress with inverted time-based styling (100% = green)
-        const hourProgressElement = elements.hourProgress;
-        if (workingTimeProgress >= 90) {
-          // Near end of day: Green (good progress)
-          hourProgressElement.style.background = 'linear-gradient(90deg, #059669 0%, #10b981 50%, #34d399 100%)';
-        } else if (workingTimeProgress >= 70) {
-          // Late afternoon: Light green to yellow
-          hourProgressElement.style.background = 'linear-gradient(90deg, #fbbf24 0%, #a3e635 50%, #22c55e 100%)';
-        } else if (workingTimeProgress >= 50) {
-          // Mid-day: Yellow to orange
-          hourProgressElement.style.background = 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 50%, #facc15 100%)';
-        } else if (workingTimeProgress >= 25) {
-          // Morning: Orange to light orange
-          hourProgressElement.style.background = 'linear-gradient(90deg, #ea580c 0%, #f59e0b 50%, #fbbf24 100%)';
-        } else {
-          // Early morning: Red to orange (needs more progress)
-          hourProgressElement.style.background = 'linear-gradient(90deg, #dc2626 0%, #ea580c 50%, #f59e0b 100%)';
-        }
-
-        // Working time progress text focused on time until end of working day (no current time)
-        const endWorkTimeStr = `${endWorkHour.toString().padStart(2, '0')}:${endWorkMinute.toString().padStart(2, '0')}`;
-        let workingTimeText = '';
-
-        if (workingTimeProgress >= 100) {
-          workingTimeText = `${endWorkTimeStr} reached - Workday complete!`;
-        } else if (workingTimeProgress < 12) {
-          workingTimeText = `${timeUntilEndWork} until ${endWorkTimeStr}`;
-        } else if (workingTimeProgress < 60) {
-          workingTimeText = `${timeUntilEndWork} remaining`;
-        } else {
-          workingTimeText = `${timeUntilEndWork} until end of day`;
-        }
-
-        elements.hourProgressText.textContent = workingTimeText;
-
-        // Add text overlay for better visibility
-        const hourProgressBar = elements.hourProgress.parentElement;
-        if (hourProgressBar) {
-          hourProgressBar.setAttribute('data-text', workingTimeText);
-        }
-
-        // Update progress percentage and total budget display
-        elements.monthProgressPercent.textContent = overallProgressPercentage.toFixed(1) + '%';
-
-        // Update total budget display to show calculated amount that matches daily rate × days
-        if (elements.totalBudgetDisplay) {
-          // Show the calculated remaining budget that matches the daily amount × days calculation
-          const calculatedRemainingBudget = dailyAmount * daysUntilReset;
-          elements.totalBudgetDisplay.textContent = symbol + calculatedRemainingBudget;
-        }
-
-        // Update budget button values
-        updateBudgetButtonValues();
-
-        // Update working days info if enabled
-        if (workingDaysEnabled && elements.workingDaysInfo) {
-          const workingDays = calculateWorkingDays(now, resetDates.next);
-          elements.workingDaysInfo.textContent = `${workingDays} business days`;
-          elements.workingDaysInfo.style.display = 'block';
-        } else if (elements.workingDaysInfo) {
-          elements.workingDaysInfo.style.display = 'none';
-        }
-
-        // Update next payday date with simplified format
-        const nextDate = resetDates.next;
-        const weekday = nextDate.toLocaleDateString('en-US', { weekday: 'long' });
-        const day = nextDate.getDate();
-        const month = nextDate.toLocaleDateString('en-US', { month: 'short' });
-        elements.nextResetDate.textContent = `${weekday} ${day} ${month}`;
-      }
-
-      // Initialize when DOM is ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-          init();
         });
-      } else {
-        init();
-      }
-
-      // Cleanup on page unload
-      window.addEventListener('beforeunload', function () {
-        if (updateTimer) {
-          clearInterval(updateTimer);
+        
+        // Load saved budget on page load
+        const savedBudget = app.loadSavedBudget();
+        if (savedBudget) {
+            elements.budget.value = savedBudget;
+            elements.clearButton.style.display = 'inline-block';
+            app.handleBudgetInput(savedBudget);
         }
-      });
-    })();
-  </script>
+        
+        // Clear button event handler
+        elements.clearButton.addEventListener('click', () => {
+            app.clearSavedBudget();
+        });
+        
+        // Budget progress container click handler
+        elements.progressContainer.addEventListener('click', () => {
+            if (app.currentBudget > 0) {
+                app.showBudgetAdjustment();
+            }
+        });
+        
+        // Budget adjustment button handlers
+        elements.decreaseHalf.addEventListener('click', () => {
+            app.adjustBudget('decreaseHalf');
+        });
+        
+        elements.decreaseDouble.addEventListener('click', () => {
+            app.adjustBudget('decreaseDouble');
+        });
+        
+        elements.increaseHalf.addEventListener('click', () => {
+            app.adjustBudget('increaseHalf');
+        });
+        
+        elements.increaseDouble.addEventListener('click', () => {
+            app.adjustBudget('increaseDouble');
+        });
+        
+        elements.closeBudgetAdjustment.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering the progress container click
+            app.hideBudgetAdjustment();
+        });
+        
+        // Prevent adjustment panel clicks from propagating to progress container
+        elements.budgetAdjustmentPanel.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        
+        // Update working hours progress every minute
+        setInterval(() => {
+            displayManager.updateWorkingHoursProgress();
+        }, 60000); // Update every 60 seconds
+        
+        // Initialize with default calculation for working days info
+        try {
+            elements.info.textContent = `Enter your budget to see daily spending limit`;
+            
+            // Initialize progress bar with all consolidated information
+            displayManager.updateProgressBar();
+        } catch (error) {
+            displayManager.showError('Unable to calculate working days');
+        }
+    </script>
 </body>
-
 </html>

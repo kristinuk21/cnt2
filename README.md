@@ -1,166 +1,102 @@
-# Budget & Time Tracker
 
-A modern, responsive web-based budget and time tracking application that helps you manage your finance4. **Customization**:
-   - Switch between dark and light themes anytime
-   - Choose your preferred currency
-   - Adjust payday dates as needed
-   - Modify work schedule settings
-   - Reset to defaults anytime work schedule with real-time progress tracking.
+# Budget Calculator
+
+A beautifully designed budget calculator that determines your daily spending limit in Romanian Leu (RON) based on working days between the 10th and 25th of the next month.
 
 ## Features
 
-- **Dark & Light Theme**: Automatic system theme detection with manual toggle support
-- **Budget Management**: Configure monthly budget amount with intelligent daily allocation
-- **Flexible Payday Schedule**: Support for one or two paydays per month (default: 10th and 25th)
-- **Working Days Integration**: Option to observe income on next working day if payday falls on a non-working day
-- **Time Tracking**: Configure work end time (default: 18:00) with real-time countdown
-- **Progress Visualization**: 
-  - Days remaining until next payday with budget per day calculation
-  - Working hours progress with time remaining until end of work day
-  - Visual progress bars with dynamic color coding
-- **Currency Support**: Multiple currency symbols (USD, EUR, GBP, RON, CAD, AUD)
-- **Responsive Design**: Works on desktop and mobile devices
-- **Local Storage**: Automatic saving of all settings including theme preference
-- **Zero Dependencies**: Self-contained application with no external dependencies
+- **Modern Design**: Beautiful gradient interface with glassmorphism effects
+- **Budget Input**: Set your total budget in RON with real-time validation
+- **Local Storage**: Automatically saves and restores your budget input between sessions
+- **Smart Date Calculation**: Automatically calculates working days between 10th and 25th of next month (excludes weekends)
+- **Progress Tracking**: Visual progress bar showing current position in the budget cycle (10th to 25th)
+- **Comprehensive Day Breakdown**: Shows working days, weekends, and total days in the calculation period
+- **Real-time Calculation**: Daily budget updates automatically as you type
+- **Error Handling**: Validates input and provides helpful error messages
+- **Responsive Design**: Clean, modern interface that works on all devices
+
+## Architecture & SOLID Principles
+
+This application follows SOLID principles for maintainable, extensible code:
+
+### Single Responsibility Principle (SRP)
+- **DateCalculator**: Handles only date-related calculations
+- **BudgetCalculator**: Handles only budget calculations and validation  
+- **DisplayManager**: Manages only UI updates and display logic
+- **StorageManager**: Manages only local storage operations
+- **BudgetApp**: Coordinates between components
+
+### Open/Closed Principle (OCP)
+- Classes are open for extension but closed for modification
+- New calculation methods can be added without changing existing code
+
+### Liskov Substitution Principle (LSP)
+- Components can be substituted with compatible implementations
+- Interface contracts are maintained
+
+### Interface Segregation Principle (ISP)
+- Small, focused interfaces instead of large monolithic ones
+- Elements object provides only needed DOM references
+
+### Dependency Inversion Principle (DIP)
+- High-level modules don't depend on low-level modules
+- Dependencies are injected rather than created internally
 
 ## Quick Start
 
-### For VS Code Preview (Recommended):
-```powershell
-# Start local HTTP server using included PowerShell script
-.\serve.ps1
+1. Open `index.html` in your browser
+2. Enter your total budget
+3. View your daily budget instantly calculated for working days (10th-25th of next month)
 
-# Then open in VS Code Simple Browser:
-# http://localhost:8000
-```
-
-### Alternative Methods:
-```bash
-# Using Python HTTP server
-python -m http.server 8000
-
-# Using Node.js (if available)
-npx http-server -p 8000
-```
-
-### Direct Browser Use:
-Simply open `index.html` in your web browser.
-
-## Project Structure
+## File Structure
 
 ```
-index.html          # Main application (48KB, self-contained)
-serve.ps1           # PowerShell script to start HTTP server
-README.md           # This documentation
-CHANGELOG.md        # Project cleanup and development log
-.eslintrc.json      # ESLint configuration (minimal)
-.prettierrc.json    # Prettier configuration (minimal)
-.gitignore          # Git ignore rules
-.vscode/            # VS Code workspace settings
-├── settings.json   # Editor configuration
-└── extensions.json # Recommended extensions
+cnt3/
+├── index.html    # Complete calculator with SOLID architecture
+├── README.md     # Project info and architecture details
+└── .gitignore    # Ignore rules
 ```
-
-## Application Features
-
-### Budget Tracking
-- Set monthly budget amount
-- Automatic daily budget calculation based on days remaining
-- Real-time budget remaining display
-- Progress visualization showing "payday freshness"
-
-### Payday Configuration
-- Single payday: One payday per month on specified date
-- Double payday: Two paydays per month (e.g., 10th and 25th)
-- Working day adjustment: Automatically moves payday to next working day if needed
-- Custom payday hour configuration
-
-### Time Management
-- Configure end of working day (hours and minutes)
-- Real-time countdown to end of work day
-- Working hours progress visualization
-- Time remaining display in hours and minutes
-
-### Settings Panel
-- **Budget Settings**: Currency selection and budget amount input
-- **Payday Schedule**: Choose between single or double payday setup
-- **Time Configuration**: Set payday time and end of work day
-- **Working Days**: Enable/disable working day adjustments
-- **Reset Options**: Reset all settings to defaults
-
-### Visual Design
-- Clean, modern interface with progress bars
-- **Dark and Light themes** with automatic system detection
-- **Manual theme toggle** for user preference override
-- Dynamic color coding (green for fresh budget, red for low budget)
-- Responsive design that works on all screen sizes
-- Tooltips for helpful information
-- Professional color scheme that adapts to theme
-
-## Technical Details
-
-### Implementation
-- **Pure JavaScript**: No frameworks or external dependencies
-- **Inline CSS**: All styles contained within the HTML file for portability
-- **Local Storage**: Automatic persistence of user settings
-- **Real-time Updates**: Application updates every second
-- **Cross-browser Compatible**: Works in all modern browsers
-
-### File Size
-- Single HTML file (~50KB) contains the entire application
-- No external resources or internet connection required
-- Fully offline capable
-
-### Performance
-- Lightweight and fast loading
-- Minimal resource usage
-- Optimized for long-running sessions
 
 ## Usage
 
-1. **First Time Setup**:
-   - Choose your preferred theme using the moon/sun button (top-right)
-   - Click the settings gear icon
-   - Configure your budget amount
-   - Set your payday schedule (single or double)
-   - Adjust working hours if needed
-   - Enable working days feature if desired
+Enter your total budget in RON in the input field. The calculator will:
+1. Automatically calculate working days between the 10th and 25th of next month
+2. Exclude weekends from the calculation
+3. Display your daily spending limit in RON in real-time
+4. Show a detailed breakdown of working days, weekends, and total days in the period
+5. Show helpful information about the calculation period
+6. **Automatically save your budget** - your input will be remembered when you return
+7. Show the next working day that matches the criteria
+8. **Display a progress bar** showing your current position in the budget cycle
 
-2. **Daily Use**:
-   - View days remaining until next payday
-   - Check your daily budget allocation
-   - Monitor progress through your pay cycle
-   - Track remaining work hours for the day
+### Progress Bar Features:
+- **Visual Progress**: Shows how far you are between budget cycle milestones (10th and 25th)
+- **Smart Calculation**: Automatically determines last and next criteria dates
+- **Real-time Updates**: Progress updates based on current date
+- **Detailed Info**: Shows exact dates and day counts
+- **Three Scenarios**:
+  - Before 10th: Progress from 25th of previous month to 10th of current month
+  - 10th-25th: Progress from 10th to 25th of current month  
+  - After 25th: Progress from 25th of current month to 10th of next month
 
-3. **Customization**:
-   - Choose your preferred currency
-   - Adjust payday dates as needed
-   - Modify work schedule settings
-   - Reset to defaults anytime
+### Local Storage Features:
+- **Automatic Save**: Budget is saved as you type
+- **Persistent Data**: Your budget persists between browser sessions
+- **Clear Option**: Use the "Clear Saved Budget" button to reset stored data
+- **Visual Feedback**: Green checkmark confirms when budget is saved
+
+## Technical Details
+
+- **Currency**: Uses Romanian Leu (RON) for all calculations and display
+- **Working Days**: Only Monday-Friday are counted
+- **Date Range**: Always 10th to 25th of the following month
+- **Calculation**: Total Budget (RON) ÷ Working Days = Daily Budget (RON)
+- **Validation**: Ensures positive numbers and handles edge cases
 
 ## Browser Compatibility
 
-- ✅ Chrome/Chromium (recommended)
-- ✅ Firefox
-- ✅ Safari
-- ✅ Microsoft Edge
-- ✅ Mobile browsers (iOS Safari, Android Chrome)
-
-## Development
-
-### No Build Process Required
-This is a single-file application with no build tools, dependencies, or compilation steps needed.
-
-### Local Development:
-1. Edit `index.html` directly
-2. Refresh browser to see changes
-3. Use browser developer tools for debugging
-
-### Testing:
-- Use the included `serve.ps1` script for local HTTP server
-- Test in different browsers and screen sizes
-- Verify settings persistence across browser sessions
+Works in all modern browsers (ES6+ required for class syntax).
 
 ## License
 
-MIT License - Feel free to use, modify, and distribute as needed.
+MIT License
