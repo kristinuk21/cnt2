@@ -1,6 +1,6 @@
-# PowerShell script to serve the countdown timer locally
-Write-Host "CNT2 Countdown Timer - Local Server" -ForegroundColor Green
-Write-Host "===================================" -ForegroundColor Green
+# PowerShell script to serve the Budget & Time Tracker locally
+Write-Host "Budget & Time Tracker - Local Server" -ForegroundColor Green
+Write-Host "====================================" -ForegroundColor Green
 Write-Host ""
 
 # Check if Python is available
@@ -23,7 +23,8 @@ Write-Host ""
 Write-Host "Files served from: $(Get-Location)" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Application URL:" -ForegroundColor Yellow
-Write-Host "- Countdown Timer: http://localhost:$port/index.html" -ForegroundColor Cyan
+Write-Host "- Budget Tracker: http://localhost:$port/index.html" -ForegroundColor Cyan
+Write-Host "- Direct access: http://localhost:$port" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Press Ctrl+C to stop the server" -ForegroundColor White
 Write-Host ""

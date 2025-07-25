@@ -1,167 +1,157 @@
-# cnt2 - Custom Down Counter
+# Budget & Time Tracker
 
-A modern, responsive web-based countdown timer that displays remaining days and budget amount until a monthly reset point.
+A modern, responsive web-based budget and time tracking application that helps you manage your finances and work schedule with real-time progress tracking.
+
+## Features
+
+- **Budget Management**: Configure monthly budget amount with intelligent daily allocation
+- **Flexible Payday Schedule**: Support for one or two paydays per month (default: 10th and 25th)
+- **Working Days Integration**: Option to observe income on next working day if payday falls on a non-working day
+- **Time Tracking**: Configure work end time (default: 18:00) with real-time countdown
+- **Progress Visualization**: 
+  - Days remaining until next payday with budget per day calculation
+  - Working hours progress with time remaining until end of work day
+  - Visual progress bars with dynamic color coding
+- **Currency Support**: Multiple currency symbols (USD, EUR, GBP, JPY, CAD, AUD)
+- **Responsive Design**: Works on desktop and mobile devices
+- **Local Storage**: Automatic saving of all settings
+- **Zero Dependencies**: Self-contained application with no external dependencies
 
 ## Quick Start
 
 ### For VS Code Preview (Recommended):
-```bash
-# Start local HTTP server for best compatibility
-python -m http.server 8000
+```powershell
+# Start local HTTP server using included PowerShell script
+.\serve.ps1
 
 # Then open in VS Code Simple Browser:
-# http://localhost:8000/index.html
+# http://localhost:8000
 ```
 
-### For Development:
-```batch
-# Windows Batch
-start-dev.bat
+### Alternative Methods:
+```bash
+# Using Python HTTP server
+python -m http.server 8000
 
-# Or PowerShell
-.\start-dev.ps1
+# Using Node.js (if available)
+npx http-server -p 8000
 ```
 
-### For Direct Browser Use:
-Open `index.html` in your browser
-
-## Features
-
-- Configure budget amount
-- Configure one or two pay days per month (default: 10th and 25th)
-- Configure income observed on next working day if pay day falls on a non-working day
-- Configure pay day hour
-- Configure end of working day (default: 18:00)
-- Display days remaining until new budget and budget per day
-- Display remaining minutes in the day until end of working day
-
+### Direct Browser Use:
+Simply open `index.html` in your web browser.
 
 ## Project Structure
 
 ```
-index.html                 # Main countdown timer (VS Code compatible)
-src/
-├── index.html              # AngularJS version (with local libraries)
-├── standalone.html         # Vanilla JS version
-├── lib/
-│   ├── js/                # Local JavaScript libraries
-│   │   ├── angular.min.js
-│   │   └── ui-bootstrap-tpls.min.js
-│   └── css/               # Local CSS libraries
-│       └── bootstrap.min.css
-├── css/
-│   ├── main.css           # Styles for AngularJS version
-│   └── standalone.css     # Styles for standalone version
-├── js/
-│   ├── countdown-controller.js    # AngularJS controller
-│   └── countdown-standalone.js    # Vanilla JS implementation
-└── assets/                # Static assets
-
-lib/                       # Local copies of libraries for root files
-start-dev.bat             # Windows batch script to start development
-start-dev.ps1             # PowerShell script to start development
+index.html          # Main application (48KB, self-contained)
+serve.ps1           # PowerShell script to start HTTP server
+README.md           # This documentation
+CHANGELOG.md        # Project cleanup and development log
+.eslintrc.json      # ESLint configuration (minimal)
+.prettierrc.json    # Prettier configuration (minimal)
+.gitignore          # Git ignore rules
+.vscode/            # VS Code workspace settings
+├── settings.json   # Editor configuration
+└── extensions.json # Recommended extensions
 ```
 
-## Main Features
+## Application Features
 
-### `index.html` - Primary Version ⭐
-- **Recommended for VS Code Preview**
-- Self-contained vanilla JavaScript with inline styles
-- No external dependencies required
-- Real-time countdown with interactive budget slider
-- Modern responsive design with animations
-- Works with HTTP server: `http://localhost:8000/index.html`
+### Budget Tracking
+- Set monthly budget amount
+- Automatic daily budget calculation based on days remaining
+- Real-time budget remaining display
+- Progress visualization showing "payday freshness"
 
-## Development
+### Payday Configuration
+- Single payday: One payday per month on specified date
+- Double payday: Two paydays per month (e.g., 10th and 25th)
+- Working day adjustment: Automatically moves payday to next working day if needed
+- Custom payday hour configuration
 
-### No Dependencies Required!
-This project runs entirely with local files - no npm, Node.js, or build tools needed.
+### Time Management
+- Configure end of working day (hours and minutes)
+- Real-time countdown to end of work day
+- Working hours progress visualization
+- Time remaining display in hours and minutes
 
-### Development Scripts:
-- `start-dev.bat` - Opens both versions in your browser (Windows)
-- `start-dev.ps1` - PowerShell version of the development starter
-- Simply double-click any HTML file to open it directly
+### Settings Panel
+- **Budget Settings**: Currency selection and budget amount input
+- **Payday Schedule**: Choose between single or double payday setup
+- **Time Configuration**: Set payday time and end of work day
+- **Working Days**: Enable/disable working day adjustments
+- **Reset Options**: Reset all settings to defaults
 
-### Manual Development:
-1. Open `src/index.html` in your browser for the AngularJS version
-2. Open `src/standalone.html` in your browser for the vanilla JS version
-3. Edit files directly and refresh browser to see changes
+### Visual Design
+- Clean, modern interface with progress bars
+- Dynamic color coding (green for fresh budget, red for low budget)
+- Responsive design that works on all screen sizes
+- Tooltips for helpful information
+- Professional color scheme
 
-## VS Code Preview Setup
+## Technical Details
 
-### Option 1: HTTP Server (Recommended) ⭐
-```bash
-# Start local HTTP server
-python -m http.server 8000
+### Implementation
+- **Pure JavaScript**: No frameworks or external dependencies
+- **Inline CSS**: All styles contained within the HTML file for portability
+- **Local Storage**: Automatic persistence of user settings
+- **Real-time Updates**: Application updates every second
+- **Cross-browser Compatible**: Works in all modern browsers
 
-# Open in VS Code Simple Browser:
-# http://localhost:8000/index.html
-```
+### File Size
+- Single HTML file (~50KB) contains the entire application
+- No external resources or internet connection required
+- Fully offline capable
 
-### Option 2: Direct File Preview
-- Right-click `index.html` → "Open with Live Server" (if extension installed)
-- Or use VS Code's built-in Simple Browser with file:// URLs
+### Performance
+- Lightweight and fast loading
+- Minimal resource usage
+- Optimized for long-running sessions
 
-**Why HTTP Server?** VS Code preview works best with HTTP URLs rather than file:// URLs for security and compatibility reasons.
+## Usage
 
-## Server Management
+1. **First Time Setup**:
+   - Click the settings gear icon
+   - Configure your budget amount
+   - Set your payday schedule (single or double)
+   - Adjust working hours if needed
+   - Enable working days feature if desired
 
-The Python HTTP server serves your files locally and doesn't need to restart when you edit HTML/CSS/JS files. It serves fresh files on each request.
+2. **Daily Use**:
+   - View days remaining until next payday
+   - Check your daily budget allocation
+   - Monitor progress through your pay cycle
+   - Track remaining work hours for the day
 
-**To start server:**
-```bash
-python -m http.server 8000
-```
-
-**To stop server:**
-Press `Ctrl+C` in the terminal running the server
-
-## How it Works
-
-The counter automatically resets monthly on the 20th at 6:00 PM. It calculates:
-- Days remaining until next reset
-- Budget amount remaining (proportional to time left, rounded to nearest 50)
-- Precise hourly countdown for today
-- Visual progress indicators with percentages
-- Next reset date display
-
-## Technical Improvements
-
-- **Zero Dependencies**: No npm, Node.js, or build tools required
-- **Local Libraries**: All JavaScript and CSS libraries included locally
-- **Organized Structure**: Clean separation of source files and libraries
-- **Performance Optimized**: Updates every 1 second instead of 100ms
-- **Clean Code**: Separated concerns, constants management, proper error handling
-- **Dual Implementation**: Both AngularJS and vanilla JavaScript versions available
-- **Offline Ready**: Works completely offline with no external dependencies
-
-## Technologies Used
-
-### Main Version (`index.html`)
-- Pure vanilla JavaScript (ES2017)
-- CSS3 animations and modern styling
-- Self-contained with no external dependencies
-- Optimized for VS Code preview compatibility
-
-### Source Files (`src/` directory)
-- AngularJS 1.3.15 (local minified)
-- UI Bootstrap for progress bars (local minified)
-- Bootstrap 3.1.1 CSS framework (local minified)
-- Custom CSS for enhanced styling
-
-### Development Tools
-- **HTTP Server**: `python -m http.server 8000` for VS Code preview
-- Simple batch/PowerShell scripts for easy startup
-- Direct file editing with browser refresh
-- No complex build processes or dependencies
+3. **Customization**:
+   - Choose your preferred currency
+   - Adjust payday dates as needed
+   - Modify work schedule settings
+   - Reset to defaults anytime
 
 ## Browser Compatibility
 
-- Modern browsers (Chrome, Firefox, Safari, Edge)
-- Mobile browsers with responsive design
-- Progressive enhancement for accessibility
-- **VS Code Preview**: Use HTTP server with `http://localhost:8000/index.html`
+- ✅ Chrome/Chromium (recommended)
+- ✅ Firefox
+- ✅ Safari
+- ✅ Microsoft Edge
+- ✅ Mobile browsers (iOS Safari, Android Chrome)
+
+## Development
+
+### No Build Process Required
+This is a single-file application with no build tools, dependencies, or compilation steps needed.
+
+### Local Development:
+1. Edit `index.html` directly
+2. Refresh browser to see changes
+3. Use browser developer tools for debugging
+
+### Testing:
+- Use the included `serve.ps1` script for local HTTP server
+- Test in different browsers and screen sizes
+- Verify settings persistence across browser sessions
 
 ## License
 
-MIT License - see the LICENSE file for details.
+MIT License - Feel free to use, modify, and distribute as needed.

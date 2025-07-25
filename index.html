@@ -20,27 +20,44 @@
       max-width: 600px;
       margin: 0 auto;
       padding: 30px;
+      padding-top: 80px;
+      /* Add space for fixed settings button */
       background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      position: relative;
     }
 
     .counter-title {
       text-align: center;
-      color: #333;
-      margin-bottom: 30px;
-      font-size: 2em;
+      color: #2c3e50;
+      margin-bottom: 35px;
+      font-size: 2.2em;
       font-weight: 300;
+      letter-spacing: -0.5px;
+      border-bottom: 3px solid #e9ecef;
+      padding-bottom: 20px;
     }
 
     .progress-container {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
+      background: #f8f9fc;
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #e3e6f0;
+    }
+
+    .progress-container.overall-progress {
+      background: transparent;
+      border: none;
+      padding: 0;
     }
 
     .progress-label {
-      font-size: 0.9em;
-      color: #555;
-      margin-bottom: 5px;
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 8px;
       display: block;
       cursor: help;
     }
@@ -51,12 +68,14 @@
 
     .progress-bar {
       width: 100%;
-      height: 30px;
+      height: 40px;
       background-color: #e9ecef;
-      border-radius: 4px;
+      border-radius: 8px;
       overflow: hidden;
       position: relative;
       margin-bottom: 10px;
+      border: 2px solid #dee2e6;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .progress-fill {
@@ -84,16 +103,38 @@
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       position: relative;
       z-index: 2;
+      color: transparent;
+      /* Hide original text to avoid duplication */
+    }
+
+    /* Better text visibility for all progress levels */
+    .progress-bar {
+      position: relative;
+      min-height: 45px;
+    }
+
+    .progress-bar::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #2c3e50;
+      font-size: 14px;
+      font-weight: 700;
+      text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.9),
+        0 0 6px rgba(255, 255, 255, 0.7),
+        1px 1px 2px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      pointer-events: none;
+      white-space: nowrap;
+      letter-spacing: 0.5px;
     }
 
     /* Smart text color based on progress width */
     .progress-fill[data-width-low="true"] span {
-      color: #333 !important;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-      background: rgba(255, 255, 255, 0.9);
-      padding: 2px 8px;
-      border-radius: 3px;
-      margin-left: 4px;
+      color: transparent !important;
     }
 
     .progress-striped .progress-fill {
@@ -131,40 +172,9 @@
       }
     }
 
-    /* Clock-like markers on hourly progress */
+    /* Clock-like markers on hourly progress - removed to fix white line issue */
     .hourly-progress-container {
       position: relative;
-    }
-
-    .hourly-progress-container::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 25%;
-      width: 1px;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.3);
-      pointer-events: none;
-    }
-
-    .hourly-progress-container::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 2px;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.5);
-      pointer-events: none;
-    }
-
-    /* Hide text when progress bar is too narrow */
-    .progress-fill[style*="width: 0%"] span,
-    .progress-fill[style*="width: 1%"] span,
-    .progress-fill[style*="width: 2%"] span,
-    .progress-fill[style*="width: 3%"] span,
-    .progress-fill[style*="width: 4%"] span {
-      display: none;
     }
 
     @keyframes progress-bar-stripes {
@@ -234,7 +244,44 @@
     @media (max-width: 768px) {
       .counter-container {
         margin: 10px;
-        padding: 20px;
+        padding: 15px;
+        padding-top: 70px;
+      }
+
+      .counter-title {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+      }
+
+      .progress-details {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+
+      .budget-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .budget-btn {
+        min-width: 45px;
+        padding: 5px 8px;
+        font-size: 10px;
+      }
+
+      .settings-toggle {
+        width: 45px;
+        height: 45px;
+        font-size: 16px;
+      }
+
+      .settings-panel {
+        min-width: 280px;
+        max-width: calc(100vw - 20px);
+        max-height: calc(100vh - 40px);
+        padding: 12px;
       }
 
       .slider-container {
@@ -247,31 +294,86 @@
       }
     }
 
+    @media (max-width: 480px) {
+      .counter-container {
+        margin: 5px;
+        padding: 10px;
+        padding-top: 60px;
+      }
+
+      .counter-title {
+        font-size: 1.3em;
+        margin-bottom: 15px;
+      }
+
+      .progress-section {
+        padding: 10px;
+      }
+
+      .budget-controls {
+        gap: 4px;
+      }
+
+      .budget-btn {
+        min-width: 40px;
+        padding: 4px 6px;
+        font-size: 9px;
+      }
+
+      .setting-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+
+      .radio-group {
+        justify-content: center;
+      }
+    }
+
     /* Settings Panel Styles */
+    .settings-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 999;
+    }
+
+    .settings-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
     .settings-toggle {
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       background: #007bff;
       color: white;
       border: none;
       border-radius: 50%;
-      width: 45px;
-      height: 45px;
+      width: 50px;
+      height: 50px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-      transition: all 0.3s ease;
-      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
     }
 
     .settings-toggle:hover {
       background: #0056b3;
-      transform: rotate(90deg);
-      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+      transform: rotate(90deg) scale(1.05);
+      box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
     }
 
     .settings-toggle.active {
@@ -279,60 +381,53 @@
       transform: rotate(180deg);
     }
 
+    .settings-toggle.active:hover {
+      background: #1e7e34;
+      transform: rotate(180deg) scale(1.05);
+    }
+
     .settings-panel {
-      position: absolute;
-      top: 75px;
-      right: 20px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.95);
       background: white;
       border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      padding: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       border: 1px solid #e9ecef;
-      min-width: 300px;
-      max-width: 350px;
+      min-width: 320px;
+      max-width: 420px;
+      max-height: 80vh;
+      overflow-y: auto;
       opacity: 0;
       visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      z-index: 999;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
     }
 
     .settings-panel.open {
       opacity: 1;
       visibility: visible;
-      transform: translateY(0);
+      transform: translate(-50%, -50%) scale(1);
     }
 
     .settings-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
+      justify-content: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
       border-bottom: 2px solid #f8f9fa;
     }
 
-    .reset-button {
-      background: #6c757d;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
-    }
-
-    .reset-button:hover {
-      background: #5a6268;
-    }
-
     .settings-section {
-      margin-bottom: 25px;
-      padding: 15px;
+      margin-bottom: 12px;
+      padding: 10px;
       background: #f8f9fa;
       border-radius: 8px;
       border-left: 4px solid #007bff;
+      border: 1px solid #e9ecef;
     }
 
     .settings-section:last-child {
@@ -340,29 +435,26 @@
     }
 
     .settings-section-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: #333;
-      margin: 0 0 15px 0;
-      padding-bottom: 8px;
+      margin: 0 0 6px 0;
+      padding-bottom: 3px;
       border-bottom: 1px solid #dee2e6;
-    }
-
-    .settings-icon {
-      font-size: 20px;
-      margin-right: 10px;
-      color: #007bff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .settings-title {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 600;
       color: #333;
       margin: 0;
     }
 
     .settings-group {
-      margin-bottom: 20px;
+      margin-bottom: 0;
     }
 
     .settings-group:last-child {
@@ -483,6 +575,178 @@
       border-color: #007bff;
     }
 
+    /* Compact budget input row */
+    .budget-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .currency-select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+      font-size: 14px;
+      color: #333;
+      min-width: 60px;
+      flex-shrink: 0;
+    }
+
+    .currency-select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .budget-input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #333;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .budget-input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    /* Compact time inputs */
+    .time-input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #333;
+      width: 100px;
+    }
+
+    .time-input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    /* Streamlined Setting Rows */
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+      gap: 12px;
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+    }
+
+    .setting-row:hover {
+      background-color: rgba(0, 123, 255, 0.05);
+      margin: 0 -12px;
+      padding-left: 12px;
+      padding-right: 12px;
+      border-radius: 6px;
+    }
+
+    .setting-label {
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+      min-width: 85px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .setting-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .compact-input {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #333;
+      width: 80px;
+      text-align: center;
+    }
+
+    .compact-input:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    /* Force 24h format for time inputs */
+    input[type="time"] {
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      appearance: none;
+    }
+
+    input[type="time"]::-webkit-datetime-edit-ampm-field {
+      display: none;
+    }
+
+    .compact-select {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: white;
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+    }
+
+    .compact-select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .radio-item input[type="radio"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #007bff;
+    }
+
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .input-separator {
+      color: #666;
+      font-weight: 500;
+    }
+
+    .input-suffix {
+      color: #666;
+      font-size: 13px;
+    }
+
     .settings-time-container {
       display: flex;
       gap: 8px;
@@ -540,123 +804,172 @@
     .counter-container {
       position: relative;
     }
+
+    /* Budget adjustment buttons - integrated with progress bar */
+    .budget-controls {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 5px 0 0 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    /* Progress section container */
+    .progress-section {
+      margin-bottom: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid #e9ecef;
+    }
+
+    .budget-btn {
+      background: #fff;
+      border: 2px solid #007bff;
+      color: #007bff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 60px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 123, 255, 0.15);
+      margin: 0 2px;
+    }
+
+    .budget-btn:hover {
+      background: #007bff;
+      color: white;
+    }
+
+    .budget-btn.negative {
+      border-color: #dc3545;
+      color: #dc3545;
+    }
+
+    .budget-btn.negative:hover {
+      background: #dc3545;
+      color: white;
+    }
+
+    .budget-btn.positive {
+      border-color: #28a745;
+      color: #28a745;
+    }
+
+    .budget-btn.positive:hover {
+      background: #28a745;
+      color: white;
+    }
   </style>
 
 </head>
 
 <body>
   <div class="counter-container">
+    <div class="settings-backdrop" id="settingsBackdrop"></div>
+
     <button class="settings-toggle" id="settingsToggle" aria-label="Toggle Settings">
-      ⚙️
+      ●●●
     </button>
 
     <div class="settings-panel" id="settingsPanel">
       <div class="settings-header">
-        <span class="settings-icon">⚙️</span>
         <h3 class="settings-title">Settings</h3>
-        <button class="reset-button" id="resetButton" title="Reset to defaults">🔄</button>
       </div>
 
       <!-- Budget Section -->
       <div class="settings-section">
-        <h4 class="settings-section-title">Budget Configuration</h4>
-
+        <div class="settings-section-title">Budget Configuration</div>
         <div class="settings-group">
-          <label class="settings-label" for="currencySelect">Currency</label>
-          <select id="currencySelect" class="settings-select">
-            <option value="USD">$ USD</option>
-            <option value="EUR">€ EUR</option>
-            <option value="GBP">£ GBP</option>
-            <option value="RON">RON Lei</option>
-            <option value="CAD">$ CAD</option>
-            <option value="AUD">$ AUD</option>
-          </select>
-        </div>
-
-        <div class="settings-group">
-          <label class="settings-label" for="budgetInput">Monthly Budget Amount</label>
-          <input type="number" id="budgetInput" class="settings-input" value="1000" min="100" max="50000" step="50"
-            placeholder="Enter amount">
+          <div class="setting-row" title="Set your monthly budget amount and preferred currency">
+            <span class="setting-label">Amount</span>
+            <div class="setting-controls">
+              <input type="number" id="budgetInput" class="compact-input" value="1000" min="100" max="50000" step="50"
+                placeholder="1000" style="width: 100px;">
+              <select id="currencySelect" class="compact-select" style="width: 80px;">
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="RON">RON</option>
+                <option value="CAD">CAD (C$)</option>
+                <option value="AUD">AUD (A$)</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Schedule Section -->
       <div class="settings-section">
-
-        <!-- Schedule Section -->
-        <div class="settings-section">
-          <h4 class="settings-section-title">Payday Schedule</h4>
-
-          <div class="settings-group">
-            <label class="settings-label">Number of Pay Days Per Month</label>
-            <div class="settings-radio-group">
-              <div class="settings-radio-item">
-                <input type="radio" id="payDaySingle" name="payDaySchedule" value="single" class="settings-radio">
-                <label for="payDaySingle" class="settings-radio-label">One payday per month</label>
-              </div>
-              <div class="settings-radio-item">
-                <input type="radio" id="payDayDouble" name="payDaySchedule" value="double" class="settings-radio"
-                  checked>
-                <label for="payDayDouble" class="settings-radio-label">Two paydays per month</label>
+        <div class="settings-section-title">Payday Schedule</div>
+        <div class="settings-group">
+          <div class="setting-row" title="Configure your payday frequency">
+            <span class="setting-label">Frequency</span>
+            <div class="setting-controls">
+              <div class="radio-group">
+                <label class="radio-item">
+                  <input type="radio" id="payDaySingle" name="payDaySchedule" value="single" class="settings-radio">
+                  <span>Monthly</span>
+                </label>
+                <label class="radio-item">
+                  <input type="radio" id="payDayDouble" name="payDaySchedule" value="double" class="settings-radio"
+                    checked>
+                  <span>Bi-monthly</span>
+                </label>
               </div>
             </div>
           </div>
-
-          <!-- Single Pay Day Section -->
-          <div class="settings-group" id="singlePayDaySection" style="display: none;">
-            <label class="settings-label" for="payDay">Monthly Payday Date</label>
-            <input type="number" id="payDay" class="settings-input-small" value="25" min="1" max="31" step="1">
-          </div>
-
-          <!-- Double Pay Days Section -->
-          <div class="settings-group" id="doublePayDaySection">
-            <label class="settings-label">Payday Dates</label>
-            <div class="settings-input-row">
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 12px; color: #666;">First Payday</label>
-                <input type="number" id="payDay1" class="settings-input-small" value="10" min="1" max="31" step="1">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: 12px; color: #666;">Second Payday</label>
-                <input type="number" id="payDay2" class="settings-input-small" value="25" min="1" max="31" step="1">
+          <div class="setting-row" title="Configure your payday dates">
+            <span class="setting-label">Dates</span>
+            <div class="setting-controls">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="payDateLabel" style="font-size: 13px; color: #666;">day(s):</span>
+                <input type="number" id="payDay" class="compact-input" value="25" min="1" max="31" step="1"
+                  placeholder="25" style="display: none; width: 60px;">
+                <input type="number" id="payDay1" class="compact-input" value="10" min="1" max="31" step="1"
+                  placeholder="10" style="width: 60px;">
+                <span class="input-separator" id="paySeparator">&</span>
+                <input type="number" id="payDay2" class="compact-input" value="25" min="1" max="31" step="1"
+                  placeholder="25" style="width: 60px;">
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Time Section -->
-        <div class="settings-section">
-          <h4 class="settings-section-title">Time Configuration</h4>
-
-          <div class="settings-group">
-            <label class="settings-label">Time When Pay is Received</label>
-            <div class="settings-time-container">
-              <input type="number" id="payDayHour" class="settings-input-small" value="18" min="0" max="23" step="1">
-              <span>:</span>
-              <input type="number" id="payDayMinute" class="settings-input-small" value="0" min="0" max="59" step="1">
+      <!-- Time Section -->
+      <div class="settings-section">
+        <div class="settings-section-title">Time Settings</div>
+        <div class="settings-group">
+          <div class="setting-row" title="Time when your salary is deposited into your account">
+            <span class="setting-label">Pay Time</span>
+            <div class="setting-controls">
+              <input type="time" id="payDayTime" class="compact-input" value="18:00" style="width: 120px;" step="3600">
             </div>
           </div>
 
-          <div class="settings-group">
-            <label class="settings-label">End of Working Day Time</label>
-            <div class="settings-time-container">
-              <input type="number" id="endWorkHour" class="settings-input-small" value="18" min="0" max="23" step="1">
-              <span>:</span>
-              <input type="number" id="endWorkMinute" class="settings-input-small" value="0" min="0" max="59" step="1">
+          <div class="setting-row" title="Time when your work day ends for progress tracking">
+            <span class="setting-label">Work End</span>
+            <div class="setting-controls">
+              <input type="time" id="endWorkTime" class="compact-input" value="18:00" style="width: 120px;" step="3600">
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Advanced Section -->
-        <div class="settings-section">
-          <h4 class="settings-section-title">Advanced Options</h4>
-
-          <div class="settings-group">
-            <label class="settings-label">Weekend & Holiday Adjustment</label>
-            <div class="settings-checkbox-container">
-              <input type="checkbox" id="workingDaysEnabled" class="settings-checkbox">
-              <label for="workingDaysEnabled" class="settings-checkbox-label">
-                Move payday to next business day if it falls on weekend or holiday
+      <!-- Advanced Section -->
+      <div class="settings-section">
+        <div class="settings-group">
+          <div class="setting-row" title="Move paydays to next working day if they fall on weekends">
+            <span class="setting-label">Working Days</span>
+            <div class="setting-controls">
+              <label class="toggle-item">
+                <input type="checkbox" id="workingDaysEnabled" class="settings-checkbox">
+                <span>Enabled</span>
               </label>
             </div>
           </div>
@@ -666,45 +979,64 @@
 
     <h1 class="counter-title">Budget & Time Tracker</h1>
 
-    <div>
-      <div class="progress-container">
-        <div class="progress-label" title="Daily budget allocation based on remaining time until income">Days Until
-          Next
-          Payday</div>
+    <!-- Overall Progress Section with Budget Controls -->
+    <div class="progress-section">
+      <div class="progress-container overall-progress">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+          <div class="progress-label"
+            title="Progress through your current pay cycle - shows days remaining and daily budget allocation">Overall
+            Progress</div>
+          <div style="font-size: 0.9em; color: #666; text-align: right;">
+            <div><span>Remaining: <strong id="monthProgressPercent">0%</strong> | <span
+                  id="totalBudgetDisplay">$0</span></span></div>
+          </div>
+        </div>
         <div class="progress-bar">
           <div class="progress-fill" id="dayProgress">
             <span id="dayProgressText">Loading...</span>
           </div>
         </div>
-        <div class="progress-details"
-          style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 8px; font-size: 0.9em; color: #666;">
-          <div style="display: flex; flex-direction: column; gap: 2px;">
-            <span><strong id="daysRemaining">0</strong> days until next payday</span>
-            <div class="working-days-info" id="workingDaysInfo" style="display: none; font-size: 0.85em; color: #888;">
-              0 business days
+
+        <!-- Daily Budget Section with better organization -->
+        <div
+          style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 10px; margin-top: 15px; border: 1px solid #dee2e6;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="font-size: 0.9em; color: #6c757d; font-weight: 600;">
+              <div class="working-days-info" id="workingDaysInfo" style="display: none;">
+                0 business days
+              </div>
+            </div>
+            <div style="text-align: right; font-size: 0.9em; color: #6c757d; font-weight: 600;">
+              <div>DueDate</div>
+              <div style="color: #495057; font-weight: 700;" id="nextResetDate">Calculating...</div>
             </div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 2px; text-align: right;">
-            <span>Month Progress: <strong id="monthProgressPercent">0%</strong></span>
-            <div style="color: #28a745; font-weight: 600;">
-              <span id="budgetRemaining">$0</span> remaining
-            </div>
-            <div style="font-size: 0.85em; color: #666;">
-              <span id="dailyBudgetInfo">$0 per day remaining</span>
-            </div>
+
+          <!-- Budget Adjustment Controls - centered -->
+          <div class="budget-controls" style="display: flex; justify-content: center; gap: 8px; margin: 10px 0;">
+            <button class="budget-btn negative" id="budgetBtn500Minus" title="Decrease budget by dynamic amount">-<span
+                id="btn500MinusValue">500</span></button>
+            <button class="budget-btn negative" id="budgetBtn100Minus" title="Decrease budget by dynamic amount">-<span
+                id="btn100MinusValue">100</span></button>
+            <button class="budget-btn positive" id="budgetBtn100Plus" title="Increase budget by dynamic amount">+<span
+                id="btn100PlusValue">100</span></button>
+            <button class="budget-btn positive" id="budgetBtn500Plus" title="Increase budget by dynamic amount">+<span
+                id="btn500PlusValue">500</span></button>
           </div>
-        </div>
-        <div class="reset-info" style="margin-top: 15px; text-align: center; color: #6c757d; font-size: 0.9em;">
-          Next payday: <span id="nextResetDate">Calculating...</span>
         </div>
       </div>
+    </div>
 
-      <div class="progress-container">
-        <div class="progress-label" title="Time remaining until end of working day">Today's Work Progress</div>
-        <div class="progress-bar hourly-progress-container">
-          <div class="progress-fill progress-striped" id="hourProgress">
-            <span id="hourProgressText">Loading...</span>
-          </div>
+    <!-- Section Separator -->
+    <div style="height: 2px; background: linear-gradient(90deg, transparent, #dee2e6, transparent); margin: 25px 0;">
+    </div>
+
+    <!-- Today's Progress Section -->
+    <div class="progress-container">
+      <div class="progress-label" title="Time remaining until end of working day">Today's Progress</div>
+      <div class="progress-bar hourly-progress-container">
+        <div class="progress-fill progress-striped" id="hourProgress">
+          <span id="hourProgressText">Loading...</span>
         </div>
       </div>
     </div>
@@ -712,7 +1044,6 @@
 
   <script>
     // Vanilla JavaScript version for VS Code preview compatibility
-    console.log('Script loading...');
 
     // Add error handling
     window.addEventListener('error', function (e) {
@@ -722,7 +1053,6 @@
 
     (function () {
       'use strict';
-      console.log('IIFE started');
 
       // Configuration constants
       const CONFIG = {
@@ -834,18 +1164,36 @@
       }
 
       // Update UI elements with current settings
+      // Helper functions for time formatting
+      function formatTimeForInput(hour, minute) {
+        return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+      }
+
+      function parseTimeFromInput(timeString) {
+        const [hour, minute] = timeString.split(':').map(s => parseInt(s, 10));
+        return { hour: hour || 0, minute: minute || 0 };
+      }
+
       function updateUIFromSettings() {
         if (elements.currencySelect) elements.currencySelect.value = currency;
-        if (elements.budgetInput) elements.budgetInput.value = monthlyBudget;
+        if (elements.budgetInput) {
+          // Show calculated amount to match main display
+          const now = new Date();
+          const resetDates = calculateResetDates(now);
+          const timeRemaining = calculateTimeRemaining(now, resetDates);
+          const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
+          const daysForBudgetCalc = Math.max(daysUntilReset, 1);
+          const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
+          const calculatedBudget = dailyAmount * daysUntilReset;
+          elements.budgetInput.value = calculatedBudget;
+        }
         if (elements.payDaySingle) elements.payDaySingle.checked = payDaySchedule === 'single';
         if (elements.payDayDouble) elements.payDayDouble.checked = payDaySchedule === 'double';
         if (elements.payDay) elements.payDay.value = payDay;
         if (elements.payDay1) elements.payDay1.value = payDay1;
         if (elements.payDay2) elements.payDay2.value = payDay2;
-        if (elements.payDayHour) elements.payDayHour.value = payDayHour;
-        if (elements.payDayMinute) elements.payDayMinute.value = payDayMinute;
-        if (elements.endWorkHour) elements.endWorkHour.value = endWorkHour;
-        if (elements.endWorkMinute) elements.endWorkMinute.value = endWorkMinute;
+        if (elements.payDayTime) elements.payDayTime.value = formatTimeForInput(payDayHour, payDayMinute);
+        if (elements.endWorkTime) elements.endWorkTime.value = formatTimeForInput(endWorkHour, endWorkMinute);
         if (elements.workingDaysEnabled) elements.workingDaysEnabled.checked = workingDaysEnabled;
 
         updatePayDayVisibility();
@@ -853,14 +1201,24 @@
 
       // Update visibility of pay day sections based on schedule
       function updatePayDayVisibility() {
-        if (elements.singlePayDaySection && elements.doublePayDaySection) {
-          if (payDaySchedule === 'single') {
-            elements.singlePayDaySection.style.display = 'block';
-            elements.doublePayDaySection.style.display = 'none';
-          } else {
-            elements.singlePayDaySection.style.display = 'none';
-            elements.doublePayDaySection.style.display = 'block';
-          }
+        const payDay = document.getElementById('payDay');
+        const payDay1 = document.getElementById('payDay1');
+        const payDay2 = document.getElementById('payDay2');
+        const paySeparator = document.getElementById('paySeparator');
+        const payDateLabel = document.getElementById('payDateLabel');
+
+        if (payDaySchedule === 'single') {
+          if (payDay) payDay.style.display = 'block';
+          if (payDay1) payDay1.style.display = 'none';
+          if (payDay2) payDay2.style.display = 'none';
+          if (paySeparator) paySeparator.style.display = 'none';
+          if (payDateLabel) payDateLabel.textContent = 'day:';
+        } else {
+          if (payDay) payDay.style.display = 'none';
+          if (payDay1) payDay1.style.display = 'block';
+          if (payDay2) payDay2.style.display = 'block';
+          if (paySeparator) paySeparator.style.display = 'inline';
+          if (payDateLabel) payDateLabel.textContent = 'day(s):';
         }
       }
 
@@ -872,39 +1230,45 @@
         hourProgressText: document.getElementById('hourProgressText'),
         budgetInput: document.getElementById('budgetInput'),
         currencySelect: document.getElementById('currencySelect'),
-        resetButton: document.getElementById('resetButton'),
-        daysRemaining: document.getElementById('daysRemaining'),
         workingDaysInfo: document.getElementById('workingDaysInfo'),
-        budgetRemaining: document.getElementById('budgetRemaining'),
         monthProgressPercent: document.getElementById('monthProgressPercent'),
-        dailyBudgetInfo: document.getElementById('dailyBudgetInfo'),
         nextResetDate: document.getElementById('nextResetDate'),
         settingsToggle: document.getElementById('settingsToggle'),
         settingsPanel: document.getElementById('settingsPanel'),
+        settingsBackdrop: document.getElementById('settingsBackdrop'),
         counterContainer: document.querySelector('.counter-container'),
         payDaySingle: document.getElementById('payDaySingle'),
         payDayDouble: document.getElementById('payDayDouble'),
-        singlePayDaySection: document.getElementById('singlePayDaySection'),
-        doublePayDaySection: document.getElementById('doublePayDaySection'),
         payDay: document.getElementById('payDay'),
         payDay1: document.getElementById('payDay1'),
         payDay2: document.getElementById('payDay2'),
-        payDayHour: document.getElementById('payDayHour'),
-        payDayMinute: document.getElementById('payDayMinute'),
-        endWorkHour: document.getElementById('endWorkHour'),
-        endWorkMinute: document.getElementById('endWorkMinute'),
-        workingDaysEnabled: document.getElementById('workingDaysEnabled')
+        payDayTime: document.getElementById('payDayTime'),
+        endWorkTime: document.getElementById('endWorkTime'),
+        workingDaysEnabled: document.getElementById('workingDaysEnabled'),
+        remainingBudgetDisplay: document.getElementById('remainingBudgetDisplay'),
+        totalBudgetDisplay: document.getElementById('totalBudgetDisplay'),
+        budgetBtn500Minus: document.getElementById('budgetBtn500Minus'),
+        budgetBtn100Minus: document.getElementById('budgetBtn100Minus'),
+        budgetBtn100Plus: document.getElementById('budgetBtn100Plus'),
+        budgetBtn500Plus: document.getElementById('budgetBtn500Plus'),
+        btn500MinusValue: document.getElementById('btn500MinusValue'),
+        btn100MinusValue: document.getElementById('btn100MinusValue'),
+        btn100PlusValue: document.getElementById('btn100PlusValue'),
+        btn500PlusValue: document.getElementById('btn500PlusValue')
       };
 
       function init() {
-        console.log('Init function called');
-        console.log('Elements check:', elements);
+        // Check if critical elements exist (some elements are optional)
+        const criticalElements = [
+          'dayProgress', 'dayProgressText', 'hourProgress', 'hourProgressText',
+          'budgetInput', 'currencySelect', 'nextResetDate',
+          'settingsToggle', 'settingsPanel', 'monthProgressPercent'
+        ];
 
-        // Check if all elements exist
-        for (const [key, element] of Object.entries(elements)) {
-          if (!element) {
-            console.error('Missing element:', key);
-            document.body.innerHTML += '<div style="color:red;">Missing element: ' + key + '</div>';
+        for (const elementName of criticalElements) {
+          if (!elements[elementName]) {
+            console.error('Missing critical element:', elementName);
+            document.body.innerHTML += '<div style="color:red;">Missing element: ' + elementName + '</div>';
             return;
           }
         }
@@ -917,8 +1281,10 @@
         applySettings(savedSettings);
         updateUIFromSettings();
 
+        // Initialize budget button values
+        updateBudgetButtonValues();
+
         startTimer();
-        console.log('Init completed');
       }
 
       function setupSettings() {
@@ -926,15 +1292,34 @@
         elements.settingsToggle.addEventListener('click', function () {
           const panel = elements.settingsPanel;
           const toggle = elements.settingsToggle;
+          const backdrop = elements.settingsBackdrop;
 
           if (panel.classList.contains('open')) {
             panel.classList.remove('open');
             toggle.classList.remove('active');
+            if (backdrop) backdrop.classList.remove('open');
           } else {
             panel.classList.add('open');
             toggle.classList.add('active');
+            if (backdrop) backdrop.classList.add('open');
           }
         });
+
+        // Close settings when clicking backdrop or outside
+        function closeSettings() {
+          const panel = elements.settingsPanel;
+          const toggle = elements.settingsToggle;
+          const backdrop = elements.settingsBackdrop;
+
+          panel.classList.remove('open');
+          toggle.classList.remove('active');
+          if (backdrop) backdrop.classList.remove('open');
+        }
+
+        // Close when clicking backdrop
+        if (elements.settingsBackdrop) {
+          elements.settingsBackdrop.addEventListener('click', closeSettings);
+        }
 
         // Close settings when clicking outside
         document.addEventListener('click', function (e) {
@@ -942,8 +1327,7 @@
           const toggle = elements.settingsToggle;
 
           if (!panel.contains(e.target) && !toggle.contains(e.target)) {
-            panel.classList.remove('open');
-            toggle.classList.remove('active');
+            closeSettings();
           }
         });
 
@@ -958,14 +1342,21 @@
         elements.budgetInput.addEventListener('input', function () {
           const value = parseInt(this.value);
           if (!isNaN(value) && value >= 100) {
-            monthlyBudget = value;
+            // Reverse-calculate monthly budget from the displayed calculated amount
+            const now = new Date();
+            const resetDates = calculateResetDates(now);
+            const timeRemaining = calculateTimeRemaining(now, resetDates);
+            const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
+            const daysForBudgetCalc = Math.max(daysUntilReset, 1);
+
+            // Calculate what the monthly budget should be to achieve this calculated amount
+            const targetDailyAmount = Math.round(value / daysUntilReset / 10) * 10;
+            monthlyBudget = targetDailyAmount * daysForBudgetCalc;
+
             updateCountdown();
             saveSettings();
           }
         });
-
-        // Reset button
-        elements.resetButton.addEventListener('click', resetToDefaults);
 
         // Pay day schedule radio buttons
         elements.payDaySingle.addEventListener('change', function () {
@@ -1011,30 +1402,22 @@
           });
         }
 
-        // Pay day hour and minute inputs
-        elements.payDayHour.addEventListener('input', function () {
-          payDayHour = parseInt(this.value);
+        // Pay day time input
+        elements.payDayTime.addEventListener('change', function () {
+          const time = parseTimeFromInput(this.value);
+          payDayHour = time.hour;
+          payDayMinute = time.minute;
           CONFIG.RESET_HOUR = payDayHour;
-          updateCountdown();
-          saveSettings();
-        });
-
-        elements.payDayMinute.addEventListener('input', function () {
-          payDayMinute = parseInt(this.value);
           CONFIG.RESET_MINUTE = payDayMinute;
           updateCountdown();
           saveSettings();
         });
 
-        // End of working day hour and minute inputs
-        elements.endWorkHour.addEventListener('input', function () {
-          endWorkHour = parseInt(this.value);
-          updateCountdown();
-          saveSettings();
-        });
-
-        elements.endWorkMinute.addEventListener('input', function () {
-          endWorkMinute = parseInt(this.value);
+        // End of working day time input
+        elements.endWorkTime.addEventListener('change', function () {
+          const time = parseTimeFromInput(this.value);
+          endWorkHour = time.hour;
+          endWorkMinute = time.minute;
           updateCountdown();
           saveSettings();
         });
@@ -1045,11 +1428,92 @@
           updateCountdown();
           saveSettings();
         });
+
+        // Budget adjustment buttons
+        elements.budgetBtn500Minus.addEventListener('click', function () {
+          adjustBudget(-getBudgetAdjustmentValue(2)); // -2 days worth
+        });
+
+        elements.budgetBtn100Minus.addEventListener('click', function () {
+          adjustBudget(-getBudgetAdjustmentValue(0.5)); // -0.5 days worth
+        });
+
+        elements.budgetBtn100Plus.addEventListener('click', function () {
+          adjustBudget(getBudgetAdjustmentValue(0.5)); // +0.5 days worth
+        });
+
+        elements.budgetBtn500Plus.addEventListener('click', function () {
+          adjustBudget(getBudgetAdjustmentValue(2)); // +2 days worth
+        });
+      }
+
+      // Calculate dynamic budget adjustment values based on daily rate multiples
+      function getBudgetAdjustmentValue(multiplier) {
+        // Calculate current daily rate
+        const now = new Date();
+        const resetDates = calculateResetDates(now);
+        const timeRemaining = calculateTimeRemaining(now, resetDates);
+        const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
+        const daysForBudgetCalc = Math.max(daysUntilReset, 1);
+        const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
+
+        // Calculate adjustment based on daily rate
+        const baseValue = dailyAmount * multiplier;
+        // Round to nearest 10 for cleaner values
+        return Math.round(baseValue / 10) * 10;
+      }
+
+      // Adjust budget and update UI
+      function adjustBudget(amount) {
+        const newBudget = Math.max(100, monthlyBudget + amount); // Minimum budget of 100
+        monthlyBudget = newBudget;
+
+        // Update settings input to show the calculated amount that matches the display
+        if (elements.budgetInput) {
+          // Calculate the same values as in updateDisplay
+          const now = new Date();
+          const resetDates = calculateResetDates(now);
+          const timeRemaining = calculateTimeRemaining(now, resetDates);
+          const daysUntilReset = Math.ceil(timeRemaining.totalMs / CONFIG.MS_PER_DAY);
+          const daysForBudgetCalc = Math.max(daysUntilReset, 1);
+          const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
+          const calculatedBudget = dailyAmount * daysUntilReset;
+
+          elements.budgetInput.value = calculatedBudget;
+        }
+
+        // Update button values
+        updateBudgetButtonValues();
+
+        // Refresh display
+        updateCountdown();
+        saveSettings();
+      }
+
+      // Update dynamic values on budget buttons based on daily rate
+      function updateBudgetButtonValues() {
+        const smallValue = getBudgetAdjustmentValue(0.5); // 0.5 days worth
+        const largeValue = getBudgetAdjustmentValue(2);   // 2 days worth
+
+        if (elements.btn100MinusValue) elements.btn100MinusValue.textContent = smallValue;
+        if (elements.btn100PlusValue) elements.btn100PlusValue.textContent = smallValue;
+        if (elements.btn500MinusValue) elements.btn500MinusValue.textContent = largeValue;
+        if (elements.btn500PlusValue) elements.btn500PlusValue.textContent = largeValue;
       }
 
       // Reset all settings to defaults
       function resetToDefaults() {
-        if (confirm('Reset all settings to default values?')) {
+        if (confirm('Reset all settings to default values? This will restore:\n• Budget: 1000 USD\n• Pay times: 18:00 (6 PM)\n• Paydays: 10th & 25th of month')) {
+          console.log('Resetting to defaults...');
+
+          // Clear localStorage to ensure fresh start
+          try {
+            localStorage.removeItem(STORAGE_KEY);
+            console.log('localStorage cleared successfully');
+          } catch (e) {
+            console.warn('Failed to clear localStorage:', e);
+          }
+
           // Apply default values
           monthlyBudget = defaultSettings.monthlyBudget;
           currency = defaultSettings.currency;
@@ -1063,6 +1527,13 @@
           endWorkMinute = defaultSettings.endWorkMinute;
           workingDaysEnabled = defaultSettings.workingDaysEnabled;
 
+          console.log('Applied default settings:', {
+            monthlyBudget,
+            currency,
+            payDayHour,
+            endWorkHour
+          });
+
           // Update CONFIG
           CONFIG.RESET_DAY = payDay;
           CONFIG.RESET_HOUR = payDayHour;
@@ -1072,6 +1543,13 @@
           updateUIFromSettings();
           updateCountdown();
           saveSettings();
+
+          console.log('Reset completed successfully');
+
+          // Show success message
+          setTimeout(() => {
+            alert('Settings have been reset to defaults successfully!');
+          }, 100);
         }
       }
 
@@ -1244,17 +1722,6 @@
           overallProgressPercentage = Math.max(0, Math.min(100, (daysRemainingFloat / totalCycleDurationDays) * 100));
         }
 
-        // Debug info to help diagnose the issue
-        console.log('=== PROGRESS DEBUG ===');
-        console.log('Current date:', now);
-        console.log('Payday schedule:', payDaySchedule);
-        console.log('Previous payday:', resetDates.previous);
-        console.log('Next payday:', resetDates.next);
-        console.log('Total cycle duration (days):', totalCycleDurationDays.toFixed(2));
-        console.log('Days remaining until next payday:', daysRemainingFloat.toFixed(2));
-        console.log('Days until next payday (rounded):', daysUntilReset);
-        console.log('Progress % (payday freshness):', overallProgressPercentage.toFixed(2));
-
         // Calculate budget amounts - based on progress through cycle
         const budgetProgressRatio = overallProgressPercentage / 100;
         const budgetUsed = budgetProgressRatio * monthlyBudget;
@@ -1323,26 +1790,27 @@
         const isLowProgress = overallProgressPercentage < 25;
         elements.dayProgress.setAttribute('data-width-low', isLowProgress);
 
-        // Enhanced overall progress text - show days until payday and budget per day
+        // Enhanced overall progress text - simplified without redundant daily budget info
         // Always use total calendar days for budget calculation (budget applies to all days)
         const daysForBudgetCalc = Math.max(daysUntilReset, 1);
         // Calculate daily budget by dividing total configured budget by total days remaining
         const dailyAmount = Math.round((monthlyBudget / daysForBudgetCalc) / 10) * 10;
 
-        // Show appropriate day count in progress text (can still show working days if enabled)
-        const dayDisplayText = workingDaysEnabled ?
-          `${Math.max(calculateWorkingDays(now, resetDates.next), 1)} business days` :
-          `${daysUntilReset} days`;
-        let overallText = `${dayDisplayText} • ${symbol}${amountRemaining} remaining • ${symbol}${dailyAmount}/day`;
-
-        if (overallProgressPercentage < 15) {
-          overallText = workingDaysEnabled ?
-            `${Math.max(calculateWorkingDays(now, resetDates.next), 1)} business days until payday` :
-            `${daysUntilReset} days until payday`;
-        } else if (overallProgressPercentage < 35) {
-          overallText = `${dayDisplayText} • ${symbol}${amountRemaining} remaining`;
+        // Simplified progress bar text - include days and daily rate
+        let overallText = '';
+        if (workingDaysEnabled) {
+          const businessDays = Math.max(calculateWorkingDays(now, resetDates.next), 1);
+          overallText = `${daysUntilReset} days • ${symbol}${dailyAmount}/day`;
+        } else {
+          overallText = `${daysUntilReset} days • ${symbol}${dailyAmount}/day`;
         }
         elements.dayProgressText.textContent = overallText;
+
+        // Add text overlay for better visibility
+        const progressBar = elements.dayProgress.parentElement;
+        if (progressBar) {
+          progressBar.setAttribute('data-text', overallText);
+        }
 
         // Update working time progress bar
         elements.hourProgress.style.width = workingTimeProgress + '%';
@@ -1385,9 +1853,26 @@
           workingTimeText = `${timeUntilEndWork} until end of day`;
         }
 
-        elements.hourProgressText.textContent = workingTimeText;        // Update consolidated information in the progress details
-        elements.daysRemaining.textContent = daysUntilReset;
+        elements.hourProgressText.textContent = workingTimeText;
+
+        // Add text overlay for better visibility
+        const hourProgressBar = elements.hourProgress.parentElement;
+        if (hourProgressBar) {
+          hourProgressBar.setAttribute('data-text', workingTimeText);
+        }
+
+        // Update progress percentage and total budget display
         elements.monthProgressPercent.textContent = overallProgressPercentage.toFixed(1) + '%';
+
+        // Update total budget display to show calculated amount that matches daily rate × days
+        if (elements.totalBudgetDisplay) {
+          // Show the calculated remaining budget that matches the daily amount × days calculation
+          const calculatedRemainingBudget = dailyAmount * daysUntilReset;
+          elements.totalBudgetDisplay.textContent = symbol + calculatedRemainingBudget;
+        }
+
+        // Update budget button values
+        updateBudgetButtonValues();
 
         // Update working days info if enabled
         if (workingDaysEnabled && elements.workingDaysInfo) {
@@ -1398,34 +1883,20 @@
           elements.workingDaysInfo.style.display = 'none';
         }
 
-        // Update merged budget information
-        elements.budgetRemaining.textContent = symbol + amountRemaining;
-        const dailyBudgetText = workingDaysEnabled ?
-          symbol + dailyAmount + ' per business day remaining' :
-          symbol + dailyAmount + ' per day remaining';
-        elements.dailyBudgetInfo.textContent = dailyBudgetText;
-
-        // Update next payday date
-        elements.nextResetDate.textContent = resetDates.next.toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit'
-        });
+        // Update next payday date with simplified format
+        const nextDate = resetDates.next;
+        const weekday = nextDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const day = nextDate.getDate();
+        const month = nextDate.toLocaleDateString('en-US', { month: 'short' });
+        elements.nextResetDate.textContent = `${weekday} ${day} ${month}`;
       }
 
       // Initialize when DOM is ready
-      console.log('DOM readyState:', document.readyState);
       if (document.readyState === 'loading') {
-        console.log('Waiting for DOMContentLoaded...');
         document.addEventListener('DOMContentLoaded', function () {
-          console.log('DOMContentLoaded fired');
           init();
         });
       } else {
-        console.log('DOM already ready, calling init immediately');
         init();
       }
 
