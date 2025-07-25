@@ -1,9 +1,15 @@
 # Budget & Time Tracker
 
-A modern, responsive web-based budget and time tracking application that helps you manage your finances and work schedule with real-time progress tracking.
+A modern, responsive web-based budget and time tracking application that helps you manage your finance4. **Customization**:
+   - Switch between dark and light themes anytime
+   - Choose your preferred currency
+   - Adjust payday dates as needed
+   - Modify work schedule settings
+   - Reset to defaults anytime work schedule with real-time progress tracking.
 
 ## Features
 
+- **Dark & Light Theme**: Automatic system theme detection with manual toggle support
 - **Budget Management**: Configure monthly budget amount with intelligent daily allocation
 - **Flexible Payday Schedule**: Support for one or two paydays per month (default: 10th and 25th)
 - **Working Days Integration**: Option to observe income on next working day if payday falls on a non-working day
@@ -12,9 +18,9 @@ A modern, responsive web-based budget and time tracking application that helps y
   - Days remaining until next payday with budget per day calculation
   - Working hours progress with time remaining until end of work day
   - Visual progress bars with dynamic color coding
-- **Currency Support**: Multiple currency symbols (USD, EUR, GBP, JPY, CAD, AUD)
+- **Currency Support**: Multiple currency symbols (USD, EUR, GBP, RON, CAD, AUD)
 - **Responsive Design**: Works on desktop and mobile devices
-- **Local Storage**: Automatic saving of all settings
+- **Local Storage**: Automatic saving of all settings including theme preference
 - **Zero Dependencies**: Self-contained application with no external dependencies
 
 ## Quick Start
@@ -84,10 +90,12 @@ CHANGELOG.md        # Project cleanup and development log
 
 ### Visual Design
 - Clean, modern interface with progress bars
+- **Dark and Light themes** with automatic system detection
+- **Manual theme toggle** for user preference override
 - Dynamic color coding (green for fresh budget, red for low budget)
 - Responsive design that works on all screen sizes
 - Tooltips for helpful information
-- Professional color scheme
+- Professional color scheme that adapts to theme
 
 ## Technical Details
 
@@ -111,6 +119,7 @@ CHANGELOG.md        # Project cleanup and development log
 ## Usage
 
 1. **First Time Setup**:
+   - Choose your preferred theme using the moon/sun button (top-right)
    - Click the settings gear icon
    - Configure your budget amount
    - Set your payday schedule (single or double)
