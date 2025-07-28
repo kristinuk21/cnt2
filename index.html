@@ -244,6 +244,12 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             margin-top: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .hours-progress-container:hover {
+            background: rgba(55, 63, 107, 0.7);
+            border-color: rgba(255,255,255,0.3);
         }
         .hours-progress-bar {
             height: 100%;
@@ -644,7 +650,7 @@
             </div>
         </div>
         
-        <div class="hours-progress-container" id="hoursProgressContainer">
+    <div class="hours-progress-container" id="hoursProgressContainer">
             <div class="progress-header">
                 <div class="progress-label-section">
                     <span class="progress-label">Today</span>
@@ -657,6 +663,10 @@
                 <div class="progress-stats-overlay">
                     <span class="progress-text-info" id="hoursProgressText">8h 0m remaining</span>
                 </div>
+            </div>
+            <!-- Today Progress Panel -->
+            <div class="task-management-panel" id="todayProgressPanel" style="display:none;">
+                <div class="empty-tasks">TBD</div>
             </div>
         </div>
         
@@ -1490,8 +1500,8 @@
             }
         }
         
-        // Interface Segregation: Small, focused interfaces
-        const elements = {
+    // Interface Segregation: Small, focused interfaces
+    const elements = {
             progressContainer: document.getElementById('progressContainer'),
             progressBar: document.getElementById('progressBar'),
             progressText: document.getElementById('progressText'),
@@ -1517,10 +1527,11 @@
             taskManagementPanel: document.getElementById('taskManagementPanel'),
             newTaskInput: document.getElementById('newTaskInput'),
             addTaskBtn: document.getElementById('addTaskBtn'),
-            taskList: document.getElementById('taskList')
+            taskList: document.getElementById('taskList'),
+            todayProgressPanel: document.getElementById('todayProgressPanel')
         };
         
-        // Dependency Injection: Inject dependencies
+    // Dependency Injection: Inject dependencies
         const dateCalculator = new DateCalculator();
         const budgetCalculator = new BudgetCalculator(dateCalculator);
         const storageManager = new StorageManager();
@@ -1528,8 +1539,52 @@
         const displayManager = new DisplayManager(elements, dateCalculator);
         const app = new BudgetApp(budgetCalculator, displayManager, dateCalculator, storageManager, taskManager);
         
-        // Streamlined initialization function
-        function initializeApp() {
+        // Today Progress Panel logic
+        let todayPanelOpen = false;
+        elements.hoursProgressContainer.addEventListener('click', (e) => {
+            todayPanelOpen = !todayPanelOpen;
+            if (todayPanelOpen) {
+                elements.todayProgressPanel.style.display = 'block';
+            } else {
+                elements.todayProgressPanel.style.display = 'none';
+            }
+            e.stopPropagation();
+        });
+
+        // Mouseover effect for Today progress
+        elements.hoursProgressContainer.addEventListener('mouseenter', () => {
+            elements.hoursProgressContainer.style.boxShadow = '0 0 0 3px #20b2ff55';
+        });
+        elements.hoursProgressContainer.addEventListener('mouseleave', () => {
+            elements.hoursProgressContainer.style.boxShadow = '';
+        });
+
+        // Mouseover effect for Tasks progress
+        elements.tasksProgressContainer.addEventListener('mouseenter', () => {
+            elements.tasksProgressContainer.style.boxShadow = '0 0 0 3px #20b2ff55';
+        });
+        elements.tasksProgressContainer.addEventListener('mouseleave', () => {
+            elements.tasksProgressContainer.style.boxShadow = '';
+        });
+
+        // Mouseover effect for Overall progress
+        elements.progressContainer.addEventListener('mouseenter', () => {
+            elements.progressContainer.style.boxShadow = '0 0 0 3px #20b2ff55';
+        });
+        elements.progressContainer.addEventListener('mouseleave', () => {
+            elements.progressContainer.style.boxShadow = '';
+        });
+
+        // Close Today panel when clicking outside
+        document.addEventListener('click', (e) => {
+            const isClickInsideTodayPanel = elements.todayProgressPanel.contains(e.target);
+            const isClickOnTodayContainer = elements.hoursProgressContainer.contains(e.target);
+            if (todayPanelOpen && !isClickInsideTodayPanel && !isClickOnTodayContainer) {
+                elements.todayProgressPanel.style.display = 'none';
+                todayPanelOpen = false;
+            }
+        });
+    function initializeApp() {
             try {
                 // Check for saved budget and initialize accordingly
                 const savedBudget = app.loadSavedBudget();
