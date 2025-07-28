@@ -15,7 +15,7 @@
             font-size: 0.9em;
             font-weight: 500;
         }ta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget Calculator</title>
+    <title>Progress Tracker</title>
     <style>
         * {
             box-sizing: border-box;
@@ -40,9 +40,18 @@
         h1 {
             color: #e0e0e0;
             text-align: center;
-            margin: 0 0 24px 0;
+            margin: 0 0 8px 0;
             font-weight: 600;
             font-size: 1.8em;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header-info {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9em;
+            margin-top: 4px;
         }
         
         /* Mobile optimizations */
@@ -56,108 +65,6 @@
             h1 {
                 font-size: 1.6em;
                 margin-bottom: 20px;
-            }
-        }
-        .input-group {
-            margin-bottom: 24px;
-            transition: all 0.3s ease;
-        }
-        .input-group.hidden {
-            display: none;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #b0b0b0;
-            font-size: 0.95em;
-        }
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(30, 30, 45, 0.8);
-            color: #e0e0e0;
-        }
-        input:focus {
-            border-color: #667eea;
-            outline: none;
-            background: rgba(30, 30, 45, 0.95);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-        input::placeholder {
-            color: #777;
-        }
-        
-        /* Mobile input optimizations */
-        @media (max-width: 768px) {
-            .input-group {
-                margin-bottom: 20px;
-            }
-            input {
-                padding: 16px;
-                font-size: 16px; /* Prevents zoom on iOS */
-                appearance: none;
-                -webkit-appearance: none;
-                border-radius: 12px;
-                -webkit-border-radius: 12px;
-            }
-        }
-        .result {
-            background: linear-gradient(135deg, #2d3561 0%, #3d4a75 100%);
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            margin-top: 20px;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .info {
-            margin-bottom: 16px;
-            color: rgba(255,255,255,0.9);
-            font-size: 0.9em;
-            font-weight: 500;
-        }
-        .clear-button {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            margin-top: 12px;
-            float: right;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            touch-action: manipulation;
-        }
-        .clear-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(255,107,107,0.3);
-        }
-        .clear-button:active {
-            transform: translateY(0);
-        }
-        
-        /* Mobile button optimizations */
-        @media (max-width: 768px) {
-            .result {
-                padding: 16px;
-            }
-            .clear-button {
-                float: none;
-                display: block;
-                width: auto;
-                margin-top: 16px;
-                padding: 10px 16px;
-                font-size: 0.85em;
-                max-width: 200px;
-                margin-left: auto;
-                margin-right: auto;
             }
         }
         .storage-indicator {
@@ -183,27 +90,69 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 12px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: white;
+            height: 32px; /* Same height as progress bar */
+        }
+        .progress-label-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 100%;
         }
         .progress-label {
-            font-size: 1em;
-            color: white;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            font-size: 0.9em;
+        }
+        .progress-percentage {
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            font-size: 0.9em;
+        }
+        .cycle-end {
+            color: rgba(255,255,255,0.95);
+            font-size: 0.9em;
             font-weight: 600;
         }
-        .progress-stats {
-            display: flex;
-            gap: 12px;
-            font-size: 0.9em;
-            flex-wrap: wrap;
-        }
-        .progress-stat {
-            text-align: center;
+        .progress-bar-container {
+            position: relative;
+            width: 100%;
+            height: 32px;
             background: rgba(255,255,255,0.15);
-            padding: 8px 10px;
-            border-radius: 8px;
-            min-width: 55px;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .progress-stats-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+            color: white;
+            font-weight: 600;
+            z-index: 2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+            background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
+        }
+        .progress-text-info {
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+        }
+        .cycle-end {
+            color: rgba(255,255,255,0.95);
+            font-size: 0.9em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
         }
         
         /* Mobile progress optimizations */
@@ -212,34 +161,29 @@
                 padding: 14px;
             }
             .progress-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            .progress-stats {
-                width: 100%;
-                justify-content: space-between;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
                 gap: 8px;
+                justify-content: space-between;
             }
-            .progress-stat {
+            .progress-label-section {
                 flex: 1;
-                padding: 10px 8px;
-                min-width: auto;
+                min-width: fit-content;
             }
-            .progress-label {
-                font-size: 0.95em;
+            .cycle-end {
+                flex-shrink: 0;
+                font-size: 0.8em;
+                padding: 3px 6px;
             }
-        }
-        .progress-stat-number {
-            font-weight: 700;
-            color: white;
-            display: block;
-            font-size: 1.2em;
-        }
-        .progress-stat-label {
-            font-size: 0.8em;
-            color: rgba(255,255,255,0.8);
-            margin-top: 2px;
+            .progress-stats-overlay {
+                font-size: 0.75em;
+                text-align: center;
+                padding: 0 8px;
+            }
+            .progress-text-info {
+                font-size: 0.8em;
+            }
         }
         .progress-bar-container {
             width: 100%;
@@ -252,21 +196,11 @@
         }
         .progress-bar {
             height: 100%;
-            background: linear-gradient(90deg, #4ac3ff, #667eea);
-            border-radius: 12px;
+            background: linear-gradient(90deg, #20b2ff, #4ac3ff, #667eea);
+            border-radius: 16px;
             transition: width 0.5s ease;
             position: relative;
-        }
-        .progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.85em;
-            font-weight: 700;
-            color: white;
-            z-index: 1;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.3), 0 0 15px rgba(74, 195, 255, 0.4);
         }
         .next-working-day {
             font-size: 0.9em;
@@ -305,52 +239,6 @@
             border: 1px solid rgba(255,255,255,0.2);
             margin-top: 16px;
         }
-        .hours-progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        .hours-progress-label {
-            font-size: 1em;
-            color: white;
-            font-weight: 600;
-        }
-        .hours-progress-stats {
-            display: flex;
-            gap: 12px;
-            font-size: 0.9em;
-            flex-wrap: wrap;
-        }
-        .hours-progress-stat {
-            text-align: center;
-            background: rgba(255,255,255,0.15);
-            padding: 8px 10px;
-            border-radius: 8px;
-            min-width: 55px;
-        }
-        .hours-progress-stat-number {
-            font-weight: 700;
-            color: white;
-            display: block;
-            font-size: 1.2em;
-        }
-        .hours-progress-stat-label {
-            font-size: 0.8em;
-            color: rgba(255,255,255,0.8);
-            margin-top: 2px;
-        }
-        .hours-progress-bar-container {
-            width: 100%;
-            height: 24px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
         .hours-progress-bar {
             height: 100%;
             background: linear-gradient(90deg, #00d2ff, #3a7bd5);
@@ -358,16 +246,203 @@
             transition: width 0.5s ease;
             position: relative;
         }
-        .hours-progress-text {
+        
+        /* Tasks progress styles */
+        .tasks-progress-container {
+            background: rgba(45, 53, 97, 0.6);
+            padding: 16px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tasks-progress-container:hover {
+            background: rgba(55, 63, 107, 0.7);
+            border-color: rgba(255,255,255,0.3);
+        }
+        .tasks-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b8a, #c471ed);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+        
+        /* Task Management Panel */
+        .task-management-panel {
+            display: none;
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .task-management-panel.show {
+            display: block;
+        }
+        
+        /* Add Task Section */
+        .add-task-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .task-input {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.9em;
+            padding: 10px 12px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .task-input:focus {
+            border-color: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.15);
+        }
+        .task-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        .task-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .add-task-btn {
+            background: linear-gradient(135deg, #4a8b6b, #3a7d5c);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .add-task-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            filter: brightness(1.1);
+        }
+        
+        /* Task List */
+        .task-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            min-height: 52px;
+        }
+        .task-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.2);
+        }
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid rgba(255,255,255,0.4);
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .task-checkbox.completed {
+            background: linear-gradient(135deg, #4a8b6b, #3a7d5c);
+            border-color: #4a8b6b;
+        }
+        .task-checkbox.completed::after {
+            content: '✓';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 0.85em;
-            font-weight: 700;
             color: white;
-            z-index: 1;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .task-text {
+            flex: 1;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .task-text.completed {
+            text-decoration: line-through;
+            color: rgba(255,255,255,0.5);
+        }
+        .task-text.editing {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            padding: 4px 8px;
+            outline: none;
+        }
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        .task-item:hover .task-actions {
+            opacity: 1;
+        }
+        .task-action-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .edit-btn {
+            background: linear-gradient(135deg, #4a90e2, #357abd);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .delete-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .task-action-btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        
+        /* Empty state */
+        .empty-tasks {
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9em;
+            padding: 20px;
+            font-style: italic;
         }
         
         /* Mobile hours progress optimizations */
@@ -375,23 +450,25 @@
             .hours-progress-container {
                 padding: 14px;
             }
-            .hours-progress-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
+            .tasks-progress-container {
+                padding: 14px;
             }
-            .hours-progress-stats {
-                width: 100%;
-                justify-content: space-between;
+            .task-management-panel {
+                margin-top: 12px;
+                padding: 12px;
+            }
+            .add-task-section {
+                flex-direction: column;
                 gap: 8px;
             }
-            .hours-progress-stat {
-                flex: 1;
-                padding: 10px 8px;
-                min-width: auto;
+            .task-input {
+                width: 100%;
             }
-            .hours-progress-label {
-                font-size: 0.95em;
+            .task-item {
+                padding: 10px;
+            }
+            .task-actions {
+                opacity: 1; /* Always show on mobile for easier interaction */
             }
         }
         .daily-budget-detail {
@@ -413,14 +490,6 @@
             border: 1px solid rgba(255,107,138,0.3);
         }
         
-        /* Touch-friendly interactions */
-        @media (hover: none) {
-            .clear-button:hover {
-                transform: none;
-                box-shadow: none;
-            }
-        }
-        
         /* Budget adjustment buttons */
         .budget-adjustment-panel {
             display: none;
@@ -440,6 +509,27 @@
             font-weight: 600;
             margin-bottom: 12px;
         }
+        .current-budget-input {
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            padding: 12px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+        .current-budget-input:focus {
+            border-color: rgba(255,255,255,0.6);
+            background: rgba(255,255,255,0.15);
+        }
+        .current-budget-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
         .budget-adjustment-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -455,33 +545,26 @@
             transition: all 0.3s ease;
             touch-action: manipulation;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
         .budget-adjust-btn.decrease {
-            background: linear-gradient(135deg, #ff6b8a, #ff5722);
+            background: linear-gradient(135deg, #8b5a6b, #6d4a5c);
             color: white;
+            border: 1px solid rgba(255,255,255,0.15);
         }
         .budget-adjust-btn.increase {
-            background: linear-gradient(135deg, #4ac3ff, #667eea);
+            background: linear-gradient(135deg, #4a6b8b, #3a5a7d);
             color: white;
+            border: 1px solid rgba(255,255,255,0.15);
         }
         .budget-adjust-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            filter: brightness(1.1);
         }
         .budget-adjust-btn:active {
             transform: translateY(0);
-        }
-        .budget-adjustment-close {
-            display: block;
-            width: 100%;
-            margin-top: 12px;
-            padding: 8px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 6px;
-            color: white;
-            font-size: 0.8em;
-            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         /* Mobile budget adjustment optimizations */
@@ -508,12 +591,10 @@
             h1 {
                 font-size: 1.4em;
             }
-            .progress-stat-number,
-            .hours-progress-stat-number {
+            .progress-stat-number {
                 font-size: 1.1em;
             }
-            .progress-stat-label,
-            .hours-progress-stat-label {
+            .progress-stat-label {
                 font-size: 0.75em;
             }
         }
@@ -521,76 +602,82 @@
 </head>
 <body>
     <div class="container">
-        <h1>Budget Calculator</h1>
-        
-        <div class="input-group">
-            <label for="budget">Total Budget (RON)</label>
-            <input type="number" id="budget" min="0" step="0.01" placeholder="Enter your total budget in RON">
-            <div class="storage-indicator" id="storageIndicator">✓ Budget saved automatically</div>
-            <button class="clear-button" id="clearButton" style="display: none;">Clear Saved Budget</button>
+        <div class="header">
+            <h1>Progress Tracker</h1>
         </div>
         
-        <div class="result" id="result">
-            <div class="info" id="info">Enter your budget to see daily spending limit</div>
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-header">
+                <div class="progress-label-section">
+                    <span class="progress-label">Progress</span>
+                    <span class="progress-percentage" id="progressText">0%</span>
+                </div>
+                <div class="cycle-end" id="nextWorkingDayInfo">Ends: -</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                <div class="progress-stats-overlay">
+                    <span class="progress-text-info" id="progressTextInfo">0 days at 0 RON/day</span>
+                </div>
+            </div>
             
-            <div class="progress-container" id="progressContainer">
-                <div class="progress-header">
-                    <div class="progress-label" id="progressLabel">Budget Cycle Progress</div>
-                    <div class="progress-stats">
-                        <div class="progress-stat">
-                            <span class="progress-stat-number" id="totalDaysProgress">0</span>
-                            <span class="progress-stat-label">Total Days</span>
-                        </div>
-                        <div class="progress-stat">
-                            <span class="progress-stat-number" id="workingDaysProgress">0</span>
-                            <span class="progress-stat-label">Working Days</span>
-                        </div>
-                        <div class="progress-stat">
-                            <span class="progress-stat-number" id="nonWorkingDaysProgress">0</span>
-                            <span class="progress-stat-label">Weekends</span>
-                        </div>
-                    </div>
+            <!-- Budget Adjustment Panel -->
+            <div class="budget-adjustment-panel" id="budgetAdjustmentPanel">
+                <div class="budget-adjustment-title">Adjust Budget</div>
+                <input type="number" class="current-budget-input" id="currentBudgetInput" min="0" step="0.01" placeholder="Enter budget">
+                <div class="budget-adjustment-buttons">
+                    <button class="budget-adjust-btn decrease" id="decreaseHalf">-½ Rate</button>
+                    <button class="budget-adjust-btn decrease" id="decreaseDouble">-2x Rate</button>
+                    <button class="budget-adjust-btn increase" id="increaseHalf">+½ Rate</button>
+                    <button class="budget-adjust-btn increase" id="increaseDouble">+2x Rate</button>
                 </div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
-                    <div class="progress-text" id="progressText">0%</div>
+            </div>
+        </div>
+        
+        <div class="hours-progress-container" id="hoursProgressContainer">
+            <div class="progress-header">
+                <div class="progress-label-section">
+                    <span class="progress-label">Today</span>
+                    <span class="progress-percentage" id="hoursProgressTextHeader">0%</span>
                 </div>
-                <div class="budget-rate" id="dailyBudget">Budget Rate: 0 RON/day</div>
-                <div class="next-working-day" id="nextWorkingDayInfo">Next working day: -</div>
+                <div class="cycle-end" id="workingHoursInfo">18:00</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="hours-progress-bar" id="hoursProgressBar" style="width: 0%"></div>
+                <div class="progress-stats-overlay">
+                    <span class="progress-text-info" id="hoursProgressText">8h 0m remaining</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tasks-progress-container" id="tasksProgressContainer">
+            <div class="progress-header">
+                <div class="progress-label-section">
+                    <span class="progress-label">Tasks</span>
+                    <span class="progress-percentage" id="tasksProgressTextHeader">0%</span>
+                </div>
+                <div class="cycle-end" id="tasksInfo">0/0</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="tasks-progress-bar" id="tasksProgressBar" style="width: 0%"></div>
+                <div class="progress-stats-overlay">
+                    <span class="progress-text-info" id="tasksProgressText">No tasks • Click to manage</span>
+                </div>
+            </div>
+            
+            <!-- Task Management Panel -->
+            <div class="task-management-panel" id="taskManagementPanel">
+                <!-- Add New Task -->
+                <div class="add-task-section">
+                    <input type="text" class="task-input" id="newTaskInput" placeholder="Enter new task...">
+                    <button class="task-btn add-task-btn" id="addTaskBtn">Add Task</button>
+                </div>
                 
-                <!-- Budget Adjustment Panel -->
-                <div class="budget-adjustment-panel" id="budgetAdjustmentPanel">
-                    <div class="budget-adjustment-title">Adjust Budget</div>
-                    <div class="budget-adjustment-buttons">
-                        <button class="budget-adjust-btn decrease" id="decreaseHalf">-½ Rate</button>
-                        <button class="budget-adjust-btn decrease" id="decreaseDouble">-2x Rate</button>
-                        <button class="budget-adjust-btn increase" id="increaseHalf">+½ Rate</button>
-                        <button class="budget-adjust-btn increase" id="increaseDouble">+2x Rate</button>
-                    </div>
-                    <button class="budget-adjustment-close" id="closeBudgetAdjustment">Close</button>
+                <!-- Task List -->
+                <div class="task-list" id="taskList">
+                    <!-- Tasks will be populated here -->
                 </div>
             </div>
-            
-            <div class="hours-progress-container" id="hoursProgressContainer">
-                <div class="hours-progress-header">
-                    <div class="hours-progress-label" id="hoursProgressLabel">Today's Working Hours</div>
-                    <div class="hours-progress-stats">
-                        <div class="hours-progress-stat">
-                            <span class="hours-progress-stat-number" id="hoursElapsed">0</span>
-                            <span class="hours-progress-stat-label">Elapsed</span>
-                        </div>
-                        <div class="hours-progress-stat">
-                            <span class="hours-progress-stat-number" id="hoursRemaining">8</span>
-                            <span class="hours-progress-stat-label">Remaining</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="hours-progress-bar-container">
-                    <div class="hours-progress-bar" id="hoursProgressBar" style="width: 0%"></div>
-                    <div class="hours-progress-text" id="hoursProgressText">0%</div>
-                </div>
-            </div>
-            
         </div>
     </div>
 
@@ -719,27 +806,31 @@
                 // Determine last and next criteria dates (10th or 25th)
                 if (currentDate < 10) {
                     // Before 10th of current month
-                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25); // 25th of previous month
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 10); // 10th of current month
+                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 0, 0, 0, 0); // 25th of previous month at midnight
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0); // 10th of current month at midnight
                 } else if (currentDate <= 25) {
                     // Between 10th and 25th of current month
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 10); // 10th of current month
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 25); // 25th of current month
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0); // 10th of current month at midnight
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0); // 25th of current month at midnight
                 } else {
                     // After 25th of current month
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 25); // 25th of current month
-                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10); // 10th of next month
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0); // 25th of current month at midnight
+                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 0, 0, 0, 0); // 10th of next month at midnight
                 }
                 
-                // Calculate progress
+                // Calculate progress - use proper day counting
                 const totalDays = Math.ceil((nextCriteriaDate - lastCriteriaDate) / (1000 * 60 * 60 * 24));
-                const daysPassed = Math.ceil((now - lastCriteriaDate) / (1000 * 60 * 60 * 24));
+                
+                // Calculate days passed more accurately
+                const startOfToday = new Date(currentYear, currentMonth, currentDate, 0, 0, 0, 0);
+                const daysPassed = Math.ceil((startOfToday - lastCriteriaDate) / (1000 * 60 * 60 * 24));
+                
                 const progressPercentage = Math.min(Math.max((daysPassed / totalDays) * 100, 0), 100);
                 
                 return {
                     lastDate: lastCriteriaDate,
                     nextDate: nextCriteriaDate,
-                    daysPassed: Math.max(daysPassed, 0),
+                    daysPassed: daysPassed,
                     totalDays: totalDays,
                     progressPercentage: progressPercentage
                 };
@@ -777,19 +868,19 @@
                     hoursElapsed = 0;
                     hoursRemaining = totalWorkHours;
                     progressPercentage = 0;
-                    status = 'Before work hours';
+                    status = 'Before hours';
                 } else if (currentTimeInHours >= workEnd) {
                     // After work hours
                     hoursElapsed = totalWorkHours;
                     hoursRemaining = 0;
                     progressPercentage = 100;
-                    status = 'Work day complete';
+                    status = 'Complete';
                 } else {
                     // During work hours
                     hoursElapsed = currentTimeInHours - workStart;
                     hoursRemaining = workEnd - currentTimeInHours;
                     progressPercentage = (hoursElapsed / totalWorkHours) * 100;
-                    status = 'In progress';
+                    status = 'Active';
                 }
                 
                 return {
@@ -814,6 +905,7 @@
         class StorageManager {
             constructor() {
                 this.storageKey = 'budgetCalculator_budget';
+                this.tasksStorageKey = 'progressTracker_tasks';
             }
             
             saveBudget(budget) {
@@ -840,6 +932,128 @@
                 } catch (error) {
                     console.warn('Unable to clear localStorage:', error);
                 }
+            }
+            
+            saveTasks(tasks) {
+                try {
+                    localStorage.setItem(this.tasksStorageKey, JSON.stringify(tasks));
+                } catch (error) {
+                    console.warn('Unable to save tasks to localStorage:', error);
+                }
+            }
+            
+            loadTasks() {
+                try {
+                    const savedTasks = localStorage.getItem(this.tasksStorageKey);
+                    return savedTasks ? JSON.parse(savedTasks) : [];
+                } catch (error) {
+                    console.warn('Unable to load tasks from localStorage:', error);
+                    return [];
+                }
+            }
+            
+            clearTasks() {
+                try {
+                    localStorage.removeItem(this.tasksStorageKey);
+                } catch (error) {
+                    console.warn('Unable to clear tasks from localStorage:', error);
+                }
+            }
+        }
+        
+        // Task Management Class
+        class TaskManager {
+            constructor(storageManager) {
+                this.storageManager = storageManager;
+                this.tasks = [];
+                this.taskIdCounter = 1;
+                this.loadTasks();
+            }
+            
+            loadTasks() {
+                const savedTasks = this.storageManager.loadTasks();
+                this.tasks = savedTasks;
+                
+                // Update counter to avoid ID conflicts
+                if (this.tasks.length > 0) {
+                    this.taskIdCounter = Math.max(...this.tasks.map(task => task.id)) + 1;
+                }
+            }
+            
+            saveTasks() {
+                this.storageManager.saveTasks(this.tasks);
+            }
+            
+            addTask(text) {
+                if (!text || text.trim() === '') {
+                    return false;
+                }
+                
+                const task = {
+                    id: this.taskIdCounter++,
+                    text: text.trim(),
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.tasks.push(task);
+                this.saveTasks();
+                return task;
+            }
+            
+            updateTask(id, updates) {
+                const taskIndex = this.tasks.findIndex(task => task.id === id);
+                if (taskIndex === -1) {
+                    return false;
+                }
+                
+                this.tasks[taskIndex] = { ...this.tasks[taskIndex], ...updates };
+                this.saveTasks();
+                return this.tasks[taskIndex];
+            }
+            
+            deleteTask(id) {
+                const initialLength = this.tasks.length;
+                this.tasks = this.tasks.filter(task => task.id !== id);
+                
+                if (this.tasks.length < initialLength) {
+                    this.saveTasks();
+                    return true;
+                }
+                return false;
+            }
+            
+            toggleTask(id) {
+                const task = this.tasks.find(task => task.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.saveTasks();
+                    return task;
+                }
+                return false;
+            }
+            
+            getTasks() {
+                return [...this.tasks];
+            }
+            
+            getTaskStats() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(task => task.completed).length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                return {
+                    total,
+                    completed,
+                    remaining: total - completed,
+                    percentage
+                };
+            }
+            
+            clearAllTasks() {
+                this.tasks = [];
+                this.taskIdCounter = 1;
+                this.saveTasks();
             }
         }
         
@@ -881,12 +1095,7 @@
             }
             
             updateResult(calculation, monthInfo) {
-                this.elements.dailyBudget.textContent = `Budget Rate: ${calculation.dailyBudget.toFixed(2)} RON/day`;
-                this.elements.info.textContent = `Daily budget calculated`;
-                
-                // Update progress bar with all information consolidated
                 this.updateProgressBar(calculation);
-                
                 this.clearError();
             }
             
@@ -897,28 +1106,33 @@
                 this.elements.progressBar.style.width = `${progressInfo.progressPercentage}%`;
                 this.elements.progressText.textContent = `${Math.round(progressInfo.progressPercentage)}%`;
                 
-                // Simplified progress label without duplicate day counts
-                this.elements.progressLabel.textContent = `Budget Cycle Progress`;
+                // Get default day info for display
+                const defaultDayInfo = this.dateCalculator.calculateDays();
                 
-                // Update consolidated stats
-                if (calculation) {
-                    this.elements.totalDaysProgress.textContent = calculation.totalDays;
-                    this.elements.workingDaysProgress.textContent = calculation.workingDays;
-                    this.elements.nonWorkingDaysProgress.textContent = calculation.nonWorkingDays;
+                // Update progress text info with new format
+                if (calculation && calculation.dailyBudget > 0) {
+                    const dailyRate = Math.round(calculation.dailyBudget);
+                    this.elements.progressTextInfo.textContent = `${calculation.totalDays} days at ${dailyRate} RON/day`;
                 } else {
-                    // Default values when no calculation is available
-                    const defaultDayInfo = this.dateCalculator.calculateDays();
-                    this.elements.totalDaysProgress.textContent = defaultDayInfo.totalDays;
-                    this.elements.workingDaysProgress.textContent = defaultDayInfo.workingDays;
-                    this.elements.nonWorkingDaysProgress.textContent = defaultDayInfo.nonWorkingDays;
+                    // Check for current budget in the app or storage
+                    const savedBudget = storageManager.loadBudget();
+                    
+                    if (savedBudget && parseFloat(savedBudget) > 0) {
+                        // Use consistent calculation method
+                        const budget = parseFloat(savedBudget);
+                        const dailyRate = Math.round(budget / defaultDayInfo.totalDays);
+                        this.elements.progressTextInfo.textContent = `${defaultDayInfo.totalDays} days at ${dailyRate} RON/day`;
+                    } else {
+                        // No budget available - prompt to click to set budget
+                        this.elements.progressTextInfo.textContent = `${defaultDayInfo.totalDays} days • Click to set budget`;
+                    }
                 }
                 
-                // Show budget progress end date instead of next working day
+                // Show budget progress end date
                 const endDateInfo = this.dateCalculator.getProgressInfo();
                 const endDate = endDateInfo.nextDate;
-                const endDayName = endDate.toLocaleDateString('en-US', { weekday: 'long' });
                 this.elements.nextWorkingDayInfo.textContent = 
-                    `Budget cycle ends: ${endDayName}, ${this.getShortMonthName(endDate.getMonth())} ${endDate.getDate()}`;
+                    `Ends: ${this.getShortMonthName(endDate.getMonth())} ${endDate.getDate()}`;
                 
                 // Update working hours progress
                 this.updateWorkingHoursProgress();
@@ -929,20 +1143,77 @@
                 
                 // Update hours progress bar
                 this.elements.hoursProgressBar.style.width = `${hoursInfo.progressPercentage}%`;
-                this.elements.hoursProgressText.textContent = `${Math.round(hoursInfo.progressPercentage)}%`;
+                this.elements.hoursProgressTextHeader.textContent = `${Math.round(hoursInfo.progressPercentage)}%`;
                 
-                // Update hours stats
-                this.elements.hoursElapsed.textContent = hoursInfo.hoursElapsed.toFixed(1);
-                this.elements.hoursRemaining.textContent = hoursInfo.hoursRemaining.toFixed(1);
+                // Convert decimal hours to hours:minutes format
+                const elapsedHours = Math.floor(hoursInfo.hoursElapsed);
+                const elapsedMinutes = Math.round((hoursInfo.hoursElapsed - elapsedHours) * 60);
+                const remainingHours = Math.floor(hoursInfo.hoursRemaining);
+                const remainingMinutes = Math.round((hoursInfo.hoursRemaining - remainingHours) * 60);
                 
-                // Update label based on status
+                // Update progress text with hours:minutes format
                 if (!hoursInfo.isWorkingDay) {
-                    this.elements.hoursProgressLabel.textContent = 'Weekend - No Work Hours';
-                    this.elements.hoursElapsed.textContent = '-';
-                    this.elements.hoursRemaining.textContent = '-';
+                    this.elements.hoursProgressText.textContent = 'Weekend - No work hours';
+                    this.elements.workingHoursInfo.textContent = 'N/A';
                 } else {
-                    this.elements.hoursProgressLabel.textContent = `Today's Working Hours (${hoursInfo.status})`;
+                    // Show only remaining time in progress bar
+                    if (hoursInfo.status === 'Complete') {
+                        this.elements.hoursProgressText.textContent = 'Work day completed';
+                    } else if (hoursInfo.status === 'Before hours') {
+                        this.elements.hoursProgressText.textContent = `${remainingHours}h ${remainingMinutes}m until end`;
+                    } else {
+                        this.elements.hoursProgressText.textContent = `${remainingHours}h ${remainingMinutes}m remaining`;
+                    }
+                    this.elements.workingHoursInfo.textContent = `18:00 (${hoursInfo.status})`;
                 }
+            }
+            
+            updateTasksProgress(taskStats) {
+                // Update tasks progress bar
+                this.elements.tasksProgressBar.style.width = `${taskStats.percentage}%`;
+                this.elements.tasksProgressTextHeader.textContent = `${taskStats.percentage}%`;
+                this.elements.tasksInfo.textContent = `${taskStats.completed}/${taskStats.total}`;
+                
+                // Update progress text
+                if (taskStats.total === 0) {
+                    this.elements.tasksProgressText.textContent = 'No tasks • Click to manage';
+                } else if (taskStats.completed === taskStats.total) {
+                    this.elements.tasksProgressText.textContent = 'All tasks completed!';
+                } else {
+                    this.elements.tasksProgressText.textContent = `${taskStats.remaining} tasks remaining`;
+                }
+            }
+            
+            renderTasks(tasks) {
+                const taskList = this.elements.taskList;
+                taskList.innerHTML = '';
+                
+                if (tasks.length === 0) {
+                    return;
+                }
+                
+                tasks.forEach(task => {
+                    const taskElement = this.createTaskElement(task);
+                    taskList.appendChild(taskElement);
+                });
+            }
+            
+            createTaskElement(task) {
+
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.dataset.taskId = task.id;
+                
+                taskItem.innerHTML = `
+                    <div class="task-checkbox ${task.completed ? 'completed' : ''}" data-action="toggle"></div>
+                    <div class="task-text ${task.completed ? 'completed' : ''}" data-action="edit">${task.text}</div>
+                    <div class="task-actions">
+                        <button class="task-action-btn edit-btn" data-action="edit" title="Edit">📝</button>
+                        <button class="task-action-btn delete-btn" data-action="delete" title="Delete">🗑️</button>
+                    </div>
+                `;
+                
+                return taskItem;
             }
             
             getOrdinal(n) {
@@ -960,24 +1231,22 @@
             }
             
             showError(message) {
-                this.elements.dailyBudget.textContent = '0 RON';
-                this.elements.info.innerHTML = `<span class="error">${message}</span>`;
-                this.elements.dayBreakdown.style.display = 'none';
+                this.updateProgressBar(); // Update with default values
             }
             
             clearError() {
-                const errorElements = this.elements.info.querySelectorAll('.error');
-                errorElements.forEach(el => el.remove());
+                // No error display needed - UI is self-explanatory
             }
         }
         
         // Dependency Inversion: Depends on abstractions, not concretions
         class BudgetApp {
-            constructor(calculator, displayManager, dateCalculator, storageManager) {
+            constructor(calculator, displayManager, dateCalculator, storageManager, taskManager) {
                 this.calculator = calculator;
                 this.displayManager = displayManager;
                 this.dateCalculator = dateCalculator;
                 this.storageManager = storageManager;
+                this.taskManager = taskManager;
                 this.currentBudget = 0;
             }
             
@@ -990,23 +1259,9 @@
                     
                     // Save budget to localStorage
                     this.storageManager.saveBudget(budget);
-                    this.showStorageIndicator();
-                    
-                    // Hide the input group after budget is set
-                    this.hideInputGroup();
                 } catch (error) {
                     this.displayManager.showError(error.message);
                 }
-            }
-            
-            hideInputGroup() {
-                const inputGroup = document.querySelector('.input-group');
-                inputGroup.classList.add('hidden');
-            }
-            
-            showInputGroup() {
-                const inputGroup = document.querySelector('.input-group');
-                inputGroup.classList.remove('hidden');
             }
             
             adjustBudget(adjustmentType) {
@@ -1014,46 +1269,70 @@
                     return;
                 }
                 
-                // Calculate current daily rate
                 try {
                     const calculation = this.calculator.calculate(this.currentBudget);
                     const dailyRate = calculation.dailyBudget;
-                    const totalDays = calculation.totalDays;
                     
-                    let rateAdjustment = 0;
+                    let budgetAdjustment = 0;
+                    
+                    // Calculate reasonable adjustments based on current rate
+                    // Aim for adjustments around 100-200 RON range
+                    const baseAdjustment = Math.round(dailyRate * 0.7); // ~70% of daily rate
+                    const largeAdjustment = Math.round(dailyRate * 1.4); // ~140% of daily rate
+                    
+                    // Round both to nearest 10 for cleaner values
+                    const roundedBase = Math.round(baseAdjustment / 10) * 10;
+                    const roundedLarge = Math.round(largeAdjustment / 10) * 10;
                     
                     switch(adjustmentType) {
                         case 'decreaseHalf':
-                            rateAdjustment = -dailyRate * 0.5; // Decrease by half the daily rate
+                            budgetAdjustment = -roundedBase;
                             break;
                         case 'decreaseDouble':
-                            rateAdjustment = -dailyRate * 2; // Decrease by double the daily rate
+                            budgetAdjustment = -roundedLarge;
                             break;
                         case 'increaseHalf':
-                            rateAdjustment = dailyRate * 0.5; // Increase by half the daily rate
+                            budgetAdjustment = roundedBase;
                             break;
                         case 'increaseDouble':
-                            rateAdjustment = dailyRate * 2; // Increase by double the daily rate
+                            budgetAdjustment = roundedLarge;
                             break;
                     }
                     
-                    // Calculate new total budget based on rate adjustment
-                    const newDailyRate = dailyRate + rateAdjustment;
-                    const newBudget = Math.max(0, newDailyRate * totalDays); // Use total days for budget calculation
+                    // Calculate new budget
+                    const newBudget = Math.max(0, this.currentBudget + budgetAdjustment);
                     
-                    // Update the input field and recalculate
-                    elements.budget.value = newBudget.toFixed(2);
+                    // Update and handle the new budget
                     this.handleBudgetInput(newBudget);
+                    
+                    // Update the current budget input in the adjustment panel
+                    elements.currentBudgetInput.value = newBudget.toFixed(2);
+                    
+                    // Update button labels with new adjustment amounts
+                    this.updateAdjustmentButtonLabels();
                     
                 } catch (error) {
                     console.error('Error adjusting budget:', error);
                 }
-                
-                // Hide the adjustment panel
-                this.hideBudgetAdjustment();
             }
             
             showBudgetAdjustment() {
+                // Get the current budget from storage if currentBudget is not set
+                if (!this.currentBudget || this.currentBudget <= 0) {
+                    const savedBudget = this.storageManager.loadBudget();
+                    if (savedBudget && savedBudget > 0) {
+                        this.currentBudget = parseFloat(savedBudget);
+                    }
+                }
+                
+                // Update current budget input field
+                if (this.currentBudget && this.currentBudget > 0) {
+                    elements.currentBudgetInput.value = this.currentBudget.toFixed(2);
+                } else {
+                    // Set a default budget if none exists
+                    elements.currentBudgetInput.value = '2000.00';
+                }
+                
                 // Update button labels with current rate amounts
                 this.updateAdjustmentButtonLabels();
                 elements.budgetAdjustmentPanel.classList.add('show');
@@ -1068,57 +1347,33 @@
                     const calculation = this.calculator.calculate(this.currentBudget);
                     const dailyRate = calculation.dailyBudget;
                     
-                    // Calculate the daily rate adjustments (not total budget adjustments)
-                    const halfRate = (dailyRate * 0.5).toFixed(0);
-                    const doubleRate = (dailyRate * 2).toFixed(0);
+                    // Calculate reasonable adjustments based on current rate
+                    // These give us practical amounts around 100-200 RON range
+                    const baseAdjustment = Math.round(dailyRate * 0.7); // ~70% of daily rate
+                    const largeAdjustment = Math.round(dailyRate * 1.4); // ~140% of daily rate
                     
-                    // Update button labels with daily rate changes
-                    elements.decreaseHalf.textContent = `-${halfRate} RON/day`;
-                    elements.decreaseDouble.textContent = `-${doubleRate} RON/day`;
-                    elements.increaseHalf.textContent = `+${halfRate} RON/day`;
-                    elements.increaseDouble.textContent = `+${doubleRate} RON/day`;
+                    // Round both to nearest 10 for cleaner values
+                    const roundedBase = Math.round(baseAdjustment / 10) * 10;
+                    const roundedLarge = Math.round(largeAdjustment / 10) * 10;
+                    
+                    // Update button labels with these rounded amounts
+                    elements.decreaseHalf.textContent = `-${roundedBase} RON`;
+                    elements.decreaseDouble.textContent = `-${roundedLarge} RON`;
+                    elements.increaseHalf.textContent = `+${roundedBase} RON`;
+                    elements.increaseDouble.textContent = `+${roundedLarge} RON`;
                     
                 } catch (error) {
                     console.error('Error updating button labels:', error);
                     // Fallback labels
-                    elements.decreaseHalf.textContent = '-½ Rate';
-                    elements.decreaseDouble.textContent = '-2x Rate';
-                    elements.increaseHalf.textContent = '+½ Rate';
-                    elements.increaseDouble.textContent = '+2x Rate';
+                    elements.decreaseHalf.textContent = '-Base';
+                    elements.decreaseDouble.textContent = '-Large';
+                    elements.increaseHalf.textContent = '+Base';
+                    elements.increaseDouble.textContent = '+Large';
                 }
             }
             
             hideBudgetAdjustment() {
                 elements.budgetAdjustmentPanel.classList.remove('show');
-            }
-            
-            showStorageIndicator() {
-                const indicator = document.getElementById('storageIndicator');
-                const clearButton = document.getElementById('clearButton');
-                
-                indicator.classList.add('show');
-                clearButton.style.display = 'inline-block';
-                
-                // Hide indicator after 2 seconds
-                setTimeout(() => {
-                    indicator.classList.remove('show');
-                }, 2000);
-            }
-            
-            clearSavedBudget() {
-                this.storageManager.clearBudget();
-                const budgetInput = document.getElementById('budget');
-                const clearButton = document.getElementById('clearButton');
-                
-                budgetInput.value = '';
-                clearButton.style.display = 'none';
-                this.currentBudget = 0;
-                this.hideBudgetAdjustment();
-                
-                // Show the input group again
-                this.showInputGroup();
-                
-                this.displayManager.showError('Enter your budget to see daily spending limit');
             }
             
             loadSavedBudget() {
@@ -1128,72 +1383,178 @@
                 }
                 return null;
             }
+            
+            // Task Management Methods
+            showTaskManagement() {
+                this.refreshTaskDisplay();
+                elements.taskManagementPanel.classList.add('show');
+            }
+            
+            hideTaskManagement() {
+                elements.taskManagementPanel.classList.remove('show');
+            }
+            
+            refreshTaskDisplay() {
+                const tasks = this.taskManager.getTasks();
+                const stats = this.taskManager.getTaskStats();
+                
+                this.displayManager.updateTasksProgress(stats);
+                this.displayManager.renderTasks(tasks);
+            }
+            
+            addTask() {
+                const taskInput = elements.newTaskInput;
+                const taskText = taskInput.value.trim();
+                
+                if (taskText) {
+                    const task = this.taskManager.addTask(taskText);
+                    if (task) {
+                        taskInput.value = '';
+                        this.refreshTaskDisplay();
+                    }
+                }
+            }
+            
+            handleTaskAction(taskId, action) {
+                switch (action) {
+                    case 'toggle':
+                        this.taskManager.toggleTask(parseInt(taskId));
+                        this.refreshTaskDisplay();
+                        break;
+                    case 'delete':
+                        this.taskManager.deleteTask(parseInt(taskId));
+                        this.refreshTaskDisplay();
+                        break;
+                    case 'edit':
+                        this.editTask(parseInt(taskId));
+                        break;
+                }
+            }
+            
+            editTask(taskId) {
+                const tasks = this.taskManager.getTasks();
+                const task = tasks.find(t => t.id === taskId);
+                if (!task) return;
+                
+                const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                const taskTextElement = taskElement.querySelector('.task-text');
+                
+                // Create an input field for editing
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = task.text;
+                input.className = 'task-text editing';
+                
+                // Replace the text with input
+                taskTextElement.replaceWith(input);
+                input.focus();
+                input.select();
+                
+                const saveEdit = () => {
+                    const newText = input.value.trim();
+                    if (newText && newText !== task.text) {
+                        this.taskManager.updateTask(taskId, { text: newText });
+                    }
+                    this.refreshTaskDisplay();
+                };
+                
+                const cancelEdit = () => {
+                    this.refreshTaskDisplay();
+                };
+                
+                input.addEventListener('blur', saveEdit);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEdit();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelEdit();
+                    }
+                });
+            }
         }
         
         // Interface Segregation: Small, focused interfaces
         const elements = {
-            budget: document.getElementById('budget'),
-            dailyBudget: document.getElementById('dailyBudget'),
-            info: document.getElementById('info'),
-            storageIndicator: document.getElementById('storageIndicator'),
-            clearButton: document.getElementById('clearButton'),
             progressContainer: document.getElementById('progressContainer'),
             progressBar: document.getElementById('progressBar'),
             progressText: document.getElementById('progressText'),
-            progressLabel: document.getElementById('progressLabel'),
-            totalDaysProgress: document.getElementById('totalDaysProgress'),
-            workingDaysProgress: document.getElementById('workingDaysProgress'),
-            nonWorkingDaysProgress: document.getElementById('nonWorkingDaysProgress'),
+            progressTextInfo: document.getElementById('progressTextInfo'),
             nextWorkingDayInfo: document.getElementById('nextWorkingDayInfo'),
             hoursProgressContainer: document.getElementById('hoursProgressContainer'),
             hoursProgressBar: document.getElementById('hoursProgressBar'),
             hoursProgressText: document.getElementById('hoursProgressText'),
-            hoursProgressLabel: document.getElementById('hoursProgressLabel'),
-            hoursElapsed: document.getElementById('hoursElapsed'),
-            hoursRemaining: document.getElementById('hoursRemaining'),
+            hoursProgressTextHeader: document.getElementById('hoursProgressTextHeader'),
+            workingHoursInfo: document.getElementById('workingHoursInfo'),
             budgetAdjustmentPanel: document.getElementById('budgetAdjustmentPanel'),
+            currentBudgetInput: document.getElementById('currentBudgetInput'),
             decreaseHalf: document.getElementById('decreaseHalf'),
             decreaseDouble: document.getElementById('decreaseDouble'),
             increaseHalf: document.getElementById('increaseHalf'),
             increaseDouble: document.getElementById('increaseDouble'),
-            closeBudgetAdjustment: document.getElementById('closeBudgetAdjustment')
+            // Task management elements
+            tasksProgressContainer: document.getElementById('tasksProgressContainer'),
+            tasksProgressBar: document.getElementById('tasksProgressBar'),
+            tasksProgressText: document.getElementById('tasksProgressText'),
+            tasksProgressTextHeader: document.getElementById('tasksProgressTextHeader'),
+            tasksInfo: document.getElementById('tasksInfo'),
+            taskManagementPanel: document.getElementById('taskManagementPanel'),
+            newTaskInput: document.getElementById('newTaskInput'),
+            addTaskBtn: document.getElementById('addTaskBtn'),
+            taskList: document.getElementById('taskList')
         };
         
         // Dependency Injection: Inject dependencies
         const dateCalculator = new DateCalculator();
         const budgetCalculator = new BudgetCalculator(dateCalculator);
-        const displayManager = new DisplayManager(elements, dateCalculator);
         const storageManager = new StorageManager();
-        const app = new BudgetApp(budgetCalculator, displayManager, dateCalculator, storageManager);
+        const taskManager = new TaskManager(storageManager);
+        const displayManager = new DisplayManager(elements, dateCalculator);
+        const app = new BudgetApp(budgetCalculator, displayManager, dateCalculator, storageManager, taskManager);
         
-        // Event handling
-        elements.budget.addEventListener('input', (e) => {
-            const budgetValue = e.target.value;
-            if (budgetValue) {
-                app.handleBudgetInput(budgetValue);
-            } else {
-                displayManager.showError('Enter your budget to see daily spending limit');
+        // Streamlined initialization function
+        function initializeApp() {
+            try {
+                // Check for saved budget and initialize accordingly
+                const savedBudget = app.loadSavedBudget();
+                
+                if (savedBudget) {
+                    // Handle saved budget directly through adjustment panel
+                    app.handleBudgetInput(savedBudget);
+                } else {
+                    // Initialize progress bar with default state if no saved budget
+                    displayManager.updateProgressBar();
+                }
+                
+                // Initialize task display
+                app.refreshTaskDisplay();
+                
+                // Start periodic updates for working hours
+                setInterval(() => {
+                    try {
+                        displayManager.updateWorkingHoursProgress();
+                    } catch (error) {
+                        console.error('Error updating working hours:', error);
+                    }
+                }, 60000);
+                
+                console.log('✓ Progress Tracker initialized successfully');
+                
+            } catch (error) {
+                console.error('✗ Initialization failed:', error);
+                try {
+                    displayManager.showError('Initialization error - please refresh');
+                } catch (fallbackError) {
+                    console.error('✗ Critical error - unable to show UI:', fallbackError);
+                }
             }
-        });
-        
-        // Load saved budget on page load
-        const savedBudget = app.loadSavedBudget();
-        if (savedBudget) {
-            elements.budget.value = savedBudget;
-            elements.clearButton.style.display = 'inline-block';
-            app.handleBudgetInput(savedBudget);
         }
         
-        // Clear button event handler
-        elements.clearButton.addEventListener('click', () => {
-            app.clearSavedBudget();
-        });
-        
+        // Event handling
         // Budget progress container click handler
         elements.progressContainer.addEventListener('click', () => {
-            if (app.currentBudget > 0) {
-                app.showBudgetAdjustment();
-            }
+            app.showBudgetAdjustment();
         });
         
         // Budget adjustment button handlers
@@ -1213,30 +1574,88 @@
             app.adjustBudget('increaseDouble');
         });
         
-        elements.closeBudgetAdjustment.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering the progress container click
-            app.hideBudgetAdjustment();
+        // Handle direct budget input changes in adjustment panel
+        elements.currentBudgetInput.addEventListener('input', (e) => {
+            const newBudget = parseFloat(e.target.value);
+            if (newBudget && newBudget > 0) {
+                // Handle the new budget value
+                app.handleBudgetInput(newBudget);
+                
+                // Update button labels with new amounts
+                app.updateAdjustmentButtonLabels();
+            }
         });
         
-        // Prevent adjustment panel clicks from propagating to progress container
-        elements.budgetAdjustmentPanel.addEventListener('click', (e) => {
+        elements.currentBudgetInput.addEventListener('blur', (e) => {
+            const newBudget = parseFloat(e.target.value);
+            if (!newBudget || newBudget <= 0) {
+                // Reset to current budget if invalid
+                if (app.currentBudget > 0) {
+                    e.target.value = app.currentBudget.toFixed(2);
+                }
+            }
+        });
+        
+        // Task management event handlers
+        
+        // Tasks progress container click handler
+        elements.tasksProgressContainer.addEventListener('click', () => {
+            app.showTaskManagement();
+        });
+        
+        // Add task button handler
+        elements.addTaskBtn.addEventListener('click', () => {
+            app.addTask();
+        });
+        
+        // Add task input enter key handler
+        elements.newTaskInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                app.addTask();
+            }
+        });
+        
+        // Task list event delegation
+        elements.taskList.addEventListener('click', (e) => {
+            const taskItem = e.target.closest('.task-item');
+            if (!taskItem) return;
+            
+            const taskId = taskItem.dataset.taskId;
+            const action = e.target.dataset.action;
+            
+            if (action && taskId) {
+                app.handleTaskAction(taskId, action);
+            }
+        });
+        
+        // Close task management panel when clicking outside
+        document.addEventListener('click', (e) => {
+            const isClickInsideTaskPanel = elements.taskManagementPanel.contains(e.target);
+            const isClickOnTasksContainer = elements.tasksProgressContainer.contains(e.target);
+            const isTaskPanelVisible = elements.taskManagementPanel.classList.contains('show');
+            
+            // Also check for budget panel to avoid conflicts
+            const isClickInsideBudgetPanel = elements.budgetAdjustmentPanel.contains(e.target);
+            const isClickOnProgressContainer = elements.progressContainer.contains(e.target);
+            const isBudgetPanelVisible = elements.budgetAdjustmentPanel.classList.contains('show');
+            
+            if (isTaskPanelVisible && !isClickInsideTaskPanel && !isClickOnTasksContainer) {
+                app.hideTaskManagement();
+            }
+            
+            if (isBudgetPanelVisible && !isClickInsideBudgetPanel && !isClickOnProgressContainer) {
+                app.hideBudgetAdjustment();
+            }
+        });
+        
+        // Prevent task management panel clicks from propagating
+        elements.taskManagementPanel.addEventListener('click', (e) => {
             e.stopPropagation();
         });
         
-        // Update working hours progress every minute
-        setInterval(() => {
-            displayManager.updateWorkingHoursProgress();
-        }, 60000); // Update every 60 seconds
-        
-        // Initialize with default calculation for working days info
-        try {
-            elements.info.textContent = `Enter your budget to see daily spending limit`;
-            
-            // Initialize progress bar with all consolidated information
-            displayManager.updateProgressBar();
-        } catch (error) {
-            displayManager.showError('Unable to calculate working days');
-        }
+        // Initialize the application
+        initializeApp();
     </script>
 </body>
 </html>
