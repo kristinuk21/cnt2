@@ -1191,8 +1191,8 @@
             updateTasksProgress(taskStats) {
                 // Update tasks progress bar
                 this.elements.tasksProgressBar.style.width = `${taskStats.percentage}%`;
-                this.elements.tasksProgressTextHeader.textContent = `${taskStats.percentage}%`;
-                this.elements.tasksInfo.textContent = `${taskStats.completed}/${taskStats.total}`;
+                this.elements.tasksProgressTextHeader.textContent = `${Math.round(taskStats.percentage)}%`;
+                this.elements.tasksInfo.textContent = `${Math.round(taskStats.completed)}/${Math.round(taskStats.total)}`;
 
                 // Update progress bar color for completed
                 if (taskStats.total > 0 && taskStats.completed === taskStats.total) {
@@ -1207,7 +1207,7 @@
                 } else if (taskStats.completed === taskStats.total) {
                     this.elements.tasksProgressText.textContent = 'All tasks completed!';
                 } else {
-                    this.elements.tasksProgressText.textContent = `${taskStats.remaining} tasks remaining`;
+                    this.elements.tasksProgressText.textContent = `${Math.round(taskStats.remaining)} tasks remaining`;
                 }
             }
             
@@ -1331,7 +1331,7 @@
                     this.handleBudgetInput(newBudget);
                     
                     // Update the current budget input in the adjustment panel
-                    elements.currentBudgetInput.value = newBudget.toFixed(2);
+                    elements.currentBudgetInput.value = newBudget.toFixed(0);
                     
                     // Update button labels with new adjustment amounts
                     this.updateAdjustmentButtonLabels();
@@ -1352,10 +1352,10 @@
                 
                 // Update current budget input field
                 if (this.currentBudget && this.currentBudget > 0) {
-                    elements.currentBudgetInput.value = this.currentBudget.toFixed(2);
+                    elements.currentBudgetInput.value = this.currentBudget.toFixed(0);
                 } else {
                     // Set a default budget if none exists
-                    elements.currentBudgetInput.value = '2000.00';
+                    elements.currentBudgetInput.value = '2000';
                 }
                 
                 // Update button labels with current rate amounts
@@ -1532,6 +1532,21 @@
         };
         
     // Dependency Injection: Inject dependencies
+        // Add click event listener for Add Task button
+        elements.addTaskBtn.addEventListener('click', function(e) {
+            app.addTask();
+            e.stopPropagation();
+        });
+        // Delegate clicks on task action buttons in the task list
+        elements.taskList.addEventListener('click', function(e) {
+            const action = e.target.getAttribute('data-action');
+            const taskItem = e.target.closest('.task-item');
+            if (action && taskItem) {
+                const taskId = taskItem.dataset.taskId;
+                app.handleTaskAction(taskId, action);
+                e.stopPropagation();
+            }
+        });
         const dateCalculator = new DateCalculator();
         const budgetCalculator = new BudgetCalculator(dateCalculator);
         const storageManager = new StorageManager();
@@ -1653,28 +1668,50 @@
         
         // Close panels when clicking outside
         document.addEventListener('click', (e) => {
-            const isClickInsideTaskPanel = elements.taskManagementPanel.contains(e.target);
-            const isClickOnTasksContainer = elements.tasksProgressContainer.contains(e.target);
             const isTaskPanelVisible = elements.taskManagementPanel.classList.contains('show');
-
-            const isClickInsideBudgetPanel = elements.budgetAdjustmentPanel.contains(e.target);
-            const isClickOnProgressContainer = elements.progressContainer.contains(e.target);
             const isBudgetPanelVisible = elements.budgetAdjustmentPanel.classList.contains('show');
 
-            if (isTaskPanelVisible && !isClickInsideTaskPanel && !isClickOnTasksContainer) {
+            // Only close panels if clicking outside
+            if (isTaskPanelVisible &&
+                !elements.taskManagementPanel.contains(e.target) &&
+                !elements.tasksProgressContainer.contains(e.target)) {
                 app.hideTaskManagement();
                 tasksPanelOpen = false;
             }
-            if (isBudgetPanelVisible && !isClickInsideBudgetPanel && !isClickOnProgressContainer) {
+            if (isBudgetPanelVisible &&
+                !elements.budgetAdjustmentPanel.contains(e.target) &&
+                !elements.progressContainer.contains(e.target)) {
                 app.hideBudgetAdjustment();
                 budgetPanelOpen = false;
             }
         });
         
         // Prevent task management panel clicks from propagating
+
+        // Prevent task management panel clicks from propagating
         elements.taskManagementPanel.addEventListener('click', (e) => {
             e.stopPropagation();
         });
+
+        // Prevent budget adjustment panel clicks from propagating
+        elements.budgetAdjustmentPanel.addEventListener('click', (e) => {
+            // Always stop propagation for any click inside the panel
+            e.stopPropagation();
+        });
+
+                // Add click event listeners for budget adjustment buttons
+                elements.decreaseHalf.addEventListener('click', function(e) {
+                    app.adjustBudget('decreaseHalf');
+                });
+                elements.decreaseDouble.addEventListener('click', function(e) {
+                    app.adjustBudget('decreaseDouble');
+                });
+                elements.increaseHalf.addEventListener('click', function(e) {
+                    app.adjustBudget('increaseHalf');
+                });
+                elements.increaseDouble.addEventListener('click', function(e) {
+                    app.adjustBudget('increaseDouble');
+                });
         
         // Initialize the application
         initializeApp();
