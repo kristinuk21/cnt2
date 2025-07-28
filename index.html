@@ -85,6 +85,12 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             margin: 16px 0 0 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .progress-container:hover {
+            background: rgba(55, 63, 107, 0.7);
+            border-color: rgba(255,255,255,0.3);
         }
         .progress-header {
             display: flex;
@@ -266,8 +272,11 @@
             height: 100%;
             background: linear-gradient(90deg, #ff6b8a, #c471ed);
             border-radius: 12px;
-            transition: width 0.5s ease;
+            transition: width 0.5s ease, background 0.5s ease;
             position: relative;
+        }
+        .tasks-progress-bar.completed {
+            background: linear-gradient(90deg, #4caf50, #43ea7f);
         }
         
         /* Task Management Panel */
@@ -361,8 +370,8 @@
             position: relative;
         }
         .task-checkbox.completed {
-            background: linear-gradient(135deg, #4a8b6b, #3a7d5c);
-            border-color: #4a8b6b;
+            background: linear-gradient(135deg, #4caf50, #388e3c); /* green gradient */
+            border-color: #4caf50;
         }
         .task-checkbox.completed::after {
             content: '✓';
@@ -383,7 +392,7 @@
         }
         .task-text.completed {
             text-decoration: line-through;
-            color: rgba(255,255,255,0.5);
+            color: #b0b0b0; /* neutral gray */
         }
         .task-text.editing {
             background: rgba(255,255,255,0.1);
@@ -404,12 +413,12 @@
             opacity: 1;
         }
         .task-action-btn {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 22px;
             font-weight: bold;
             transition: all 0.3s ease;
             display: flex;
@@ -417,6 +426,7 @@
             justify-content: center;
             flex-shrink: 0;
             text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            font-family: 'Segoe UI', 'Arial Unicode MS', 'Noto Sans Symbols', sans-serif;
         }
         .edit-btn {
             background: linear-gradient(135deg, #4a90e2, #357abd);
@@ -1173,7 +1183,14 @@
                 this.elements.tasksProgressBar.style.width = `${taskStats.percentage}%`;
                 this.elements.tasksProgressTextHeader.textContent = `${taskStats.percentage}%`;
                 this.elements.tasksInfo.textContent = `${taskStats.completed}/${taskStats.total}`;
-                
+
+                // Update progress bar color for completed
+                if (taskStats.total > 0 && taskStats.completed === taskStats.total) {
+                    this.elements.tasksProgressBar.classList.add('completed');
+                } else {
+                    this.elements.tasksProgressBar.classList.remove('completed');
+                }
+
                 // Update progress text
                 if (taskStats.total === 0) {
                     this.elements.tasksProgressText.textContent = 'No tasks • Click to manage';
@@ -1199,17 +1216,15 @@
             }
             
             createTaskElement(task) {
-
                 const taskItem = document.createElement('div');
                 taskItem.className = 'task-item';
                 taskItem.dataset.taskId = task.id;
-                
                 taskItem.innerHTML = `
                     <div class="task-checkbox ${task.completed ? 'completed' : ''}" data-action="toggle"></div>
                     <div class="task-text ${task.completed ? 'completed' : ''}" data-action="edit">${task.text}</div>
                     <div class="task-actions">
-                        <button class="task-action-btn edit-btn" data-action="edit" title="Edit">📝</button>
-                        <button class="task-action-btn delete-btn" data-action="delete" title="Delete">🗑️</button>
+                        <button class="task-action-btn edit-btn" data-action="edit" title="Edit">✎</button>
+                        <button class="task-action-btn delete-btn" data-action="delete" title="Delete">✗</button>
                     </div>
                 `;
                 
@@ -1553,99 +1568,51 @@
         
         // Event handling
         // Budget progress container click handler
+        let budgetPanelOpen = false;
         elements.progressContainer.addEventListener('click', () => {
-            app.showBudgetAdjustment();
-        });
-        
-        // Budget adjustment button handlers
-        elements.decreaseHalf.addEventListener('click', () => {
-            app.adjustBudget('decreaseHalf');
-        });
-        
-        elements.decreaseDouble.addEventListener('click', () => {
-            app.adjustBudget('decreaseDouble');
-        });
-        
-        elements.increaseHalf.addEventListener('click', () => {
-            app.adjustBudget('increaseHalf');
-        });
-        
-        elements.increaseDouble.addEventListener('click', () => {
-            app.adjustBudget('increaseDouble');
-        });
-        
-        // Handle direct budget input changes in adjustment panel
-        elements.currentBudgetInput.addEventListener('input', (e) => {
-            const newBudget = parseFloat(e.target.value);
-            if (newBudget && newBudget > 0) {
-                // Handle the new budget value
-                app.handleBudgetInput(newBudget);
-                
-                // Update button labels with new amounts
-                app.updateAdjustmentButtonLabels();
+            budgetPanelOpen = !budgetPanelOpen;
+            if (budgetPanelOpen) {
+                app.showBudgetAdjustment();
+            } else {
+                app.hideBudgetAdjustment();
             }
         });
-        
-        elements.currentBudgetInput.addEventListener('blur', (e) => {
-            const newBudget = parseFloat(e.target.value);
-            if (!newBudget || newBudget <= 0) {
-                // Reset to current budget if invalid
-                if (app.currentBudget > 0) {
-                    e.target.value = app.currentBudget.toFixed(2);
-                }
-            }
-        });
-        
-        // Task management event handlers
         
         // Tasks progress container click handler
+        let tasksPanelOpen = false;
         elements.tasksProgressContainer.addEventListener('click', () => {
-            app.showTaskManagement();
-        });
-        
-        // Add task button handler
-        elements.addTaskBtn.addEventListener('click', () => {
-            app.addTask();
-        });
-        
-        // Add task input enter key handler
-        elements.newTaskInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                app.addTask();
+            tasksPanelOpen = !tasksPanelOpen;
+            if (tasksPanelOpen) {
+                app.showTaskManagement();
+            } else {
+                app.hideTaskManagement();
             }
         });
         
-        // Task list event delegation
-        elements.taskList.addEventListener('click', (e) => {
-            const taskItem = e.target.closest('.task-item');
-            if (!taskItem) return;
-            
-            const taskId = taskItem.dataset.taskId;
-            const action = e.target.dataset.action;
-            
-            if (action && taskId) {
-                app.handleTaskAction(taskId, action);
-            }
+        // Update overall progress on mouse events (hover, move, click)
+        ['mousemove', 'mouseenter', 'mouseleave', 'click'].forEach(eventType => {
+            elements.progressContainer.addEventListener(eventType, () => {
+                displayManager.updateProgressBar();
+            });
         });
         
-        // Close task management panel when clicking outside
+        // Close panels when clicking outside
         document.addEventListener('click', (e) => {
             const isClickInsideTaskPanel = elements.taskManagementPanel.contains(e.target);
             const isClickOnTasksContainer = elements.tasksProgressContainer.contains(e.target);
             const isTaskPanelVisible = elements.taskManagementPanel.classList.contains('show');
-            
-            // Also check for budget panel to avoid conflicts
+
             const isClickInsideBudgetPanel = elements.budgetAdjustmentPanel.contains(e.target);
             const isClickOnProgressContainer = elements.progressContainer.contains(e.target);
             const isBudgetPanelVisible = elements.budgetAdjustmentPanel.classList.contains('show');
-            
+
             if (isTaskPanelVisible && !isClickInsideTaskPanel && !isClickOnTasksContainer) {
                 app.hideTaskManagement();
+                tasksPanelOpen = false;
             }
-            
             if (isBudgetPanelVisible && !isClickInsideBudgetPanel && !isClickOnProgressContainer) {
                 app.hideBudgetAdjustment();
+                budgetPanelOpen = false;
             }
         });
         
