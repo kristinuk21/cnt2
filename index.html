@@ -643,8 +643,8 @@
                 <input type="number" class="current-budget-input" id="currentBudgetInput" min="0" step="0.01" placeholder="Enter budget">
                 <div class="budget-adjustment-buttons">
                     <button class="budget-adjust-btn decrease" id="decreaseHalf">-½ Rate</button>
-                    <button class="budget-adjust-btn decrease" id="decreaseDouble">-2x Rate</button>
                     <button class="budget-adjust-btn increase" id="increaseHalf">+½ Rate</button>
+                    <button class="budget-adjust-btn decrease" id="decreaseDouble">-2x Rate</button>
                     <button class="budget-adjust-btn increase" id="increaseDouble">+2x Rate</button>
                 </div>
             </div>
@@ -820,39 +820,32 @@
                 const currentYear = now.getFullYear();
                 const currentMonth = now.getMonth();
                 const currentDate = now.getDate();
-                
-                let lastCriteriaDate, nextCriteriaDate;
-                
-                // Determine last and next criteria dates (10th or 25th)
+
+                let nextCriteriaDate;
                 if (currentDate < 10) {
-                    // Before 10th of current month
-                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 0, 0, 0, 0); // 25th of previous month at midnight
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0); // 10th of current month at midnight
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0);
                 } else if (currentDate <= 25) {
-                    // Between 10th and 25th of current month
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0); // 10th of current month at midnight
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0); // 25th of current month at midnight
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0);
                 } else {
-                    // After 25th of current month
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0); // 25th of current month at midnight
-                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 0, 0, 0, 0); // 10th of next month at midnight
+                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 0, 0, 0, 0);
                 }
-                
-                // Calculate progress - use proper day counting
-                const totalDays = Math.ceil((nextCriteriaDate - lastCriteriaDate) / (1000 * 60 * 60 * 24));
-                
-                // Calculate days passed more accurately
-                const startOfToday = new Date(currentYear, currentMonth, currentDate, 0, 0, 0, 0);
-                const daysPassed = Math.ceil((startOfToday - lastCriteriaDate) / (1000 * 60 * 60 * 24));
-                
-                const progressPercentage = Math.min(Math.max((daysPassed / totalDays) * 100, 0), 100);
-                
+
+                // Count all days (calendar days) from today (inclusive) to nextCriteriaDate (exclusive)
+                let totalDays = 0;
+                let temp = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                while (temp < nextCriteriaDate) {
+                    totalDays++;
+                    temp.setDate(temp.getDate() + 1);
+                }
+
+                // Progress: days passed since today is always 0, so percent is always 0 at start of today
+                // To show remaining days, we can use totalDays as the value
                 return {
-                    lastDate: lastCriteriaDate,
+                    lastDate: now,
                     nextDate: nextCriteriaDate,
-                    daysPassed: daysPassed,
+                    daysPassed: 0,
                     totalDays: totalDays,
-                    progressPercentage: progressPercentage
+                    progressPercentage: 0
                 };
             }
             
@@ -1125,33 +1118,22 @@
                 // Update progress bar
                 this.elements.progressBar.style.width = `${progressInfo.progressPercentage}%`;
                 this.elements.progressText.textContent = `${Math.round(progressInfo.progressPercentage)}%`;
-                
-                // Get default day info for display
-                const defaultDayInfo = this.dateCalculator.calculateDays();
-                
-                // Update progress text info with new format
-                if (calculation && calculation.dailyBudget > 0) {
-                    const dailyRate = Math.round(calculation.dailyBudget);
-                    this.elements.progressTextInfo.textContent = `${calculation.totalDays} days at ${dailyRate} RON/day`;
-                } else {
-                    // Check for current budget in the app or storage
-                    const savedBudget = storageManager.loadBudget();
-                    
-                    if (savedBudget && parseFloat(savedBudget) > 0) {
-                        // Use consistent calculation method
-                        const budget = parseFloat(savedBudget);
-                        const dailyRate = Math.round(budget / defaultDayInfo.totalDays);
-                        this.elements.progressTextInfo.textContent = `${defaultDayInfo.totalDays} days at ${dailyRate} RON/day`;
-                    } else {
-                        // No budget available - prompt to click to set budget
-                        this.elements.progressTextInfo.textContent = `${defaultDayInfo.totalDays} days • Click to set budget`;
-                    }
+                // Show remaining days (calendar days) from today till end and daily rate if budget is set
+                const savedBudget = storageManager.loadBudget && storageManager.loadBudget();
+                let rateInfo = '';
+                if (savedBudget && progressInfo.totalDays > 0) {
+                    const dailyRate = Math.round(savedBudget / progressInfo.totalDays);
+                    rateInfo = ` at ${dailyRate} RON/day`;
                 }
+                this.elements.progressTextInfo.textContent = `${progressInfo.totalDays} days remaining${rateInfo}`;
                 
-                // Show budget progress end date
+
+                // Show budget progress end date (next working day after 10th/25th)
                 const endDateInfo = this.dateCalculator.getProgressInfo();
-                const endDate = endDateInfo.nextDate;
-                this.elements.nextWorkingDayInfo.textContent = 
+                let endDate = endDateInfo.nextDate;
+                // Use findNextWorkingDay to skip weekends
+                endDate = this.dateCalculator.findNextWorkingDay(endDate);
+                this.elements.nextWorkingDayInfo.textContent =
                     `Ends: ${this.getShortMonthName(endDate.getMonth())} ${endDate.getDate()}`;
                 
                 // Update working hours progress
@@ -1556,9 +1538,30 @@
         
         // Today Progress Panel logic
         let todayPanelOpen = false;
+
+        // Today Progress Panel logic with Early Start
         elements.hoursProgressContainer.addEventListener('click', (e) => {
             todayPanelOpen = !todayPanelOpen;
             if (todayPanelOpen) {
+                // Check if before 10:00 and no early start already
+                const now = new Date();
+                const savedStart = localStorage.getItem('todayProgressStart');
+                if (now.getHours() < 10 && !savedStart) {
+                    elements.todayProgressPanel.innerHTML = `
+                        <div style="text-align:center;">
+                            <button id="earlyStartBtn" style="padding:12px 24px;font-size:1em;border-radius:8px;background:linear-gradient(135deg,#20b2ff,#4ac3ff);color:white;border:none;cursor:pointer;font-weight:600;box-shadow:0 2px 8px #20b2ff44;">Early Start</button>
+                        </div>
+                    `;
+                    document.getElementById('earlyStartBtn').onclick = function() {
+                        const start = new Date();
+                        const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
+                        localStorage.setItem('todayProgressStart', start.toISOString());
+                        localStorage.setItem('todayProgressEnd', end.toISOString());
+                        updateTodayProgressPanel();
+                    };
+                } else {
+                    updateTodayProgressPanel();
+                }
                 elements.todayProgressPanel.style.display = 'block';
             } else {
                 elements.todayProgressPanel.style.display = 'none';
@@ -1566,7 +1569,85 @@
             e.stopPropagation();
         });
 
-        // Mouseover effect for Today progress
+        // Helper to update today progress panel with start/end times
+        function updateTodayProgressPanel() {
+            const startStr = localStorage.getItem('todayProgressStart');
+            const endStr = localStorage.getItem('todayProgressEnd');
+            const breakStartStr = localStorage.getItem('todayProgressBreakStart');
+            const breakEndStr = localStorage.getItem('todayProgressBreakEnd');
+            if (startStr && endStr) {
+                const start = new Date(startStr);
+                const end = new Date(endStr);
+                let html = `<div style=\"text-align:center;\">`;
+                html += `<div style=\"color:#fff;font-weight:600;font-size:1.1em;margin-bottom:12px;\">Start: ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</div>`;
+                html += `<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:stretch;align-items:center;margin:8px 0;\">`;
+                if (!breakStartStr) {
+                    html += `<button id=\"startBreakBtn\" class=\"budget-adjust-btn decrease\">Start Break</button>`;
+                    html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\">Reset</button>`;
+                } else {
+                    const breakStart = new Date(breakStartStr);
+                    html += `<div style=\"grid-column:1/3;color:#fff;\">Break started: ${breakStart.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+                    if (!breakEndStr) {
+                        html += `<button id=\"endBreakBtn\" class=\"budget-adjust-btn increase\">End Break</button>`;
+                        html += `<div></div>`;
+                    } else {
+                        const breakEnd = new Date(breakEndStr);
+                        html += `<div style=\"grid-column:1/3;color:#fff;\">Break ended: ${breakEnd.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+                    }
+                    html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\" style=\"grid-column:1/3;\">Reset</button>`;
+                }
+                html += `</div>`;
+                html += `</div>`;
+                elements.todayProgressPanel.innerHTML = html;
+                if (!breakStartStr) {
+                    document.getElementById('startBreakBtn').onclick = function() {
+                        localStorage.setItem('todayProgressBreakStart', new Date().toISOString());
+                        updateTodayProgressPanel();
+                    };
+                } else if (!breakEndStr) {
+                    document.getElementById('endBreakBtn').onclick = function() {
+                        localStorage.setItem('todayProgressBreakEnd', new Date().toISOString());
+                        updateTodayProgressPanel();
+                    };
+                }
+                document.getElementById('resetTodayProgress').onclick = function() {
+                    localStorage.removeItem('todayProgressStart');
+                    localStorage.removeItem('todayProgressEnd');
+                    localStorage.removeItem('todayProgressBreakStart');
+                    localStorage.removeItem('todayProgressBreakEnd');
+                    updateTodayProgressPanel();
+                };
+            } else {
+                elements.todayProgressPanel.innerHTML = `<div class=\"empty-tasks\">TBD</div>`;
+            }
+        }
+
+
+        // Patch working hours info and progress bar to use custom start/end time if set
+        const origUpdateWorkingHoursProgress = displayManager.updateWorkingHoursProgress.bind(displayManager);
+        displayManager.updateWorkingHoursProgress = function() {
+            const startStr = localStorage.getItem('todayProgressStart');
+            const endStr = localStorage.getItem('todayProgressEnd');
+            if (startStr && endStr) {
+                const start = new Date(startStr);
+                const end = new Date(endStr);
+                const now = new Date();
+                let elapsed = (now - start) / 1000; // seconds
+                let total = (end - start) / 1000; // seconds
+                let percent = Math.max(0, Math.min(100, (elapsed / total) * 100));
+                elements.hoursProgressBar.style.width = percent + '%';
+                elements.hoursProgressTextHeader.textContent = Math.round(percent) + '%';
+                // Show remaining time
+                let remaining = Math.max(0, total - elapsed);
+                let rh = Math.floor(remaining / 3600);
+                let rm = Math.floor((remaining % 3600) / 60);
+                elements.hoursProgressText.textContent = `${rh}h ${rm}m remaining`;
+                elements.workingHoursInfo.textContent = `${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} (Custom)`;
+            } else {
+                origUpdateWorkingHoursProgress();
+            }
+        };
+
         elements.hoursProgressContainer.addEventListener('mouseenter', () => {
             elements.hoursProgressContainer.style.boxShadow = '0 0 0 3px #20b2ff55';
         });
