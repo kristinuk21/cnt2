@@ -823,33 +823,37 @@
 
                 let lastCriteriaDate, nextCriteriaDate;
                 if (currentDate < 10) {
-                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 0, 0, 0, 0);
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0);
+                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 14, 0, 0, 0); // 25th prev month 14:00
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0); // 10th this month 14:00
                 } else if (currentDate <= 25) {
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0);
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0);
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0); // 10th 14:00
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0); // 25th 14:00
                 } else {
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0);
-                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 0, 0, 0, 0);
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0); // 25th 14:00
+                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 14, 0, 0, 0); // 10th next month 14:00
                 }
 
-                // Count all days (calendar days) from lastCriteriaDate (inclusive) to nextCriteriaDate (exclusive)
+                // Total hours in the period
+                const totalHours = (nextCriteriaDate - lastCriteriaDate) / (1000 * 60 * 60);
+                // Hours passed from start to now
+                let hoursPassed = (now - lastCriteriaDate) / (1000 * 60 * 60);
+                // Clamp between 0 and totalHours
+                hoursPassed = Math.max(0, Math.min(hoursPassed, totalHours));
+                const progressPercentage = Math.min(Math.max((hoursPassed / totalHours) * 100, 0), 100);
+
+                // For display, keep daysPassed and totalDays as before
                 let totalDays = 0;
                 let temp = new Date(lastCriteriaDate);
                 while (temp < nextCriteriaDate) {
                     totalDays++;
                     temp.setDate(temp.getDate() + 1);
                 }
-
-                // Days passed from lastCriteriaDate (inclusive) to today (exclusive)
                 let daysPassed = 0;
                 temp = new Date(lastCriteriaDate);
                 while (temp < now) {
                     daysPassed++;
                     temp.setDate(temp.getDate() + 1);
                 }
-
-                const progressPercentage = Math.min(Math.max((daysPassed / totalDays) * 100, 0), 100);
 
                 return {
                     lastDate: lastCriteriaDate,
