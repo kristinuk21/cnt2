@@ -821,31 +821,42 @@
                 const currentMonth = now.getMonth();
                 const currentDate = now.getDate();
 
-                let nextCriteriaDate;
+                let lastCriteriaDate, nextCriteriaDate;
                 if (currentDate < 10) {
+                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 0, 0, 0, 0);
                     nextCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0);
                 } else if (currentDate <= 25) {
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 0, 0, 0, 0);
                     nextCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0);
                 } else {
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 0, 0, 0, 0);
                     nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 0, 0, 0, 0);
                 }
 
-                // Count all days (calendar days) from today (inclusive) to nextCriteriaDate (exclusive)
+                // Count all days (calendar days) from lastCriteriaDate (inclusive) to nextCriteriaDate (exclusive)
                 let totalDays = 0;
-                let temp = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                let temp = new Date(lastCriteriaDate);
                 while (temp < nextCriteriaDate) {
                     totalDays++;
                     temp.setDate(temp.getDate() + 1);
                 }
 
-                // Progress: days passed since today is always 0, so percent is always 0 at start of today
-                // To show remaining days, we can use totalDays as the value
+                // Days passed from lastCriteriaDate (inclusive) to today (exclusive)
+                let daysPassed = 0;
+                temp = new Date(lastCriteriaDate);
+                while (temp < now) {
+                    daysPassed++;
+                    temp.setDate(temp.getDate() + 1);
+                }
+
+                const progressPercentage = Math.min(Math.max((daysPassed / totalDays) * 100, 0), 100);
+
                 return {
-                    lastDate: now,
+                    lastDate: lastCriteriaDate,
                     nextDate: nextCriteriaDate,
-                    daysPassed: 0,
+                    daysPassed: daysPassed,
                     totalDays: totalDays,
-                    progressPercentage: 0
+                    progressPercentage: progressPercentage
                 };
             }
             
@@ -1121,11 +1132,12 @@
                 // Show remaining days (calendar days) from today till end and daily rate if budget is set
                 const savedBudget = storageManager.loadBudget && storageManager.loadBudget();
                 let rateInfo = '';
-                if (savedBudget && progressInfo.totalDays > 0) {
-                    const dailyRate = Math.round(savedBudget / progressInfo.totalDays);
+                const daysRemaining = progressInfo.totalDays - progressInfo.daysPassed;
+                if (savedBudget && daysRemaining > 0) {
+                    const dailyRate = Math.round(savedBudget / daysRemaining);
                     rateInfo = ` at ${dailyRate} RON/day`;
                 }
-                this.elements.progressTextInfo.textContent = `${progressInfo.totalDays} days remaining${rateInfo}`;
+                this.elements.progressTextInfo.textContent = `${daysRemaining} days remaining${rateInfo}`;
                 
 
                 // Show budget progress end date (next working day after 10th/25th)
@@ -1569,54 +1581,72 @@
             e.stopPropagation();
         });
 
-        // Helper to update today progress panel with start/end times
+
+        // Helper to update today progress panel with start/end times and multiple breaks
         function updateTodayProgressPanel() {
             const startStr = localStorage.getItem('todayProgressStart');
-            const endStr = localStorage.getItem('todayProgressEnd');
-            const breakStartStr = localStorage.getItem('todayProgressBreakStart');
-            const breakEndStr = localStorage.getItem('todayProgressBreakEnd');
-            if (startStr && endStr) {
+            let breaks = [];
+            try {
+                breaks = JSON.parse(localStorage.getItem('todayProgressBreaks') || '[]');
+            } catch (e) { breaks = []; }
+            if (startStr) {
                 const start = new Date(startStr);
-                const end = new Date(endStr);
+                // Compute total break duration
+                let totalBreakMs = 0;
+                let breakDetails = '';
+                breaks.forEach((b, i) => {
+                    if (b.end) {
+                        const s = new Date(b.start);
+                        const e = new Date(b.end);
+                        const dur = e - s;
+                        totalBreakMs += dur;
+                        const min = Math.floor(dur/60000);
+                        breakDetails += `<div style=\"color:#fff;\">Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ${e.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} (${min} min)</div>`;
+                    } else {
+                        const s = new Date(b.start);
+                        breakDetails += `<div style=\"color:#fff;\">Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ...</div>`;
+                    }
+                });
+                // Compute end time: start + 8h + total break duration
+                const end = new Date(start.getTime() + 8*60*60*1000 + totalBreakMs);
                 let html = `<div style=\"text-align:center;\">`;
                 html += `<div style=\"color:#fff;font-weight:600;font-size:1.1em;margin-bottom:12px;\">Start: ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</div>`;
+                html += `<div style=\"color:#fff;font-size:1em;margin-bottom:8px;\">End: ${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</div>`;
+                if (breakDetails) html += `<div style=\"margin-bottom:8px;\">${breakDetails}</div>`;
                 html += `<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:stretch;align-items:center;margin:8px 0;\">`;
-                if (!breakStartStr) {
+                // If a break is ongoing, show End Break, else show Start Break
+                const ongoingBreak = breaks.length && !breaks[breaks.length-1].end;
+                if (!ongoingBreak) {
                     html += `<button id=\"startBreakBtn\" class=\"budget-adjust-btn decrease\">Start Break</button>`;
                     html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\">Reset</button>`;
                 } else {
-                    const breakStart = new Date(breakStartStr);
-                    html += `<div style=\"grid-column:1/3;color:#fff;\">Break started: ${breakStart.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
-                    if (!breakEndStr) {
-                        html += `<button id=\"endBreakBtn\" class=\"budget-adjust-btn increase\">End Break</button>`;
-                        html += `<div></div>`;
-                    } else {
-                        const breakEnd = new Date(breakEndStr);
-                        html += `<div style=\"grid-column:1/3;color:#fff;\">Break ended: ${breakEnd.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
-                    }
-                    html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\" style=\"grid-column:1/3;\">Reset</button>`;
+                    html += `<button id=\"endBreakBtn\" class=\"budget-adjust-btn increase\">End Break</button>`;
+                    html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\">Reset</button>`;
                 }
                 html += `</div>`;
                 html += `</div>`;
                 elements.todayProgressPanel.innerHTML = html;
-                if (!breakStartStr) {
+                if (!ongoingBreak) {
                     document.getElementById('startBreakBtn').onclick = function() {
-                        localStorage.setItem('todayProgressBreakStart', new Date().toISOString());
+                        breaks.push({start: new Date().toISOString()});
+                        localStorage.setItem('todayProgressBreaks', JSON.stringify(breaks));
                         updateTodayProgressPanel();
                     };
-                } else if (!breakEndStr) {
+                } else {
                     document.getElementById('endBreakBtn').onclick = function() {
-                        localStorage.setItem('todayProgressBreakEnd', new Date().toISOString());
+                        breaks[breaks.length-1].end = new Date().toISOString();
+                        localStorage.setItem('todayProgressBreaks', JSON.stringify(breaks));
                         updateTodayProgressPanel();
                     };
                 }
                 document.getElementById('resetTodayProgress').onclick = function() {
                     localStorage.removeItem('todayProgressStart');
                     localStorage.removeItem('todayProgressEnd');
-                    localStorage.removeItem('todayProgressBreakStart');
-                    localStorage.removeItem('todayProgressBreakEnd');
+                    localStorage.removeItem('todayProgressBreaks');
                     updateTodayProgressPanel();
                 };
+                // Update end time in storage for progress bar logic
+                localStorage.setItem('todayProgressEnd', end.toISOString());
             } else {
                 elements.todayProgressPanel.innerHTML = `<div class=\"empty-tasks\">TBD</div>`;
             }
