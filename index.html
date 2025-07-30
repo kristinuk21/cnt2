@@ -1,382 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta chars        .result {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            margin-top: 20px;
-            color: white;
-        }
-        .info {
-            margin-bottom: 20px;
-            color: rgba(255,255,255,0.9);
-            font-size: 0.9em;
-            font-weight: 500;
-        }ta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progress Tracker</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 16px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+            margin: 0;
+            padding: 8px;
+            background: #1a1a2e;
             min-height: 100vh;
-            line-height: 1.6;
+            font-size: 15px;
+            line-height: 1.5;
         }
         .container {
-            background: rgba(30, 30, 45, 0.95);
-            padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #232344;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #333;
         }
         h1 {
             color: #e0e0e0;
             text-align: center;
             margin: 0 0 8px 0;
             font-weight: 600;
-            font-size: 1.8em;
+            font-size: 1.2em;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .header-info {
-            color: rgba(255,255,255,0.8);
-            font-size: 0.9em;
-            margin-top: 4px;
-        }
-        
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
-            }
-            .container {
-                padding: 20px;
-            }
-            h1 {
-                font-size: 1.6em;
-                margin-bottom: 20px;
-            }
-        }
-        .storage-indicator {
-            font-size: 0.85em;
-            color: #4ac3ff;
-            margin-top: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-weight: 600;
-        }
-        .storage-indicator.show {
-            opacity: 1;
-        }
-        .progress-container {
-            background: rgba(45, 53, 97, 0.6);
-            padding: 16px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin: 16px 0 0 0;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .progress-container:hover {
-            background: rgba(55, 63, 107, 0.7);
-            border-color: rgba(255,255,255,0.3);
+        .header { text-align: center; margin-bottom: 10px; }
+        .progress-container, .hours-progress-container, .tasks-progress-container {
+            background: #2d3561;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            margin-top: 10px;
         }
         .progress-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-            color: white;
-            height: 32px; /* Same height as progress bar */
+            margin-bottom: 6px;
+            font-size: 0.95em;
+            color: #fff;
         }
         .progress-label-section {
             display: flex;
             align-items: center;
-            gap: 8px;
-            height: 100%;
+            gap: 6px;
         }
-        .progress-label {
+        .progress-label, .progress-percentage, .cycle-end {
             font-weight: 600;
-            color: rgba(255,255,255,0.95);
-            font-size: 0.9em;
-        }
-        .progress-percentage {
-            font-weight: 600;
-            color: rgba(255,255,255,0.95);
-            font-size: 0.9em;
-        }
-        .cycle-end {
-            color: rgba(255,255,255,0.95);
-            font-size: 0.9em;
-            font-weight: 600;
+            color: #fff;
+            font-size: 0.95em;
         }
         .progress-bar-container {
             position: relative;
             width: 100%;
-            height: 32px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 16px;
+            height: 16px;
+            background: #222;
+            border-radius: 8px;
             overflow: hidden;
-            margin-bottom: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 6px;
+            border: 1px solid #333;
+        }
+        .progress-bar, .hours-progress-bar, .tasks-progress-bar {
+            height: 100%;
+            background: #20b2ff;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+        .tasks-progress-bar.completed {
+            background: #4caf50;
         }
         .progress-stats-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 0 16px;
-            font-size: 14px;
-            color: white;
+            font-size: 0.9em;
+            color: #fff;
             font-weight: 600;
-            z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
-            background: linear-gradient(90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.6) 100%);
         }
         .progress-text-info {
             text-align: center;
             font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
-        }
-        .cycle-end {
-            color: rgba(255,255,255,0.95);
             font-size: 0.9em;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.9);
         }
-        
-        /* Mobile progress optimizations */
-        @media (max-width: 768px) {
-            .progress-container {
-                padding: 14px;
-            }
-            .progress-header {
-                flex-direction: row;
-                flex-wrap: wrap;
-                align-items: center;
-                gap: 8px;
-                justify-content: space-between;
-            }
-            .progress-label-section {
-                flex: 1;
-                min-width: fit-content;
-            }
-            .cycle-end {
-                flex-shrink: 0;
-                font-size: 0.8em;
-                padding: 3px 6px;
-            }
-            .progress-stats-overlay {
-                font-size: 0.75em;
-                text-align: center;
-                padding: 0 8px;
-            }
-            .progress-text-info {
-                font-size: 0.8em;
-            }
-        }
-        .progress-bar-container {
-            width: 100%;
-            height: 24px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #20b2ff, #4ac3ff, #667eea);
-            border-radius: 16px;
-            transition: width 0.5s ease;
-            position: relative;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.3), 0 0 15px rgba(74, 195, 255, 0.4);
-        }
-        .next-working-day {
-            font-size: 0.9em;
-            color: rgba(255,255,255,0.9);
-            margin-top: 12px;
-            text-align: center;
-            font-weight: 500;
-        }
-        .budget-rate {
-            font-size: 1.1em;
-            color: white;
-            margin-top: 12px;
-            text-align: center;
-            font-weight: 600;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 16px;
-            border-radius: 8px;
-        }
-        
-        /* Mobile budget rate and text optimizations */
-        @media (max-width: 768px) {
-            .budget-rate {
-                font-size: 1em;
-                padding: 10px 12px;
-            }
-            .next-working-day {
-                font-size: 0.85em;
-                margin-top: 10px;
-            }
-        }
-        .hours-progress-container {
-            background: rgba(45, 53, 97, 0.6);
-            padding: 16px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin-top: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .hours-progress-container:hover {
-            background: rgba(55, 63, 107, 0.7);
-            border-color: rgba(255,255,255,0.3);
-        }
-        .hours-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            border-radius: 12px;
-            transition: width 0.5s ease;
-            position: relative;
-        }
-        
-        /* Tasks progress styles */
-        .tasks-progress-container {
-            background: rgba(45, 53, 97, 0.6);
-            padding: 16px;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            margin-top: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .tasks-progress-container:hover {
-            background: rgba(55, 63, 107, 0.7);
-            border-color: rgba(255,255,255,0.3);
-        }
-        .tasks-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6b8a, #c471ed);
-            border-radius: 12px;
-            transition: width 0.5s ease, background 0.5s ease;
-            position: relative;
-        }
-        .tasks-progress-bar.completed {
-            background: linear-gradient(90deg, #4caf50, #43ea7f);
-        }
-        
-        /* Task Management Panel */
         .task-management-panel {
             display: none;
-            margin-top: 16px;
-            padding: 16px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 8px;
+            padding: 8px;
+            background: #232344;
+            border-radius: 8px;
+            border: 1px solid #333;
         }
-        .task-management-panel.show {
-            display: block;
-        }
-        
-        /* Add Task Section */
+        .task-management-panel.show { display: block; }
         .add-task-section {
             display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 8px;
         }
         .task-input {
-            flex: 1;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+            width: 100%;
+            background: #232344;
+            border: 1px solid #333;
             border-radius: 6px;
-            color: white;
-            font-size: 0.9em;
-            padding: 10px 12px;
+            color: #fff;
+            font-size: 1em;
+            padding: 8px;
             outline: none;
-            transition: all 0.3s ease;
-        }
-        .task-input:focus {
-            border-color: rgba(255,255,255,0.6);
-            background: rgba(255,255,255,0.15);
-        }
-        .task-input::placeholder {
-            color: rgba(255,255,255,0.5);
         }
         .task-btn {
-            padding: 10px 16px;
+            padding: 8px;
             border: none;
             border-radius: 6px;
-            font-size: 0.85em;
+            font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            background: #4a8b6b;
+            color: #fff;
         }
-        .add-task-btn {
-            background: linear-gradient(135deg, #4a8b6b, #3a7d5c);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .add-task-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            filter: brightness(1.1);
-        }
-        
-        /* Task List */
         .task-list {
-            max-height: 300px;
+            max-height: 120px;
             overflow-y: auto;
         }
         .task-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
-            margin-bottom: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
-            min-height: 52px;
-        }
-        .task-item:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: rgba(255,255,255,0.2);
+            gap: 6px;
+            padding: 8px;
+            background: #232344;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            border: 1px solid #333;
         }
         .task-checkbox {
             width: 18px;
             height: 18px;
             border-radius: 4px;
-            border: 2px solid rgba(255,255,255,0.4);
+            border: 2px solid #4caf50;
             background: transparent;
             cursor: pointer;
-            transition: all 0.3s ease;
             flex-shrink: 0;
             position: relative;
         }
         .task-checkbox.completed {
-            background: linear-gradient(135deg, #4caf50, #388e3c); /* green gradient */
+            background: #4caf50;
             border-color: #4caf50;
         }
         .task-checkbox.completed::after {
@@ -385,234 +156,92 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: white;
+            color: #fff;
             font-size: 12px;
             font-weight: bold;
         }
         .task-text {
             flex: 1;
-            color: rgba(255,255,255,0.9);
-            font-size: 0.9em;
+            color: #fff;
+            font-size: 1em;
             cursor: pointer;
-            transition: all 0.3s ease;
         }
         .task-text.completed {
             text-decoration: line-through;
-            color: #b0b0b0; /* neutral gray */
-        }
-        .task-text.editing {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 4px;
-            padding: 4px 8px;
-            outline: none;
+            color: #b0b0b0;
         }
         .task-actions {
             display: flex;
-            gap: 8px;
-            opacity: 1;
-            transition: opacity 0.3s ease;
+            gap: 4px;
             flex-shrink: 0;
             align-items: center;
         }
-        .task-item:hover .task-actions {
-            opacity: 1;
-        }
         .task-action-btn {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 22px;
+            font-size: 1em;
             font-weight: bold;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-            font-family: 'Segoe UI', 'Arial Unicode MS', 'Noto Sans Symbols', sans-serif;
+            background: #357abd;
+            color: #fff;
         }
-        .edit-btn {
-            background: linear-gradient(135deg, #4a90e2, #357abd);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .delete-btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .task-action-btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        
-        /* Empty state */
+        .edit-btn { background: #357abd; }
+        .delete-btn { background: #c0392b; }
         .empty-tasks {
             text-align: center;
-            color: rgba(255,255,255,0.6);
-            font-size: 0.9em;
-            padding: 20px;
+            color: #b0b0b0;
+            font-size: 0.95em;
+            padding: 8px;
             font-style: italic;
         }
-        
-        /* Mobile hours progress optimizations */
-        @media (max-width: 768px) {
-            .hours-progress-container {
-                padding: 14px;
-            }
-            .tasks-progress-container {
-                padding: 14px;
-            }
-            .task-management-panel {
-                margin-top: 12px;
-                padding: 12px;
-            }
-            .add-task-section {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .task-input {
-                width: 100%;
-            }
-            .task-item {
-                padding: 10px;
-            }
-            .task-actions {
-                opacity: 1; /* Always show on mobile for easier interaction */
-            }
-        }
-        .daily-budget-detail {
-            margin-top: 20px;
-            padding: 12px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            font-size: 1.2em;
-            font-weight: 600;
-            color: rgba(255,255,255,0.95);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .error {
-            color: #ff6b8a;
-            background: rgba(255,107,138,0.15);
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            border: 1px solid rgba(255,107,138,0.3);
-        }
-        
-        /* Budget adjustment buttons */
         .budget-adjustment-panel {
             display: none;
-            margin-top: 16px;
-            padding: 16px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
+            margin-top: 8px;
+            padding: 8px;
+            background: #232344;
+            border-radius: 8px;
+            border: 1px solid #333;
         }
-        .budget-adjustment-panel.show {
-            display: block;
-        }
+        .budget-adjustment-panel.show { display: block; }
         .budget-adjustment-title {
             text-align: center;
-            color: white;
-            font-size: 0.95em;
+            color: #fff;
+            font-size: 1em;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
         }
         .current-budget-input {
             width: 100%;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
+            background: #232344;
+            border: 1px solid #333;
             border-radius: 6px;
-            color: white;
-            font-size: 1.1em;
+            color: #fff;
+            font-size: 1em;
             font-weight: 600;
-            padding: 12px;
+            padding: 8px;
             text-align: center;
-            outline: none;
-            transition: all 0.3s ease;
-            margin-bottom: 16px;
-        }
-        .current-budget-input:focus {
-            border-color: rgba(255,255,255,0.6);
-            background: rgba(255,255,255,0.15);
-        }
-        .current-budget-input::placeholder {
-            color: rgba(255,255,255,0.5);
+            margin-bottom: 6px;
         }
         .budget-adjustment-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
+            gap: 4px;
         }
         .budget-adjust-btn {
-            padding: 12px 8px;
+            padding: 8px 4px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.85em;
+            border-radius: 6px;
+            font-size: 0.95em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            touch-action: manipulation;
             text-align: center;
-            backdrop-filter: blur(10px);
-        }
-        .budget-adjust-btn.decrease {
-            background: linear-gradient(135deg, #8b5a6b, #6d4a5c);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .budget-adjust-btn.increase {
-            background: linear-gradient(135deg, #4a6b8b, #3a5a7d);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-        .budget-adjust-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            filter: brightness(1.1);
-        }
-        .budget-adjust-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        /* Mobile budget adjustment optimizations */
-        @media (max-width: 768px) {
-            .budget-adjustment-panel {
-                margin-top: 12px;
-                padding: 12px;
-            }
-            .budget-adjust-btn {
-                padding: 14px 10px;
-                font-size: 0.9em;
-            }
-        }
-        
-        /* Ensure good contrast and readability on mobile */
-        @media (max-width: 480px) {
-            body {
-                padding: 8px;
-                font-size: 14px;
-            }
-            .container {
-                padding: 16px;
-            }
-            h1 {
-                font-size: 1.4em;
-            }
-            .progress-stat-number {
-                font-size: 1.1em;
-            }
-            .progress-stat-label {
-                font-size: 0.75em;
-            }
+            background: #3a5a7d;
+            color: #fff;
         }
     </style>
 </head>
@@ -639,8 +268,10 @@
             
             <!-- Budget Adjustment Panel -->
             <div class="budget-adjustment-panel" id="budgetAdjustmentPanel">
-                <div class="budget-adjustment-title">Adjust Budget</div>
-                <input type="number" class="current-budget-input" id="currentBudgetInput" min="0" step="0.01" placeholder="Enter budget">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; justify-content: center;">
+                    <div class="budget-adjustment-title" style="margin-bottom: 0;">Buget</div>
+                    <input type="number" class="current-budget-input" id="currentBudgetInput" min="0" step="0.01" placeholder="Enter budget" style="margin-bottom: 0; width: 90px; min-width: 0;">
+                </div>
                 <div class="budget-adjustment-buttons">
                     <button class="budget-adjust-btn decrease" id="decreaseHalf">-½ Rate</button>
                     <button class="budget-adjust-btn increase" id="increaseHalf">+½ Rate</button>
@@ -703,229 +334,153 @@
 
     <script>
         // Single Responsibility Principle: Each class has one specific purpose
+        // Shared month names for all classes
+        const MONTH_NAMES = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        const SHORT_MONTH_NAMES = [
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        ];
+
         class DateCalculator {
             constructor() {}
-            
             // Calculate working and non-working days between 10th and 25th of next month
             calculateDays() {
                 const now = new Date();
                 const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
                 const startDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 10);
                 const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 25);
-                
-                let workingDays = 0;
-                let nonWorkingDays = 0;
-                let totalDays = 0;
+                let workingDays = 0, nonWorkingDays = 0, totalDays = 0;
                 const currentDate = new Date(startDate);
-                
                 while (currentDate <= endDate) {
                     const dayOfWeek = currentDate.getDay();
                     totalDays++;
-                    
-                    // Check if it's a weekend (0 = Sunday, 6 = Saturday)
-                    if (dayOfWeek === 0 || dayOfWeek === 6) {
-                        nonWorkingDays++;
-                    } else {
-                        workingDays++;
-                    }
+                    if (dayOfWeek === 0 || dayOfWeek === 6) nonWorkingDays++;
+                    else workingDays++;
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
-                
-                return {
-                    workingDays,
-                    nonWorkingDays,
-                    totalDays
-                };
+                return { workingDays, nonWorkingDays, totalDays };
             }
-            
-            // Legacy method for backward compatibility
-            calculateWorkingDays() {
-                return this.calculateDays().workingDays;
-            }
-            
             getNextMonthInfo() {
                 const now = new Date();
                 const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-                const monthNames = [
-                    "January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"
-                ];
                 return {
-                    month: monthNames[nextMonth.getMonth()],
+                    month: MONTH_NAMES[nextMonth.getMonth()],
                     year: nextMonth.getFullYear()
                 };
             }
-            
             getNextWorkingDayInfo() {
                 const now = new Date();
                 const currentMonth = now.getMonth();
                 const currentYear = now.getFullYear();
                 const currentDate = now.getDate();
-                
-                // Check if we're before the 10th of current month
                 if (currentDate < 10) {
-                    // Find next working day on or after 10th of current month
                     const targetDate = new Date(currentYear, currentMonth, 10);
                     const nextWorkingDay = this.findNextWorkingDay(targetDate);
                     return {
                         date: nextWorkingDay,
-                        monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                        monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
                         isCurrentMonth: true
                     };
                 } else if (currentDate <= 25) {
-                    // We're between 10th and 25th - find next working day from today
                     const tomorrow = new Date(now);
                     tomorrow.setDate(now.getDate() + 1);
                     const nextWorkingDay = this.findNextWorkingDay(tomorrow);
-                    
-                    // Check if next working day is still within the 25th of current month
                     if (nextWorkingDay.getMonth() === currentMonth && nextWorkingDay.getDate() <= 25) {
                         return {
                             date: nextWorkingDay,
-                            monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                            monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
                             isCurrentMonth: true
                         };
                     } else {
-                        // Next working day is past 25th, so show 10th of next month
                         const nextMonth = new Date(currentYear, currentMonth + 1, 10);
                         const nextWorkingDay = this.findNextWorkingDay(nextMonth);
                         return {
                             date: nextWorkingDay,
-                            monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                            monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
                             isCurrentMonth: false
                         };
                     }
                 } else {
-                    // We're past 25th - find next working day on or after 10th of next month
                     const nextMonth = new Date(currentYear, currentMonth + 1, 10);
                     const nextWorkingDay = this.findNextWorkingDay(nextMonth);
                     return {
                         date: nextWorkingDay,
-                        monthName: this.getMonthName(nextWorkingDay.getMonth()),
+                        monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
                         isCurrentMonth: false
                     };
                 }
             }
-            
             findNextWorkingDay(startDate) {
                 const date = new Date(startDate);
-                while (date.getDay() === 0 || date.getDay() === 6) { // Skip weekends
-                    date.setDate(date.getDate() + 1);
-                }
+                while (date.getDay() === 0 || date.getDay() === 6) date.setDate(date.getDate() + 1);
                 return date;
             }
-            
             getProgressInfo() {
                 const now = new Date();
                 const currentYear = now.getFullYear();
                 const currentMonth = now.getMonth();
                 const currentDate = now.getDate();
-
                 let lastCriteriaDate, nextCriteriaDate;
                 if (currentDate < 10) {
-                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 14, 0, 0, 0); // 25th prev month 14:00
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0); // 10th this month 14:00
+                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 14, 0, 0, 0);
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0);
                 } else if (currentDate <= 25) {
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0); // 10th 14:00
-                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0); // 25th 14:00
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0);
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0);
                 } else {
-                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0); // 25th 14:00
-                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 14, 0, 0, 0); // 10th next month 14:00
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0);
+                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 14, 0, 0, 0);
                 }
-
-                // Total hours in the period
                 const totalHours = (nextCriteriaDate - lastCriteriaDate) / (1000 * 60 * 60);
-                // Hours passed from start to now
                 let hoursPassed = (now - lastCriteriaDate) / (1000 * 60 * 60);
-                // Clamp between 0 and totalHours
                 hoursPassed = Math.max(0, Math.min(hoursPassed, totalHours));
                 const progressPercentage = Math.min(Math.max((hoursPassed / totalHours) * 100, 0), 100);
-
-                // For display, keep daysPassed and totalDays as before
                 let totalDays = 0;
                 let temp = new Date(lastCriteriaDate);
-                while (temp < nextCriteriaDate) {
-                    totalDays++;
-                    temp.setDate(temp.getDate() + 1);
-                }
+                while (temp < nextCriteriaDate) { totalDays++; temp.setDate(temp.getDate() + 1); }
                 let daysPassed = 0;
                 temp = new Date(lastCriteriaDate);
-                while (temp < now) {
-                    daysPassed++;
-                    temp.setDate(temp.getDate() + 1);
-                }
-
+                while (temp < now) { daysPassed++; temp.setDate(temp.getDate() + 1); }
                 return {
                     lastDate: lastCriteriaDate,
                     nextDate: nextCriteriaDate,
-                    daysPassed: daysPassed,
-                    totalDays: totalDays,
-                    progressPercentage: progressPercentage
+                    daysPassed,
+                    totalDays,
+                    progressPercentage
                 };
             }
-            
             getWorkingHoursProgress() {
                 const now = new Date();
                 const currentHour = now.getHours();
                 const currentMinute = now.getMinutes();
-                const currentDay = now.getDay(); // 0 = Sunday, 6 = Saturday
-                
-                // Check if it's a working day (Monday-Friday)
+                const currentDay = now.getDay();
                 const isWorkingDay = currentDay >= 1 && currentDay <= 5;
-                
                 if (!isWorkingDay) {
-                    return {
-                        isWorkingDay: false,
-                        hoursElapsed: 0,
-                        hoursRemaining: 8,
-                        progressPercentage: 0,
-                        status: 'Weekend'
-                    };
+                    return { isWorkingDay: false, hoursElapsed: 0, hoursRemaining: 8, progressPercentage: 0, status: 'Weekend' };
                 }
-                
-                const workStart = 10; // 10:00 AM
-                const workEnd = 18;   // 6:00 PM
-                const totalWorkHours = workEnd - workStart; // 8 hours
-                
+                const workStart = 10, workEnd = 18, totalWorkHours = workEnd - workStart;
                 const currentTimeInHours = currentHour + (currentMinute / 60);
-                
                 let hoursElapsed, hoursRemaining, progressPercentage, status;
-                
                 if (currentTimeInHours < workStart) {
-                    // Before work hours
-                    hoursElapsed = 0;
-                    hoursRemaining = totalWorkHours;
-                    progressPercentage = 0;
-                    status = 'Before hours';
+                    hoursElapsed = 0; hoursRemaining = totalWorkHours; progressPercentage = 0; status = 'Before hours';
                 } else if (currentTimeInHours >= workEnd) {
-                    // After work hours
-                    hoursElapsed = totalWorkHours;
-                    hoursRemaining = 0;
-                    progressPercentage = 100;
-                    status = 'Complete';
+                    hoursElapsed = totalWorkHours; hoursRemaining = 0; progressPercentage = 100; status = 'Complete';
                 } else {
-                    // During work hours
                     hoursElapsed = currentTimeInHours - workStart;
                     hoursRemaining = workEnd - currentTimeInHours;
                     progressPercentage = (hoursElapsed / totalWorkHours) * 100;
                     status = 'Active';
                 }
-                
                 return {
                     isWorkingDay: true,
                     hoursElapsed: Math.max(0, hoursElapsed),
                     hoursRemaining: Math.max(0, hoursRemaining),
                     progressPercentage: Math.min(Math.max(progressPercentage, 0), 100),
-                    status: status
+                    status
                 };
-            }
-            
-            getMonthName(monthIndex) {
-                const monthNames = [
-                    "January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"
-                ];
-                return monthNames[monthIndex];
             }
         }
         
@@ -1127,13 +682,11 @@
                 this.clearError();
             }
             
+            // Generic progress bar updater
             updateProgressBar(calculation = null) {
                 const progressInfo = this.dateCalculator.getProgressInfo();
-                
-                // Update progress bar
-                this.elements.progressBar.style.width = `${progressInfo.progressPercentage}%`;
-                this.elements.progressText.textContent = `${Math.round(progressInfo.progressPercentage)}%`;
-                // Show remaining days (calendar days) from today till end and daily rate if budget is set
+                setBar(this.elements.progressBar, this.elements.progressText, progressInfo.progressPercentage);
+                // Show remaining days and daily rate if budget is set
                 const savedBudget = storageManager.loadBudget && storageManager.loadBudget();
                 let rateInfo = '';
                 const daysRemaining = progressInfo.totalDays - progressInfo.daysPassed;
@@ -1141,40 +694,22 @@
                     const dailyRate = Math.round(savedBudget / daysRemaining);
                     rateInfo = ` at ${dailyRate} RON/day`;
                 }
-                this.elements.progressTextInfo.textContent = `${daysRemaining} days remaining${rateInfo}`;
-                
-
+                this.elements.progressTextInfo.textContent = `${daysRemaining} days${rateInfo}`;
                 // Show budget progress end date (next working day after 10th/25th)
-                const endDateInfo = this.dateCalculator.getProgressInfo();
-                let endDate = endDateInfo.nextDate;
-                // Use findNextWorkingDay to skip weekends
-                endDate = this.dateCalculator.findNextWorkingDay(endDate);
-                this.elements.nextWorkingDayInfo.textContent =
-                    `Ends: ${this.getShortMonthName(endDate.getMonth())} ${endDate.getDate()}`;
-                
-                // Update working hours progress
+                let endDate = this.dateCalculator.findNextWorkingDay(progressInfo.nextDate);
+                this.elements.nextWorkingDayInfo.textContent = `${SHORT_MONTH_NAMES[endDate.getMonth()]} ${endDate.getDate()}`;
                 this.updateWorkingHoursProgress();
             }
             
             updateWorkingHoursProgress() {
                 const hoursInfo = this.dateCalculator.getWorkingHoursProgress();
-                
-                // Update hours progress bar
-                this.elements.hoursProgressBar.style.width = `${hoursInfo.progressPercentage}%`;
-                this.elements.hoursProgressTextHeader.textContent = `${Math.round(hoursInfo.progressPercentage)}%`;
-                
-                // Convert decimal hours to hours:minutes format
-                const elapsedHours = Math.floor(hoursInfo.hoursElapsed);
-                const elapsedMinutes = Math.round((hoursInfo.hoursElapsed - elapsedHours) * 60);
+                setBar(this.elements.hoursProgressBar, this.elements.hoursProgressTextHeader, hoursInfo.progressPercentage);
                 const remainingHours = Math.floor(hoursInfo.hoursRemaining);
                 const remainingMinutes = Math.round((hoursInfo.hoursRemaining - remainingHours) * 60);
-                
-                // Update progress text with hours:minutes format
                 if (!hoursInfo.isWorkingDay) {
                     this.elements.hoursProgressText.textContent = 'Weekend - No work hours';
                     this.elements.workingHoursInfo.textContent = 'N/A';
                 } else {
-                    // Show only remaining time in progress bar
                     if (hoursInfo.status === 'Complete') {
                         this.elements.hoursProgressText.textContent = 'Work day completed';
                     } else if (hoursInfo.status === 'Before hours') {
@@ -1187,19 +722,13 @@
             }
             
             updateTasksProgress(taskStats) {
-                // Update tasks progress bar
-                this.elements.tasksProgressBar.style.width = `${taskStats.percentage}%`;
-                this.elements.tasksProgressTextHeader.textContent = `${Math.round(taskStats.percentage)}%`;
+                setBar(this.elements.tasksProgressBar, this.elements.tasksProgressTextHeader, taskStats.percentage);
                 this.elements.tasksInfo.textContent = `${Math.round(taskStats.completed)}/${Math.round(taskStats.total)}`;
-
-                // Update progress bar color for completed
                 if (taskStats.total > 0 && taskStats.completed === taskStats.total) {
                     this.elements.tasksProgressBar.classList.add('completed');
                 } else {
                     this.elements.tasksProgressBar.classList.remove('completed');
                 }
-
-                // Update progress text
                 if (taskStats.total === 0) {
                     this.elements.tasksProgressText.textContent = 'No tasks • Click to manage';
                 } else if (taskStats.completed === taskStats.total) {
@@ -1246,11 +775,7 @@
             }
             
             getShortMonthName(monthIndex) {
-                const shortMonthNames = [
-                    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-                ];
-                return shortMonthNames[monthIndex];
+                return SHORT_MONTH_NAMES[monthIndex];
             }
             
             showError(message) {
@@ -1288,55 +813,21 @@
             }
             
             adjustBudget(adjustmentType) {
-                if (!this.currentBudget || this.currentBudget <= 0) {
-                    return;
-                }
-                
+                if (!this.currentBudget || this.currentBudget <= 0) return;
                 try {
-                    const calculation = this.calculator.calculate(this.currentBudget);
-                    const dailyRate = calculation.dailyBudget;
-                    
+                    const { roundedBase, roundedLarge } = getBudgetAdjustments(this.calculator, this.currentBudget);
                     let budgetAdjustment = 0;
-                    
-                    // Calculate reasonable adjustments based on current rate
-                    // Aim for adjustments around 100-200 RON range
-                    const baseAdjustment = Math.round(dailyRate * 0.7); // ~70% of daily rate
-                    const largeAdjustment = Math.round(dailyRate * 1.4); // ~140% of daily rate
-                    
-                    // Round both to nearest 10 for cleaner values
-                    const roundedBase = Math.round(baseAdjustment / 10) * 10;
-                    const roundedLarge = Math.round(largeAdjustment / 10) * 10;
-                    
                     switch(adjustmentType) {
-                        case 'decreaseHalf':
-                            budgetAdjustment = -roundedBase;
-                            break;
-                        case 'decreaseDouble':
-                            budgetAdjustment = -roundedLarge;
-                            break;
-                        case 'increaseHalf':
-                            budgetAdjustment = roundedBase;
-                            break;
-                        case 'increaseDouble':
-                            budgetAdjustment = roundedLarge;
-                            break;
+                        case 'decreaseHalf': budgetAdjustment = -roundedBase; break;
+                        case 'decreaseDouble': budgetAdjustment = -roundedLarge; break;
+                        case 'increaseHalf': budgetAdjustment = roundedBase; break;
+                        case 'increaseDouble': budgetAdjustment = roundedLarge; break;
                     }
-                    
-                    // Calculate new budget
                     const newBudget = Math.max(0, this.currentBudget + budgetAdjustment);
-                    
-                    // Update and handle the new budget
                     this.handleBudgetInput(newBudget);
-                    
-                    // Update the current budget input in the adjustment panel
                     elements.currentBudgetInput.value = newBudget.toFixed(0);
-                    
-                    // Update button labels with new adjustment amounts
                     this.updateAdjustmentButtonLabels();
-                    
-                } catch (error) {
-                    console.error('Error adjusting budget:', error);
-                }
+                } catch (error) { console.error('Error adjusting budget:', error); }
             }
             
             showBudgetAdjustment() {
@@ -1362,32 +853,15 @@
             }
             
             updateAdjustmentButtonLabels() {
-                if (!this.currentBudget || this.currentBudget <= 0) {
-                    return;
-                }
-                
+                if (!this.currentBudget || this.currentBudget <= 0) return;
                 try {
-                    const calculation = this.calculator.calculate(this.currentBudget);
-                    const dailyRate = calculation.dailyBudget;
-                    
-                    // Calculate reasonable adjustments based on current rate
-                    // These give us practical amounts around 100-200 RON range
-                    const baseAdjustment = Math.round(dailyRate * 0.7); // ~70% of daily rate
-                    const largeAdjustment = Math.round(dailyRate * 1.4); // ~140% of daily rate
-                    
-                    // Round both to nearest 10 for cleaner values
-                    const roundedBase = Math.round(baseAdjustment / 10) * 10;
-                    const roundedLarge = Math.round(largeAdjustment / 10) * 10;
-                    
-                    // Update button labels with these rounded amounts
+                    const { roundedBase, roundedLarge } = getBudgetAdjustments(this.calculator, this.currentBudget);
                     elements.decreaseHalf.textContent = `-${roundedBase} RON`;
                     elements.decreaseDouble.textContent = `-${roundedLarge} RON`;
                     elements.increaseHalf.textContent = `+${roundedBase} RON`;
                     elements.increaseDouble.textContent = `+${roundedLarge} RON`;
-                    
                 } catch (error) {
                     console.error('Error updating button labels:', error);
-                    // Fallback labels
                     elements.decreaseHalf.textContent = '-Base';
                     elements.decreaseDouble.textContent = '-Large';
                     elements.increaseHalf.textContent = '+Base';
@@ -1615,7 +1089,7 @@
                 const end = new Date(start.getTime() + 8*60*60*1000 + totalBreakMs);
                 let html = `<div style=\"text-align:center;\">`;
                 html += `<div style=\"color:#fff;font-weight:600;font-size:1.1em;margin-bottom:12px;\">Start: ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</div>`;
-                html += `<div style=\"color:#fff;font-size:1em;margin-bottom:8px;\">End: ${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</div>`;
+                // Removed End time display
                 if (breakDetails) html += `<div style=\"margin-bottom:8px;\">${breakDetails}</div>`;
                 html += `<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:stretch;align-items:center;margin:8px 0;\">`;
                 // If a break is ongoing, show End Break, else show Start Break
@@ -1676,7 +1150,7 @@
                 let rh = Math.floor(remaining / 3600);
                 let rm = Math.floor((remaining % 3600) / 60);
                 elements.hoursProgressText.textContent = `${rh}h ${rm}m remaining`;
-                elements.workingHoursInfo.textContent = `${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} (Custom)`;
+                elements.workingHoursInfo.textContent = `${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
             } else {
                 origUpdateWorkingHoursProgress();
             }
@@ -1689,20 +1163,10 @@
             elements.hoursProgressContainer.style.boxShadow = '';
         });
 
-        // Mouseover effect for Tasks progress
-        elements.tasksProgressContainer.addEventListener('mouseenter', () => {
-            elements.tasksProgressContainer.style.boxShadow = '0 0 0 3px #20b2ff55';
-        });
-        elements.tasksProgressContainer.addEventListener('mouseleave', () => {
-            elements.tasksProgressContainer.style.boxShadow = '';
-        });
-
-        // Mouseover effect for Overall progress
-        elements.progressContainer.addEventListener('mouseenter', () => {
-            elements.progressContainer.style.boxShadow = '0 0 0 3px #20b2ff55';
-        });
-        elements.progressContainer.addEventListener('mouseleave', () => {
-            elements.progressContainer.style.boxShadow = '';
+        // Mouseover effect for progress containers (merged)
+        [elements.progressContainer, elements.tasksProgressContainer, elements.hoursProgressContainer].forEach(el => {
+            el.addEventListener('mouseenter', () => { el.style.boxShadow = '0 0 0 3px #20b2ff55'; });
+            el.addEventListener('mouseleave', () => { el.style.boxShadow = ''; });
         });
 
         // Close Today panel when clicking outside
@@ -1779,7 +1243,29 @@
             elements.progressContainer.addEventListener(eventType, () => {
                 displayManager.updateProgressBar();
             });
+            elements.tasksProgressContainer.addEventListener(eventType, () => {
+                displayManager.updateTasksProgress(taskManager.getTaskStats());
+            });
+            elements.hoursProgressContainer.addEventListener(eventType, () => {
+                displayManager.updateWorkingHoursProgress();
+            });
         });
+        // Helper: set progress bar width and text
+        function setBar(barEl, textEl, percent) {
+            barEl.style.width = `${percent}%`;
+            textEl.textContent = `${Math.round(percent)}%`;
+        }
+
+        // Helper: get budget adjustment values (merged logic)
+        function getBudgetAdjustments(calculator, currentBudget) {
+            const calculation = calculator.calculate(currentBudget);
+            const dailyRate = calculation.dailyBudget;
+            const baseAdjustment = Math.round(dailyRate * 0.7);
+            const largeAdjustment = Math.round(dailyRate * 1.4);
+            const roundedBase = Math.round(baseAdjustment / 10) * 10;
+            const roundedLarge = Math.round(largeAdjustment / 10) * 10;
+            return { roundedBase, roundedLarge };
+        }
         
         // Close panels when clicking outside
         document.addEventListener('click', (e) => {
