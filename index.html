@@ -14,12 +14,31 @@
             font-size: 15px;
             line-height: 1.5;
         }
-        .container {
+        /* Panel utility for containers */
+        .panel {
             background: #232344;
-            padding: 10px;
             border-radius: 8px;
             border: 1px solid #333;
+            padding: 10px;
         }
+        .panel-alt { background: #2d3561; }
+        .panel-sm { padding: 8px; }
+
+        /* Utility classes for margin, padding, flex */
+        .mt-10 { margin-top: 10px; }
+        .mb-8 { margin-bottom: 8px; }
+        .mt-8 { margin-top: 8px; }
+        .mb-10 { margin-bottom: 10px; }
+        .pt-8 { padding-top: 8px; }
+        .pb-8 { padding-bottom: 8px; }
+        .pl-8 { padding-left: 8px; }
+        .pr-8 { padding-right: 8px; }
+        .flex { display: flex; }
+        .flex-center { justify-content: center; align-items: center; }
+        .flex-col { flex-direction: column; }
+        .gap-4 { gap: 4px; }
+        .gap-6 { gap: 6px; }
+        .gap-8 { gap: 8px; }
         h1 {
             color: #e0e0e0;
             text-align: center;
@@ -28,13 +47,7 @@
             font-size: 1.2em;
         }
         .header { text-align: center; margin-bottom: 10px; }
-        .progress-container, .hours-progress-container, .tasks-progress-container {
-            background: #2d3561;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            margin-top: 10px;
-        }
+        /* Progress containers */
         .progress-header {
             display: flex;
             justify-content: space-between;
@@ -63,12 +76,15 @@
             margin-bottom: 6px;
             border: 1px solid #333;
         }
-        .progress-bar, .hours-progress-bar, .tasks-progress-bar {
+        /* Progress bar base and variants */
+        .progress-bar {
             height: 100%;
-            background: #20b2ff;
             border-radius: 8px;
             transition: width 0.5s ease;
+            background: #20b2ff;
         }
+        /* Use .progress-bar for both hours and tasks by default */
+        /* .hours-progress-bar and .tasks-progress-bar are now just semantic hooks */
         .tasks-progress-bar.completed {
             background: #4caf50;
         }
@@ -87,22 +103,22 @@
             font-weight: 600;
             font-size: 0.9em;
         }
-        .task-management-panel {
-            display: none;
-            margin-top: 8px;
+        /* Button utility */
+        .btn {
             padding: 8px;
-            background: #232344;
-            border-radius: 8px;
-            border: 1px solid #333;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            color: #fff;
         }
-        .task-management-panel.show { display: block; }
-        .add-task-section {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-        .task-input {
+        .btn-green { background: #4a8b6b; }
+        .btn-blue { background: #357abd; }
+        .btn-red { background: #c0392b; }
+        .btn-alt { background: #3a5a7d; font-size: 0.95em; text-align: center; padding: 8px 4px; }
+        /* Input utility */
+        .input {
             width: 100%;
             background: #232344;
             border: 1px solid #333;
@@ -112,16 +128,11 @@
             padding: 8px;
             outline: none;
         }
-        .task-btn {
-            padding: 8px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            background: #4a8b6b;
-            color: #fff;
-        }
+        .input-center { text-align: center; }
+        /* Show/hide utility */
+        .show { display: block !important; }
+        .hide { display: none !important; }
+        /* Task list and items */
         .task-list {
             max-height: 120px;
             overflow-y: auto;
@@ -187,8 +198,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #357abd;
-            color: #fff;
         }
         .edit-btn { background: #357abd; }
         .delete-btn { background: #c0392b; }
@@ -199,15 +208,7 @@
             padding: 8px;
             font-style: italic;
         }
-        .budget-adjustment-panel {
-            display: none;
-            margin-top: 8px;
-            padding: 8px;
-            background: #232344;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-        .budget-adjustment-panel.show { display: block; }
+        /* Budget adjustment panel */
         .budget-adjustment-title {
             text-align: center;
             color: #fff;
@@ -215,43 +216,20 @@
             font-weight: 600;
             margin-bottom: 6px;
         }
-        .current-budget-input {
-            width: 100%;
-            background: #232344;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 1em;
-            font-weight: 600;
-            padding: 8px;
-            text-align: center;
-            margin-bottom: 6px;
-        }
         .budget-adjustment-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 4px;
         }
-        .budget-adjust-btn {
-            padding: 8px 4px;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.95em;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            background: #3a5a7d;
-            color: #fff;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="panel">
         <div class="header">
             <h1>Progress Tracker</h1>
         </div>
         
-        <div class="progress-container" id="progressContainer">
+        <div class="panel panel-alt mt-10" id="progressContainer">
             <div class="progress-header">
                 <div class="progress-label-section">
                     <span class="progress-label">Progress</span>
@@ -265,23 +243,22 @@
                     <span class="progress-text-info" id="progressTextInfo">0 days at 0 RON/day</span>
                 </div>
             </div>
-            
             <!-- Budget Adjustment Panel -->
-            <div class="budget-adjustment-panel" id="budgetAdjustmentPanel">
+            <div class="panel panel-sm budget-adjustment-panel hide" id="budgetAdjustmentPanel">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; justify-content: center;">
                     <div class="budget-adjustment-title" style="margin-bottom: 0;">Buget</div>
-                    <input type="number" class="current-budget-input" id="currentBudgetInput" min="0" step="0.01" placeholder="Enter budget" style="margin-bottom: 0; width: 90px; min-width: 0;">
+                    <input type="number" class="input input-center" id="currentBudgetInput" min="0" step="0.01" placeholder="Enter budget" style="margin-bottom: 0; width: 90px; min-width: 0;">
                 </div>
                 <div class="budget-adjustment-buttons">
-                    <button class="budget-adjust-btn decrease" id="decreaseHalf">-½ Rate</button>
-                    <button class="budget-adjust-btn increase" id="increaseHalf">+½ Rate</button>
-                    <button class="budget-adjust-btn decrease" id="decreaseDouble">-2x Rate</button>
-                    <button class="budget-adjust-btn increase" id="increaseDouble">+2x Rate</button>
+                    <button class="btn btn-red" id="decreaseHalf">-½ Rate</button>
+                    <button class="btn btn-green" id="increaseHalf">+½ Rate</button>
+                    <button class="btn btn-red" id="decreaseDouble">-2x Rate</button>
+                    <button class="btn btn-green" id="increaseDouble">+2x Rate</button>
                 </div>
             </div>
         </div>
         
-    <div class="hours-progress-container" id="hoursProgressContainer">
+    <div class="panel panel-alt mt-10" id="hoursProgressContainer">
             <div class="progress-header">
                 <div class="progress-label-section">
                     <span class="progress-label">Today</span>
@@ -290,18 +267,18 @@
                 <div class="cycle-end" id="workingHoursInfo">18:00</div>
             </div>
             <div class="progress-bar-container">
-                <div class="hours-progress-bar" id="hoursProgressBar" style="width: 0%"></div>
+                <div class="hours-progress-bar progress-bar" id="hoursProgressBar" style="width: 0%"></div>
                 <div class="progress-stats-overlay">
                     <span class="progress-text-info" id="hoursProgressText">8h 0m remaining</span>
                 </div>
             </div>
             <!-- Today Progress Panel -->
-            <div class="task-management-panel" id="todayProgressPanel" style="display:none;">
+            <div class="panel panel-sm task-management-panel hide" id="todayProgressPanel">
                 <div class="empty-tasks">TBD</div>
             </div>
         </div>
         
-        <div class="tasks-progress-container" id="tasksProgressContainer">
+    <div class="panel panel-alt mt-10" id="tasksProgressContainer">
             <div class="progress-header">
                 <div class="progress-label-section">
                     <span class="progress-label">Tasks</span>
@@ -310,20 +287,18 @@
                 <div class="cycle-end" id="tasksInfo">0/0</div>
             </div>
             <div class="progress-bar-container">
-                <div class="tasks-progress-bar" id="tasksProgressBar" style="width: 0%"></div>
+                <div class="tasks-progress-bar progress-bar" id="tasksProgressBar" style="width: 0%"></div>
                 <div class="progress-stats-overlay">
                     <span class="progress-text-info" id="tasksProgressText">No tasks • Click to manage</span>
                 </div>
             </div>
-            
             <!-- Task Management Panel -->
-            <div class="task-management-panel" id="taskManagementPanel">
+            <div class="panel panel-sm task-management-panel hide" id="taskManagementPanel">
                 <!-- Add New Task -->
                 <div class="add-task-section">
-                    <input type="text" class="task-input" id="newTaskInput" placeholder="Enter new task...">
-                    <button class="task-btn add-task-btn" id="addTaskBtn">Add Task</button>
+                    <input type="text" class="input" id="newTaskInput" placeholder="Enter new task...">
+                    <button class="btn btn-green add-task-btn" id="addTaskBtn">Add Task</button>
                 </div>
-                
                 <!-- Task List -->
                 <div class="task-list" id="taskList">
                     <!-- Tasks will be populated here -->
@@ -336,6 +311,45 @@
     // Utility: Month names
     const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // --- Utility: set progress bar width and text (reusable) ---
+    function setBar(barEl, textEl, percent) {
+        barEl.style.width = `${percent}%`;
+        textEl.textContent = `${Math.round(percent)}%`;
+    }
+
+    // --- Utility: Add multiple event listeners (reusable) ---
+    function addListeners(target, events, handler) {
+        events.forEach(ev => target.addEventListener(ev, handler));
+    }
+
+    // --- Utility: Panel toggling abstraction ---
+    function setupPanelToggle(container, panel, showFn, hideFn) {
+        let open = false;
+        container.addEventListener('click', (e) => {
+            // Only toggle if the click is directly on the container or its main children
+            if (
+                e.target === container ||
+                e.target.classList.contains('progress-bar') ||
+                e.target.classList.contains('progress-label') ||
+                e.target.classList.contains('progress-percentage') ||
+                e.target.classList.contains('progress-header') ||
+                e.target.classList.contains('progress-label-section')
+            ) {
+                open = !open;
+                open ? showFn() : hideFn();
+            }
+        });
+        // Close panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (open && !panel.contains(e.target) && !container.contains(e.target)) {
+                hideFn();
+                open = false;
+            }
+        });
+        // Prevent panel clicks from propagating
+        panel.addEventListener('click', e => e.stopPropagation());
+    }
 
         class DateCalculator {
             constructor() {}
@@ -831,7 +845,6 @@
                         this.currentBudget = parseFloat(savedBudget);
                     }
                 }
-                
                 // Update current budget input field
                 if (this.currentBudget && this.currentBudget > 0) {
                     elements.currentBudgetInput.value = this.currentBudget.toFixed(0);
@@ -839,9 +852,9 @@
                     // Set a default budget if none exists
                     elements.currentBudgetInput.value = '2000';
                 }
-                
                 // Update button labels with current rate amounts
                 this.updateAdjustmentButtonLabels();
+                elements.budgetAdjustmentPanel.classList.remove('hide');
                 elements.budgetAdjustmentPanel.classList.add('show');
             }
             
@@ -864,6 +877,7 @@
             
             hideBudgetAdjustment() {
                 elements.budgetAdjustmentPanel.classList.remove('show');
+                elements.budgetAdjustmentPanel.classList.add('hide');
             }
             
             loadSavedBudget() {
@@ -877,11 +891,13 @@
             // Task Management Methods
             showTaskManagement() {
                 this.refreshTaskDisplay();
+                elements.taskManagementPanel.classList.remove('hide');
                 elements.taskManagementPanel.classList.add('show');
             }
             
             hideTaskManagement() {
                 elements.taskManagementPanel.classList.remove('show');
+                elements.taskManagementPanel.classList.add('hide');
             }
             
             refreshTaskDisplay() {
@@ -987,14 +1003,10 @@
         const displayManager = new DisplayManager(elements, dateCalculator);
         const app = new BudgetApp(budgetCalculator, displayManager, dateCalculator, storageManager, taskManager);
 
-        // Utility: Add multiple event listeners
-        function addListeners(target, events, handler) {
-            events.forEach(ev => target.addEventListener(ev, handler));
-        }
 
-        // --- Task Add and Action Delegation ---
-        elements.addTaskBtn.addEventListener('click', e => { app.addTask(); e.stopPropagation(); });
-        elements.taskList.addEventListener('click', e => {
+        // --- Task Add and Action Delegation (abstracted) ---
+        addListeners(elements.addTaskBtn, ['click'], e => { app.addTask(); e.stopPropagation(); });
+        addListeners(elements.taskList, ['click'], e => {
             const action = e.target.getAttribute('data-action');
             const taskItem = e.target.closest('.task-item');
             if (action && taskItem) {
@@ -1003,26 +1015,29 @@
             }
         });
 
-        // --- Budget/Tasks Panel Toggle ---
-        let budgetPanelOpen = false, tasksPanelOpen = false, todayPanelOpen = false;
-        elements.progressContainer.addEventListener('click', () => {
-            budgetPanelOpen = !budgetPanelOpen;
-            budgetPanelOpen ? app.showBudgetAdjustment() : app.hideBudgetAdjustment();
-        });
-        elements.tasksProgressContainer.addEventListener('click', () => {
-            tasksPanelOpen = !tasksPanelOpen;
-            tasksPanelOpen ? app.showTaskManagement() : app.hideTaskManagement();
-        });
+        // --- Budget/Tasks Panel Toggle (abstracted) ---
+        setupPanelToggle(
+            elements.progressContainer,
+            elements.budgetAdjustmentPanel,
+            () => app.showBudgetAdjustment(),
+            () => app.hideBudgetAdjustment()
+        );
+        setupPanelToggle(
+            elements.tasksProgressContainer,
+            elements.taskManagementPanel,
+            () => app.showTaskManagement(),
+            () => app.hideTaskManagement()
+        );
 
-        // --- Budget Adjustment Buttons ---
+        // --- Budget Adjustment Buttons (abstracted) ---
         [
             ['decreaseHalf','decreaseHalf'],['decreaseDouble','decreaseDouble'],
             ['increaseHalf','increaseHalf'],['increaseDouble','increaseDouble']
         ].forEach(([id, type]) => {
-            elements[id].addEventListener('click', e => app.adjustBudget(type));
+            addListeners(elements[id], ['click'], e => app.adjustBudget(type));
         });
 
-        // --- Progress Bar Mouse Events (hover, move, click) ---
+        // --- Progress Bar Mouse Events (hover, move, click) (abstracted) ---
         const progressSections = [
             {el: elements.progressContainer, update: () => displayManager.updateProgressBar()},
             {el: elements.tasksProgressContainer, update: () => displayManager.updateTasksProgress(taskManager.getTaskStats())},
@@ -1031,7 +1046,7 @@
         ['mousemove','mouseenter','mouseleave','click'].forEach(eventType => {
             progressSections.forEach(({el, update}) => el.addEventListener(eventType, update));
         });
-        // Mouseover effect for all progress containers
+        // Mouseover effect for all progress containers (abstracted)
         [elements.progressContainer, elements.tasksProgressContainer, elements.hoursProgressContainer].forEach(el => {
             addListeners(el, ['mouseenter','mouseleave'], evt => {
                 el.style.boxShadow = evt.type==='mouseenter' ? '0 0 0 3px #20b2ff55' : '';
@@ -1039,32 +1054,36 @@
         });
 
         // --- Today Progress Panel logic (Early Start, Breaks) ---
-        elements.hoursProgressContainer.addEventListener('click', e => {
-            todayPanelOpen = !todayPanelOpen;
-            if (todayPanelOpen) {
-                const now = new Date();
-                const savedStart = localStorage.getItem('todayProgressStart');
-                if (now.getHours() < 10 && !savedStart) {
-                    elements.todayProgressPanel.innerHTML = `
-                        <div style="text-align:center;">
-                            <button id="earlyStartBtn" style="padding:12px 24px;font-size:1em;border-radius:8px;background:linear-gradient(135deg,#20b2ff,#4ac3ff);color:white;border:none;cursor:pointer;font-weight:600;box-shadow:0 2px 8px #20b2ff44;">Early Start</button>
-                        </div>
-                    `;
-                    document.getElementById('earlyStartBtn').onclick = function() {
-                        const start = new Date();
-                        const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
-                        localStorage.setItem('todayProgressStart', start.toISOString());
-                        localStorage.setItem('todayProgressEnd', end.toISOString());
+        elements.hoursProgressContainer.addEventListener('click', (e) => {
+            // Only toggle if the click is directly on the hoursProgressContainer or its main children
+            if (e.target === elements.hoursProgressContainer || e.target.classList.contains('progress-bar') || e.target.classList.contains('progress-label') || e.target.classList.contains('progress-percentage') || e.target.classList.contains('progress-header') || e.target.classList.contains('progress-label-section')) {
+                todayPanelOpen = !todayPanelOpen;
+                if (todayPanelOpen) {
+                    const now = new Date();
+                    const savedStart = localStorage.getItem('todayProgressStart');
+                    if (now.getHours() < 10 && !savedStart) {
+                        elements.todayProgressPanel.innerHTML = `
+                            <div style="text-align:center;">
+                                <button id="earlyStartBtn" style="padding:12px 24px;font-size:1em;border-radius:8px;background:linear-gradient(135deg,#20b2ff,#4ac3ff);color:white;border:none;cursor:pointer;font-weight:600;box-shadow:0 2px 8px #20b2ff44;">Early Start</button>
+                            </div>
+                        `;
+                        document.getElementById('earlyStartBtn').onclick = function() {
+                            const start = new Date();
+                            const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
+                            localStorage.setItem('todayProgressStart', start.toISOString());
+                            localStorage.setItem('todayProgressEnd', end.toISOString());
+                            updateTodayProgressPanel();
+                        };
+                    } else {
                         updateTodayProgressPanel();
-                    };
+                    }
+                    elements.todayProgressPanel.classList.remove('hide');
+                    elements.todayProgressPanel.classList.add('show');
                 } else {
-                    updateTodayProgressPanel();
+                    elements.todayProgressPanel.classList.remove('show');
+                    elements.todayProgressPanel.classList.add('hide');
                 }
-                elements.todayProgressPanel.style.display = 'block';
-            } else {
-                elements.todayProgressPanel.style.display = 'none';
             }
-            e.stopPropagation();
         });
 
         function updateTodayProgressPanel() {
@@ -1092,11 +1111,11 @@
                 html += `<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:stretch;align-items:center;margin:8px 0;\">`;
                 const ongoingBreak = breaks.length && !breaks[breaks.length-1].end;
                 if (!ongoingBreak) {
-                    html += `<button id=\"startBreakBtn\" class=\"budget-adjust-btn decrease\">Start Break</button>`;
-                    html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\">Reset</button>`;
+                    html += `<button id=\"startBreakBtn\" class=\"btn btn-green\">Start Break</button>`;
+                    html += `<button id=\"resetTodayProgress\" class=\"btn btn-red\">Reset</button>`;
                 } else {
-                    html += `<button id=\"endBreakBtn\" class=\"budget-adjust-btn increase\">End Break</button>`;
-                    html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\">Reset</button>`;
+                    html += `<button id=\"endBreakBtn\" class=\"btn btn-blue\">End Break</button>`;
+                    html += `<button id=\"resetTodayProgress\" class=\"btn btn-red\">Reset</button>`;
                 }
                 html += `</div></div>`;
                 elements.todayProgressPanel.innerHTML = html;
@@ -1145,35 +1164,20 @@
             }
         };
 
-        // --- Close panels when clicking outside ---
+        // --- Today panel close logic (keep for today panel only) ---
+        let todayPanelOpen = false;
         document.addEventListener('click', e => {
-            // Today panel
             const isClickInsideTodayPanel = elements.todayProgressPanel.contains(e.target);
             const isClickOnTodayContainer = elements.hoursProgressContainer.contains(e.target);
             if (todayPanelOpen && !isClickInsideTodayPanel && !isClickOnTodayContainer) {
                 elements.todayProgressPanel.style.display = 'none';
                 todayPanelOpen = false;
             }
-            // Task/Budget panels
-            const isTaskPanelVisible = elements.taskManagementPanel.classList.contains('show');
-            const isBudgetPanelVisible = elements.budgetAdjustmentPanel.classList.contains('show');
-            if (isTaskPanelVisible && !elements.taskManagementPanel.contains(e.target) && !elements.tasksProgressContainer.contains(e.target)) {
-                app.hideTaskManagement(); tasksPanelOpen = false;
-            }
-            if (isBudgetPanelVisible && !elements.budgetAdjustmentPanel.contains(e.target) && !elements.progressContainer.contains(e.target)) {
-                app.hideBudgetAdjustment(); budgetPanelOpen = false;
-            }
         });
-        // Prevent panel clicks from propagating
-        [elements.taskManagementPanel, elements.budgetAdjustmentPanel].forEach(panel => {
+        [elements.todayProgressPanel].forEach(panel => {
             panel.addEventListener('click', e => e.stopPropagation());
         });
 
-        // --- Helper: set progress bar width and text ---
-        function setBar(barEl, textEl, percent) {
-            barEl.style.width = `${percent}%`;
-            textEl.textContent = `${Math.round(percent)}%`;
-        }
         // --- Helper: get budget adjustment values ---
         function getBudgetAdjustments(calculator, currentBudget) {
             const calculation = calculator.calculate(currentBudget);
