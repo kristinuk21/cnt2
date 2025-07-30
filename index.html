@@ -30,63 +30,66 @@
 </head>
 <body>
     <div id="root"></div>
-        <script type="text/babel">
-                const { Box, Paper, Typography, Button, TextField, LinearProgress, Checkbox, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Stack, Snackbar, Alert, createTheme, ThemeProvider } = MaterialUI;
+    <!-- ReusableDialog is loaded globally from js/ReusableDialog.jsx -->
+    <script type="text/babel">
+                    const { Box, Paper, Typography, Button, TextField, LinearProgress, Checkbox, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Stack, Snackbar, Alert, createTheme, ThemeProvider } = MaterialUI;
+                    // Import ReusableDialog from global if available
+                    let ReusableDialog = window.ReusableDialog;
 
-                // --- Dark Theme Setup ---
-                const darkTheme = createTheme({
-                    palette: {
-                        mode: 'dark',
-                        background: {
-                            default: '#1a1a2e',
-                            paper: '#232344',
+                    // --- Dark Theme Setup ---
+                    const theme = createTheme({
+                        palette: {
+                            mode: 'dark',
+                            background: {
+                                default: '#1a1a2e',
+                                paper: '#232344',
+                            },
+                            primary: { main: '#357abd' },
+                            secondary: { main: '#2d3561' },
+                            success: { main: '#4caf50' },
+                            error: { main: '#c0392b' },
+                            info: { main: '#20b2ff' },
                         },
-                        primary: { main: '#357abd' },
-                        secondary: { main: '#2d3561' },
-                        success: { main: '#4caf50' },
-                        error: { main: '#c0392b' },
-                        info: { main: '#20b2ff' },
-                    },
-                    shape: {
-                        borderRadius: 8,
-                    },
-                    typography: {
-                        fontFamily: 'Roboto, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
-                        fontWeightBold: 600,
-                        h5: { color: '#e0e0e0', fontWeight: 600 },
-                    },
-                    components: {
-                        MuiPaper: {
-                            styleOverrides: {
-                                root: {
-                                    backgroundColor: '#232344',
+                        shape: {
+                            borderRadius: 8,
+                        },
+                        typography: {
+                            fontFamily: 'Roboto, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
+                            fontWeightBold: 600,
+                            h5: { color: '#e0e0e0', fontWeight: 600 },
+                        },
+                        components: {
+                            MuiPaper: {
+                                styleOverrides: {
+                                    root: {
+                                        backgroundColor: '#232344',
+                                    },
+                                },
+                            },
+                            MuiDialog: {
+                                styleOverrides: {
+                                    paper: {
+                                        backgroundColor: '#232344',
+                                        color: '#fff',
+                                    },
+                                },
+                            },
+                            MuiDialogTitle: {
+                                styleOverrides: {
+                                    root: {
+                                        color: '#e0e0e0',
+                                    },
+                                },
+                            },
+                            MuiDialogContent: {
+                                styleOverrides: {
+                                    root: {
+                                        color: '#fff',
+                                    },
                                 },
                             },
                         },
-                        MuiDialog: {
-                            styleOverrides: {
-                                paper: {
-                                    backgroundColor: '#232344',
-                                    color: '#fff',
-                                },
-                            },
-                        },
-                        MuiDialogTitle: {
-                            styleOverrides: {
-                                root: {
-                                    color: '#e0e0e0',
-                                },
-                            },
-                        },
-                        MuiDialogContent: {
-                            styleOverrides: {
-                                root: {
-                                    color: '#fff',
-                                },
-                            },
-                        },
-                    },
-                });
+                    });
         // --- Utility functions ---
         const SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         function calculateDays() {
@@ -110,16 +113,27 @@
             const currentYear = now.getFullYear();
             const currentMonth = now.getMonth();
             const currentDate = now.getDate();
-            let lastCriteriaDate, nextCriteriaDate;
+            let lastCriteriaDate, nextCriteriaDate, baseDay;
+            // Helper to get next working day on or after a date
+            function nextWorkingDay(date) {
+                let d = new Date(date);
+                while (d.getDay() === 0 || d.getDay() === 6) { // 0=Sun, 6=Sat
+                    d = dateFns.addDays(d, 1);
+                }
+                return d;
+            }
             if (currentDate < 10) {
                 lastCriteriaDate = dateFns.set(new Date(currentYear, currentMonth - 1, 25), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                nextCriteriaDate = dateFns.set(new Date(currentYear, currentMonth, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
+                baseDay = dateFns.set(new Date(currentYear, currentMonth, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
+                nextCriteriaDate = nextWorkingDay(baseDay);
             } else if (currentDate <= 25) {
                 lastCriteriaDate = dateFns.set(new Date(currentYear, currentMonth, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                nextCriteriaDate = dateFns.set(new Date(currentYear, currentMonth, 25), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
+                baseDay = dateFns.set(new Date(currentYear, currentMonth, 25), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
+                nextCriteriaDate = nextWorkingDay(baseDay);
             } else {
                 lastCriteriaDate = dateFns.set(new Date(currentYear, currentMonth, 25), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                nextCriteriaDate = dateFns.set(new Date(currentYear, currentMonth + 1, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
+                baseDay = dateFns.set(new Date(currentYear, currentMonth + 1, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
+                nextCriteriaDate = nextWorkingDay(baseDay);
             }
             const totalHours = dateFns.differenceInHours(nextCriteriaDate, lastCriteriaDate);
             let hoursPassed = dateFns.differenceInHours(now, lastCriteriaDate);
@@ -491,7 +505,7 @@
             React.useEffect(() => { saveBudget(budget); }, [budget]);
             React.useEffect(() => { saveTasks(tasks); }, [tasks]);
             return (
-                <ThemeProvider theme={darkTheme}>
+                <ThemeProvider theme={theme}>
                   <Box minHeight="100vh" bgcolor="background.default" p={2}>
                       <Paper elevation={4} sx={{maxWidth:420, mx:'auto', p:2, mt:2}}>
                           <Typography variant="h5" align="center" fontWeight={600} color="#e0e0e0" mb={2}>Progress Tracker</Typography>

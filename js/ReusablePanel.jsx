@@ -13,4 +13,4 @@ function ReusablePanel({ title, subtitle, children, onClick, sx, ...props }) {
   );
 }
 
-export default ReusablePanel;
+window.ReusablePanel = ReusablePanel;

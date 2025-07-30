@@ -1,4 +1,5 @@
 // Custom hook for localStorage state
+// Remove unused hooks if not referenced in index.html
 function useLocalStorage(key, initialValue) {
   const [state, setState] = React.useState(() => {
     try {
@@ -17,6 +18,7 @@ function useLocalStorage(key, initialValue) {
 }
 
 // Custom hook for progress info
+// Remove unused hooks if not referenced in index.html
 function useProgressInfo() {
   const [progress, setProgress] = React.useState(getProgressInfo());
   React.useEffect(() => {
@@ -27,6 +29,7 @@ function useProgressInfo() {
 }
 
 // Custom hook for working hours progress
+// Remove unused hooks if not referenced in index.html
 function useWorkingHoursProgress() {
   const [hours, setHours] = React.useState(getWorkingHoursProgress());
   React.useEffect(() => {
