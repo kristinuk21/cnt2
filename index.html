@@ -333,16 +333,9 @@
     </div>
 
     <script>
-        // Single Responsibility Principle: Each class has one specific purpose
-        // Shared month names for all classes
-        const MONTH_NAMES = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ];
-        const SHORT_MONTH_NAMES = [
-            "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-        ];
+    // Utility: Month names
+    const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         class DateCalculator {
             constructor() {}
@@ -972,68 +965,83 @@
             }
         }
         
-    // Interface Segregation: Small, focused interfaces
-    const elements = {
-            progressContainer: document.getElementById('progressContainer'),
-            progressBar: document.getElementById('progressBar'),
-            progressText: document.getElementById('progressText'),
-            progressTextInfo: document.getElementById('progressTextInfo'),
-            nextWorkingDayInfo: document.getElementById('nextWorkingDayInfo'),
-            hoursProgressContainer: document.getElementById('hoursProgressContainer'),
-            hoursProgressBar: document.getElementById('hoursProgressBar'),
-            hoursProgressText: document.getElementById('hoursProgressText'),
-            hoursProgressTextHeader: document.getElementById('hoursProgressTextHeader'),
-            workingHoursInfo: document.getElementById('workingHoursInfo'),
-            budgetAdjustmentPanel: document.getElementById('budgetAdjustmentPanel'),
-            currentBudgetInput: document.getElementById('currentBudgetInput'),
-            decreaseHalf: document.getElementById('decreaseHalf'),
-            decreaseDouble: document.getElementById('decreaseDouble'),
-            increaseHalf: document.getElementById('increaseHalf'),
-            increaseDouble: document.getElementById('increaseDouble'),
-            // Task management elements
-            tasksProgressContainer: document.getElementById('tasksProgressContainer'),
-            tasksProgressBar: document.getElementById('tasksProgressBar'),
-            tasksProgressText: document.getElementById('tasksProgressText'),
-            tasksProgressTextHeader: document.getElementById('tasksProgressTextHeader'),
-            tasksInfo: document.getElementById('tasksInfo'),
-            taskManagementPanel: document.getElementById('taskManagementPanel'),
-            newTaskInput: document.getElementById('newTaskInput'),
-            addTaskBtn: document.getElementById('addTaskBtn'),
-            taskList: document.getElementById('taskList'),
-            todayProgressPanel: document.getElementById('todayProgressPanel')
-        };
+        // Utility: Get DOM elements by id (batch)
+        function getElements(ids) {
+            const obj = {};
+            ids.forEach(id => { obj[id] = document.getElementById(id); });
+            return obj;
+        }
+        const elements = getElements([
+            'progressContainer','progressBar','progressText','progressTextInfo','nextWorkingDayInfo',
+            'hoursProgressContainer','hoursProgressBar','hoursProgressText','hoursProgressTextHeader','workingHoursInfo',
+            'budgetAdjustmentPanel','currentBudgetInput','decreaseHalf','decreaseDouble','increaseHalf','increaseDouble',
+            'tasksProgressContainer','tasksProgressBar','tasksProgressText','tasksProgressTextHeader','tasksInfo',
+            'taskManagementPanel','newTaskInput','addTaskBtn','taskList','todayProgressPanel']
+        );
         
-    // Dependency Injection: Inject dependencies
-        // Add click event listener for Add Task button
-        elements.addTaskBtn.addEventListener('click', function(e) {
-            app.addTask();
-            e.stopPropagation();
-        });
-        // Delegate clicks on task action buttons in the task list
-        elements.taskList.addEventListener('click', function(e) {
-            const action = e.target.getAttribute('data-action');
-            const taskItem = e.target.closest('.task-item');
-            if (action && taskItem) {
-                const taskId = taskItem.dataset.taskId;
-                app.handleTaskAction(taskId, action);
-                e.stopPropagation();
-            }
-        });
+        // --- Optimized Event and App Initialization Logic ---
         const dateCalculator = new DateCalculator();
         const budgetCalculator = new BudgetCalculator(dateCalculator);
         const storageManager = new StorageManager();
         const taskManager = new TaskManager(storageManager);
         const displayManager = new DisplayManager(elements, dateCalculator);
         const app = new BudgetApp(budgetCalculator, displayManager, dateCalculator, storageManager, taskManager);
-        
-        // Today Progress Panel logic
-        let todayPanelOpen = false;
 
-        // Today Progress Panel logic with Early Start
-        elements.hoursProgressContainer.addEventListener('click', (e) => {
+        // Utility: Add multiple event listeners
+        function addListeners(target, events, handler) {
+            events.forEach(ev => target.addEventListener(ev, handler));
+        }
+
+        // --- Task Add and Action Delegation ---
+        elements.addTaskBtn.addEventListener('click', e => { app.addTask(); e.stopPropagation(); });
+        elements.taskList.addEventListener('click', e => {
+            const action = e.target.getAttribute('data-action');
+            const taskItem = e.target.closest('.task-item');
+            if (action && taskItem) {
+                app.handleTaskAction(taskItem.dataset.taskId, action);
+                e.stopPropagation();
+            }
+        });
+
+        // --- Budget/Tasks Panel Toggle ---
+        let budgetPanelOpen = false, tasksPanelOpen = false, todayPanelOpen = false;
+        elements.progressContainer.addEventListener('click', () => {
+            budgetPanelOpen = !budgetPanelOpen;
+            budgetPanelOpen ? app.showBudgetAdjustment() : app.hideBudgetAdjustment();
+        });
+        elements.tasksProgressContainer.addEventListener('click', () => {
+            tasksPanelOpen = !tasksPanelOpen;
+            tasksPanelOpen ? app.showTaskManagement() : app.hideTaskManagement();
+        });
+
+        // --- Budget Adjustment Buttons ---
+        [
+            ['decreaseHalf','decreaseHalf'],['decreaseDouble','decreaseDouble'],
+            ['increaseHalf','increaseHalf'],['increaseDouble','increaseDouble']
+        ].forEach(([id, type]) => {
+            elements[id].addEventListener('click', e => app.adjustBudget(type));
+        });
+
+        // --- Progress Bar Mouse Events (hover, move, click) ---
+        const progressSections = [
+            {el: elements.progressContainer, update: () => displayManager.updateProgressBar()},
+            {el: elements.tasksProgressContainer, update: () => displayManager.updateTasksProgress(taskManager.getTaskStats())},
+            {el: elements.hoursProgressContainer, update: () => displayManager.updateWorkingHoursProgress()}
+        ];
+        ['mousemove','mouseenter','mouseleave','click'].forEach(eventType => {
+            progressSections.forEach(({el, update}) => el.addEventListener(eventType, update));
+        });
+        // Mouseover effect for all progress containers
+        [elements.progressContainer, elements.tasksProgressContainer, elements.hoursProgressContainer].forEach(el => {
+            addListeners(el, ['mouseenter','mouseleave'], evt => {
+                el.style.boxShadow = evt.type==='mouseenter' ? '0 0 0 3px #20b2ff55' : '';
+            });
+        });
+
+        // --- Today Progress Panel logic (Early Start, Breaks) ---
+        elements.hoursProgressContainer.addEventListener('click', e => {
             todayPanelOpen = !todayPanelOpen;
             if (todayPanelOpen) {
-                // Check if before 10:00 and no early start already
                 const now = new Date();
                 const savedStart = localStorage.getItem('todayProgressStart');
                 if (now.getHours() < 10 && !savedStart) {
@@ -1059,24 +1067,16 @@
             e.stopPropagation();
         });
 
-
-        // Helper to update today progress panel with start/end times and multiple breaks
         function updateTodayProgressPanel() {
             const startStr = localStorage.getItem('todayProgressStart');
             let breaks = [];
-            try {
-                breaks = JSON.parse(localStorage.getItem('todayProgressBreaks') || '[]');
-            } catch (e) { breaks = []; }
+            try { breaks = JSON.parse(localStorage.getItem('todayProgressBreaks') || '[]'); } catch (e) { breaks = []; }
             if (startStr) {
                 const start = new Date(startStr);
-                // Compute total break duration
-                let totalBreakMs = 0;
-                let breakDetails = '';
+                let totalBreakMs = 0, breakDetails = '';
                 breaks.forEach((b, i) => {
                     if (b.end) {
-                        const s = new Date(b.start);
-                        const e = new Date(b.end);
-                        const dur = e - s;
+                        const s = new Date(b.start), e = new Date(b.end), dur = e - s;
                         totalBreakMs += dur;
                         const min = Math.floor(dur/60000);
                         breakDetails += `<div style=\"color:#fff;\">Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ${e.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} (${min} min)</div>`;
@@ -1085,14 +1085,11 @@
                         breakDetails += `<div style=\"color:#fff;\">Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ...</div>`;
                     }
                 });
-                // Compute end time: start + 8h + total break duration
                 const end = new Date(start.getTime() + 8*60*60*1000 + totalBreakMs);
                 let html = `<div style=\"text-align:center;\">`;
                 html += `<div style=\"color:#fff;font-weight:600;font-size:1.1em;margin-bottom:12px;\">Start: ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</div>`;
-                // Removed End time display
                 if (breakDetails) html += `<div style=\"margin-bottom:8px;\">${breakDetails}</div>`;
                 html += `<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:stretch;align-items:center;margin:8px 0;\">`;
-                // If a break is ongoing, show End Break, else show Start Break
                 const ongoingBreak = breaks.length && !breaks[breaks.length-1].end;
                 if (!ongoingBreak) {
                     html += `<button id=\"startBreakBtn\" class=\"budget-adjust-btn decrease\">Start Break</button>`;
@@ -1101,8 +1098,7 @@
                     html += `<button id=\"endBreakBtn\" class=\"budget-adjust-btn increase\">End Break</button>`;
                     html += `<button id=\"resetTodayProgress\" class=\"budget-adjust-btn increase\">Reset</button>`;
                 }
-                html += `</div>`;
-                html += `</div>`;
+                html += `</div></div>`;
                 elements.todayProgressPanel.innerHTML = html;
                 if (!ongoingBreak) {
                     document.getElementById('startBreakBtn').onclick = function() {
@@ -1123,13 +1119,11 @@
                     localStorage.removeItem('todayProgressBreaks');
                     updateTodayProgressPanel();
                 };
-                // Update end time in storage for progress bar logic
                 localStorage.setItem('todayProgressEnd', end.toISOString());
             } else {
                 elements.todayProgressPanel.innerHTML = `<div class=\"empty-tasks\">TBD</div>`;
             }
         }
-
 
         // Patch working hours info and progress bar to use custom start/end time if set
         const origUpdateWorkingHoursProgress = displayManager.updateWorkingHoursProgress.bind(displayManager);
@@ -1137,126 +1131,50 @@
             const startStr = localStorage.getItem('todayProgressStart');
             const endStr = localStorage.getItem('todayProgressEnd');
             if (startStr && endStr) {
-                const start = new Date(startStr);
-                const end = new Date(endStr);
-                const now = new Date();
-                let elapsed = (now - start) / 1000; // seconds
-                let total = (end - start) / 1000; // seconds
+                const start = new Date(startStr), end = new Date(endStr), now = new Date();
+                let elapsed = (now - start) / 1000, total = (end - start) / 1000;
                 let percent = Math.max(0, Math.min(100, (elapsed / total) * 100));
                 elements.hoursProgressBar.style.width = percent + '%';
                 elements.hoursProgressTextHeader.textContent = Math.round(percent) + '%';
-                // Show remaining time
                 let remaining = Math.max(0, total - elapsed);
-                let rh = Math.floor(remaining / 3600);
-                let rm = Math.floor((remaining % 3600) / 60);
+                let rh = Math.floor(remaining / 3600), rm = Math.floor((remaining % 3600) / 60);
                 elements.hoursProgressText.textContent = `${rh}h ${rm}m remaining`;
-                elements.workingHoursInfo.textContent = `${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                elements.workingHoursInfo.textContent = `${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}`;
             } else {
                 origUpdateWorkingHoursProgress();
             }
         };
 
-        elements.hoursProgressContainer.addEventListener('mouseenter', () => {
-            elements.hoursProgressContainer.style.boxShadow = '0 0 0 3px #20b2ff55';
-        });
-        elements.hoursProgressContainer.addEventListener('mouseleave', () => {
-            elements.hoursProgressContainer.style.boxShadow = '';
-        });
-
-        // Mouseover effect for progress containers (merged)
-        [elements.progressContainer, elements.tasksProgressContainer, elements.hoursProgressContainer].forEach(el => {
-            el.addEventListener('mouseenter', () => { el.style.boxShadow = '0 0 0 3px #20b2ff55'; });
-            el.addEventListener('mouseleave', () => { el.style.boxShadow = ''; });
-        });
-
-        // Close Today panel when clicking outside
-        document.addEventListener('click', (e) => {
+        // --- Close panels when clicking outside ---
+        document.addEventListener('click', e => {
+            // Today panel
             const isClickInsideTodayPanel = elements.todayProgressPanel.contains(e.target);
             const isClickOnTodayContainer = elements.hoursProgressContainer.contains(e.target);
             if (todayPanelOpen && !isClickInsideTodayPanel && !isClickOnTodayContainer) {
                 elements.todayProgressPanel.style.display = 'none';
                 todayPanelOpen = false;
             }
-        });
-    function initializeApp() {
-            try {
-                // Check for saved budget and initialize accordingly
-                const savedBudget = app.loadSavedBudget();
-                
-                if (savedBudget) {
-                    // Handle saved budget directly through adjustment panel
-                    app.handleBudgetInput(savedBudget);
-                } else {
-                    // Initialize progress bar with default state if no saved budget
-                    displayManager.updateProgressBar();
-                }
-                
-                // Initialize task display
-                app.refreshTaskDisplay();
-                
-                // Start periodic updates for working hours
-                setInterval(() => {
-                    try {
-                        displayManager.updateWorkingHoursProgress();
-                    } catch (error) {
-                        console.error('Error updating working hours:', error);
-                    }
-                }, 60000);
-                
-                console.log('✓ Progress Tracker initialized successfully');
-                
-            } catch (error) {
-                console.error('✗ Initialization failed:', error);
-                try {
-                    displayManager.showError('Initialization error - please refresh');
-                } catch (fallbackError) {
-                    console.error('✗ Critical error - unable to show UI:', fallbackError);
-                }
+            // Task/Budget panels
+            const isTaskPanelVisible = elements.taskManagementPanel.classList.contains('show');
+            const isBudgetPanelVisible = elements.budgetAdjustmentPanel.classList.contains('show');
+            if (isTaskPanelVisible && !elements.taskManagementPanel.contains(e.target) && !elements.tasksProgressContainer.contains(e.target)) {
+                app.hideTaskManagement(); tasksPanelOpen = false;
             }
-        }
-        
-        // Event handling
-        // Budget progress container click handler
-        let budgetPanelOpen = false;
-        elements.progressContainer.addEventListener('click', () => {
-            budgetPanelOpen = !budgetPanelOpen;
-            if (budgetPanelOpen) {
-                app.showBudgetAdjustment();
-            } else {
-                app.hideBudgetAdjustment();
+            if (isBudgetPanelVisible && !elements.budgetAdjustmentPanel.contains(e.target) && !elements.progressContainer.contains(e.target)) {
+                app.hideBudgetAdjustment(); budgetPanelOpen = false;
             }
         });
-        
-        // Tasks progress container click handler
-        let tasksPanelOpen = false;
-        elements.tasksProgressContainer.addEventListener('click', () => {
-            tasksPanelOpen = !tasksPanelOpen;
-            if (tasksPanelOpen) {
-                app.showTaskManagement();
-            } else {
-                app.hideTaskManagement();
-            }
+        // Prevent panel clicks from propagating
+        [elements.taskManagementPanel, elements.budgetAdjustmentPanel].forEach(panel => {
+            panel.addEventListener('click', e => e.stopPropagation());
         });
-        
-        // Update overall progress on mouse events (hover, move, click)
-        ['mousemove', 'mouseenter', 'mouseleave', 'click'].forEach(eventType => {
-            elements.progressContainer.addEventListener(eventType, () => {
-                displayManager.updateProgressBar();
-            });
-            elements.tasksProgressContainer.addEventListener(eventType, () => {
-                displayManager.updateTasksProgress(taskManager.getTaskStats());
-            });
-            elements.hoursProgressContainer.addEventListener(eventType, () => {
-                displayManager.updateWorkingHoursProgress();
-            });
-        });
-        // Helper: set progress bar width and text
+
+        // --- Helper: set progress bar width and text ---
         function setBar(barEl, textEl, percent) {
             barEl.style.width = `${percent}%`;
             textEl.textContent = `${Math.round(percent)}%`;
         }
-
-        // Helper: get budget adjustment values (merged logic)
+        // --- Helper: get budget adjustment values ---
         function getBudgetAdjustments(calculator, currentBudget) {
             const calculation = calculator.calculate(currentBudget);
             const dailyRate = calculation.dailyBudget;
@@ -1266,55 +1184,23 @@
             const roundedLarge = Math.round(largeAdjustment / 10) * 10;
             return { roundedBase, roundedLarge };
         }
-        
-        // Close panels when clicking outside
-        document.addEventListener('click', (e) => {
-            const isTaskPanelVisible = elements.taskManagementPanel.classList.contains('show');
-            const isBudgetPanelVisible = elements.budgetAdjustmentPanel.classList.contains('show');
 
-            // Only close panels if clicking outside
-            if (isTaskPanelVisible &&
-                !elements.taskManagementPanel.contains(e.target) &&
-                !elements.tasksProgressContainer.contains(e.target)) {
-                app.hideTaskManagement();
-                tasksPanelOpen = false;
+        // --- App Initialization ---
+        function initializeApp() {
+            try {
+                const savedBudget = app.loadSavedBudget();
+                if (savedBudget) app.handleBudgetInput(savedBudget);
+                else displayManager.updateProgressBar();
+                app.refreshTaskDisplay();
+                setInterval(() => {
+                    try { displayManager.updateWorkingHoursProgress(); } catch (error) { console.error('Error updating working hours:', error); }
+                }, 60000);
+                console.log('✓ Progress Tracker initialized successfully');
+            } catch (error) {
+                console.error('✗ Initialization failed:', error);
+                try { displayManager.showError('Initialization error - please refresh'); } catch (fallbackError) { console.error('✗ Critical error - unable to show UI:', fallbackError); }
             }
-            if (isBudgetPanelVisible &&
-                !elements.budgetAdjustmentPanel.contains(e.target) &&
-                !elements.progressContainer.contains(e.target)) {
-                app.hideBudgetAdjustment();
-                budgetPanelOpen = false;
-            }
-        });
-        
-        // Prevent task management panel clicks from propagating
-
-        // Prevent task management panel clicks from propagating
-        elements.taskManagementPanel.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-
-        // Prevent budget adjustment panel clicks from propagating
-        elements.budgetAdjustmentPanel.addEventListener('click', (e) => {
-            // Always stop propagation for any click inside the panel
-            e.stopPropagation();
-        });
-
-                // Add click event listeners for budget adjustment buttons
-                elements.decreaseHalf.addEventListener('click', function(e) {
-                    app.adjustBudget('decreaseHalf');
-                });
-                elements.decreaseDouble.addEventListener('click', function(e) {
-                    app.adjustBudget('decreaseDouble');
-                });
-                elements.increaseHalf.addEventListener('click', function(e) {
-                    app.adjustBudget('increaseHalf');
-                });
-                elements.increaseDouble.addEventListener('click', function(e) {
-                    app.adjustBudget('increaseDouble');
-                });
-        
-        // Initialize the application
+        }
         initializeApp();
     </script>
 </body>
