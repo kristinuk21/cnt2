@@ -1,56 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-        <style>
-            html, body {
-                margin: 0;
-                padding: 0;
-                background: #1a1a2e;
-                height: 100%;
-            }
-            #root {
-                min-height: 100vh;
-            }
-        </style>
     <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progress Tracker</title>
-    <!-- React and ReactDOM (local) -->
-    <script src="js/react.development.js"></script>
-    <script src="js/react-dom.development.js"></script>
-    <!-- date-fns (local) -->
-    <script src="js/date-fns.min.js"></script>
-    <!-- MUI CDN -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-    <script src="https://unpkg.com/@mui/material@5.15.15/umd/material-ui.development.js"></script>
-    <script src="https://unpkg.com/@emotion/react@11.11.4/dist/emotion-react.umd.min.js"></script>
-    <script src="https://unpkg.com/@emotion/styled@11.11.0/dist/emotion-styled.umd.min.js"></script>
-    <!-- Babel for JSX support -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 8px;
+            background: #1a1a2e;
+            min-height: 100vh;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        /* Panel utility for containers */
+        .panel {
+            background: #232344;
+            border-radius: 8px;
+            border: 1px solid #333;
+            padding: 10px;
+        }
+        .panel-alt { background: #2d3561; }
+        .panel-sm { padding: 8px; }
+
+        /* Utility classes for margin, padding, flex */
+        .mt-10 { margin-top: 10px; }
+        .mb-8 { margin-bottom: 8px; }
+        .mt-8 { margin-top: 8px; }
+        .mb-10 { margin-bottom: 10px; }
+        .pt-8 { padding-top: 8px; }
+        .pb-8 { padding-bottom: 8px; }
+        .pl-8 { padding-left: 8px; }
+        .pr-8 { padding-right: 8px; }
+        .flex { display: flex; }
+        .flex-center { justify-content: center; align-items: center; }
+        .flex-col { flex-direction: column; }
+        .gap-4 { gap: 4px; }
+        .gap-6 { gap: 6px; }
+        .gap-8 { gap: 8px; }
+        h1 {
+            color: #e0e0e0;
+            text-align: center;
+            margin: 0 0 8px 0;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+        .header { text-align: center; margin-bottom: 10px; }
+        /* Progress containers */
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.95em;
+            color: #fff;
+        }
+        .progress-label-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .progress-label, .progress-percentage, .cycle-end {
+            font-weight: 600;
+            color: #fff;
+            font-size: 0.95em;
+        }
+        .progress-bar-container {
+            position: relative;
+            width: 100%;
+            height: 16px;
+            background: #222;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 6px;
+            border: 1px solid #333;
+        }
+        /* Progress bar base and variants */
+        .progress-bar {
+            height: 100%;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+            background: #20b2ff;
+        }
+        /* Use .progress-bar for both hours and tasks by default */
+        /* .hours-progress-bar and .tasks-progress-bar are now just semantic hooks */
+        .tasks-progress-bar.completed {
+            background: #4caf50;
+        }
+        .progress-stats-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            color: #fff;
+            font-weight: 600;
+        }
+        .progress-text-info {
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        /* Button utility */
+        .btn {
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            color: #fff;
+        }
+        .btn-green { background: #4a8b6b; }
+        .btn-blue { background: #357abd; }
+        .btn-red { background: #c0392b; }
+        .btn-alt { background: #3a5a7d; font-size: 0.95em; text-align: center; padding: 8px 4px; }
+        /* Input utility */
+        .input {
+            width: 100%;
+            background: #232344;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1em;
+            padding: 8px;
+            outline: none;
+        }
+        .input-center { text-align: center; }
+        /* Show/hide utility */
+        .show { display: block !important; }
+        .hide { display: none !important; }
+        /* Task list and items */
+        .task-list {
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+            background: #232344;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            border: 1px solid #333;
+        }
+        .task-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid #4caf50;
+            background: transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .task-checkbox.completed {
+            background: #4caf50;
+            border-color: #4caf50;
+        }
+        .task-checkbox.completed::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .task-text {
+            flex: 1;
+            color: #fff;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #b0b0b0;
+        }
+        .task-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        .task-action-btn {
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .edit-btn { background: #357abd; }
+        .delete-btn { background: #c0392b; }
+        .empty-tasks {
+            text-align: center;
+            color: #b0b0b0;
+            font-size: 0.95em;
+            padding: 8px;
+            font-style: italic;
+        }
+        /* Budget adjustment panel */
+        .budget-adjustment-title {
+            text-align: center;
+            color: #fff;
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .budget-adjustment-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+    </style>
 </head>
 <body>
     <div class="panel">
         <div class="header">
-            <h1 style="display: inline-block; vertical-align: middle;">Progress Tracker</h1>
-            <span id="sqlSummaryIcon" title="View SQL List" style="cursor:pointer; margin-left:8px; vertical-align: middle;">
-                <!-- List icon -->
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3" cy="6" r="1"></circle><circle cx="3" cy="12" r="1"></circle><circle cx="3" cy="18" r="1"></circle></svg>
-            </span>
-            <span id="chartIcon" title="View Chart" style="cursor:pointer; margin-left:8px; vertical-align: middle;">
-                <!-- Chart icon -->
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
-            </span>
-            <div id="sqlSummaryPanel" style="display:none; position:absolute; top:60px; left:40px; background:#fff; border:1px solid #ccc; box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:1000; padding:16px; min-width:320px; max-width:90vw; max-height:60vh; overflow:auto;">
-                <h3>SQL Database Summary</h3>
-                <div id="sqlSummaryContent">Loading...</div>
-                <button id="closeSqlSummary" style="margin-top:10px;">Close</button>
-                <button id="resetSqlContent" style="margin-top:10px; margin-left:10px; background:#f44336; color:white;">Reset Content</button>
-            </div>
-            <div id="chartPanel" style="display:none; position:absolute; top:60px; left:340px; background:#fff; border:1px solid #ccc; box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:1000; padding:16px; min-width:320px; max-width:90vw; max-height:60vh; overflow:auto;">
-                <h3>Chart View</h3>
-                <canvas id="budgetChart" width="300" height="180" style="margin-bottom:16px;"></canvas>
-                <button id="closeChartPanel" style="margin-top:10px;">Close</button>
-            </div>
+            <h1>Progress Tracker</h1>
+        </div>
         
         <div class="panel panel-alt mt-10" id="progressContainer">
             <div class="progress-header">
@@ -131,235 +308,6 @@
     </div>
 
     <script>
-    // Load sql.js from CDN
-    const SQL_JS_URL = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js";
-    let SQL, db;
-    function loadSqlJs() {
-        return new Promise((resolve, reject) => {
-            if (window.initSqlJs) return resolve(window.initSqlJs);
-            const script = document.createElement('script');
-            script.src = SQL_JS_URL;
-            script.onload = () => resolve(window.initSqlJs);
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-    async function initDatabase() {
-        SQL = await loadSqlJs().then(f => f({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${filename}` }));
-        // Try to load from IndexedDB
-        const dbData = await loadDbFromIndexedDB();
-        db = dbData ? new SQL.Database(new Uint8Array(dbData)) : new SQL.Database();
-        db.run(`CREATE TABLE IF NOT EXISTS actions (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, details TEXT, ts DATETIME DEFAULT CURRENT_TIMESTAMP)`);
-        saveDbToIndexedDB();
-    }
-    function saveDbToIndexedDB() {
-        if (!db) return;
-        const data = db.export();
-        const request = window.indexedDB.open('ProgressTrackerDB', 1);
-        request.onupgradeneeded = function(e) {
-            const dbx = e.target.result;
-            if (!dbx.objectStoreNames.contains('sqlite')) dbx.createObjectStore('sqlite');
-        };
-        request.onsuccess = function(e) {
-            const dbx = e.target.result;
-            const tx = dbx.transaction('sqlite', 'readwrite');
-            tx.objectStore('sqlite').put(data, 'main');
-        };
-    }
-    function loadDbFromIndexedDB() {
-        return new Promise(resolve => {
-            const request = window.indexedDB.open('ProgressTrackerDB', 1);
-            request.onupgradeneeded = function(e) {
-                const dbx = e.target.result;
-                if (!dbx.objectStoreNames.contains('sqlite')) dbx.createObjectStore('sqlite');
-            };
-            request.onsuccess = function(e) {
-                const dbx = e.target.result;
-                const tx = dbx.transaction('sqlite', 'readonly');
-                const getReq = tx.objectStore('sqlite').get('main');
-                getReq.onsuccess = function() {
-                    resolve(getReq.result || null);
-                };
-                getReq.onerror = function() { resolve(null); };
-            };
-            request.onerror = function() { resolve(null); };
-        });
-    }
-    function insertAction(type, details) {
-        db.run(`INSERT INTO actions (type, details) VALUES (?, ?)`, [type, JSON.stringify(details)]);
-        saveDbToIndexedDB();
-    }
-    function getSummary() {
-        const res = db.exec('SELECT type, COUNT(*) as count FROM actions GROUP BY type');
-        return res.length ? res[0].values : [];
-    }
-    function getAllActions() {
-        const res = db.exec('SELECT * FROM actions ORDER BY ts DESC LIMIT 50');
-        return res.length ? res[0].values : [];
-    }
-    // Load Chart.js from CDN
-    const CHART_JS_URL = "https://cdn.jsdelivr.net/npm/chart.js";
-    function loadChartJs() {
-        return new Promise((resolve, reject) => {
-            if (window.Chart) return resolve(window.Chart);
-            const script = document.createElement('script');
-            script.src = CHART_JS_URL;
-            script.onload = () => resolve(window.Chart);
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }
-        const icon = document.getElementById('sqlSummaryIcon');
-        const panel = document.getElementById('sqlSummaryPanel');
-        const closeBtn = document.getElementById('closeSqlSummary');
-        const resetBtn = document.getElementById('resetSqlContent');
-        const chartIcon = document.getElementById('chartIcon');
-        const chartPanel = document.getElementById('chartPanel');
-        const closeChartBtn = document.getElementById('closeChartPanel');
-        icon.addEventListener('click', () => {
-            panel.style.display = 'block';
-            chartPanel.style.display = 'none';
-            updateSqlSummaryPanel();
-        });
-        closeBtn.addEventListener('click', () => panel.style.display = 'none');
-        resetBtn.addEventListener('click', () => {
-            db.run('DELETE FROM actions');
-            saveDbToIndexedDB();
-            updateSqlSummaryPanel();
-        });
-        chartIcon.addEventListener('click', async () => {
-            chartPanel.style.display = 'block';
-            panel.style.display = 'none';
-            await loadChartJs();
-            renderBudgetChart();
-        });
-        closeChartBtn.addEventListener('click', () => chartPanel.style.display = 'none');
-
-        function renderBudgetChart() {
-            if (!window.Chart) return;
-            const ctx = document.getElementById('budgetChart').getContext('2d');
-            // Get all budget actions from SQLite
-            const res = db.exec('SELECT ts, details FROM actions WHERE type = "budget_adjust" ORDER BY ts ASC');
-            let data = [];
-            if (res.length && res[0].values) {
-                data = res[0].values.map(([ts, details]) => {
-                    let val = 0;
-                    try { val = JSON.parse(details).value || 0; } catch(e) {}
-                    return { ts, val };
-                });
-            }
-            // Find last 10/25 and next 10/25
-            const now = new Date();
-            let lastDate, nextDate;
-            const d = now.getDate();
-            const m = now.getMonth();
-            const y = now.getFullYear();
-            if (d < 10) {
-                lastDate = new Date(y, m-1, 25);
-                nextDate = new Date(y, m, 10);
-            } else if (d <= 25) {
-                lastDate = new Date(y, m, 10);
-                nextDate = new Date(y, m, 25);
-            } else {
-                lastDate = new Date(y, m, 25);
-                nextDate = new Date(y, m+1, 10);
-            }
-            // Prepare daily labels and budget values
-            const startTime = lastDate.getTime();
-            const endTime = nextDate.getTime();
-            const numDays = Math.ceil((endTime - startTime) / (1000*60*60*24));
-            const labels = [];
-            const actualValues = [];
-            // Find last known budget before period
-            let initialBudget = 0;
-            if (data.length) {
-                for (let i = data.length - 1; i >= 0; i--) {
-                    if (new Date(data[i].ts).getTime() < startTime) {
-                        initialBudget = parseFloat(data[i].val);
-                        break;
-                    }
-                }
-            }
-            // If no previous budget, try localStorage
-            if (!initialBudget) {
-                try {
-                    initialBudget = parseFloat(localStorage.getItem('budgetCalculator_budget')) || 0;
-                } catch(e) {}
-            }
-            let currentBudget = initialBudget;
-            let dataIdx = 0;
-            const todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            for (let i = 0; i < numDays; i++) {
-                const dayTime = startTime + i * 24 * 60 * 60 * 1000;
-                const dateLabel = new Date(dayTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-                labels.push(dateLabel);
-                // Find if there is a budget entry for this day
-                let found = false;
-                for (let j = 0; j < data.length; j++) {
-                    const entryTime = new Date(data[j].ts).getTime();
-                    if (entryTime >= dayTime && entryTime < dayTime + 24*60*60*1000) {
-                        actualValues.push(parseFloat(data[j].val));
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found || dayTime > todayTime) {
-                    actualValues.push(null);
-                }
-            }
-            // Find current budget for today
-            let todayBudget = initialBudget;
-            for (let j = 0; j < data.length; j++) {
-                const entryTime = new Date(data[j].ts).getTime();
-                if (entryTime >= todayTime && entryTime < todayTime + 24*60*60*1000) {
-                    todayBudget = parseFloat(data[j].val);
-                }
-            }
-            // Projected budget: linear decrease from todayBudget to 0
-            const projectedValues = [];
-            for (let i = 0; i < numDays; i++) {
-                if (i < (todayTime - startTime) / (24*60*60*1000)) {
-                    projectedValues.push(null);
-                } else {
-                    const daysFromToday = i - ((todayTime - startTime) / (24*60*60*1000));
-                    const daysToEnd = numDays - 1 - ((todayTime - startTime) / (24*60*60*1000));
-                    const val = daysToEnd > 0 ? todayBudget * (1 - daysFromToday / daysToEnd) : todayBudget;
-                    projectedValues.push(Math.max(0, val));
-                }
-            }
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels,
-                    datasets: [
-                        { label: 'Budget', data: actualValues, borderColor: '#4ac3ff', backgroundColor: 'rgba(76,195,255,0.2)', fill: true, stepped: true },
-                        { label: 'Projected Budget', data: projectedValues, borderColor: '#ff9800', backgroundColor: 'rgba(255,152,0,0.1)', fill: false, borderDash: [5,5] }
-                    ]
-                },
-                options: {
-                    plugins: { legend: { display: true } },
-                    scales: {
-                        x: { title: { display: true, text: 'Date' } },
-                        y: { title: { display: true, text: 'Budget' } }
-                    }
-                }
-            });
-        }
-        function updateSqlSummaryPanel() {
-            const content = document.getElementById('sqlSummaryContent');
-            let html = '<b>Action Summary:</b><br><ul>';
-            for (const [type, count] of getSummary()) {
-                html += `<li>${type}: ${count}</li>`;
-            }
-            html += '</ul><b>Recent Actions:</b><br><table border="1" style="width:100%;"><tr><th>Type</th><th>Details</th><th>Time</th></tr>';
-            for (const row of getAllActions()) {
-                html += `<tr><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`;
-            }
-            html += '</table>';
-            content.innerHTML = html;
-        }
-        // Initialize DB on load
-        document.addEventListener('DOMContentLoaded', () => { initDatabase(); });
     // Utility: Month names
     const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -541,418 +489,723 @@
                     status
                 };
             }
-            return { workingDays, nonWorkingDays, totalDays };
         }
-        function getProgressInfo() {
-            const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = now.getMonth();
-            const currentDate = now.getDate();
-            let lastCriteriaDate, nextCriteriaDate, baseDay;
-            // Helper to get next working day on or after a date
-            function nextWorkingDay(date) {
-                let d = new Date(date);
-                while (d.getDay() === 0 || d.getDay() === 6) { // 0=Sun, 6=Sat
-                    d = dateFns.addDays(d, 1);
+        
+        // Single Responsibility: Handles local storage operations
+        class StorageManager {
+            constructor() {
+                this.storageKey = 'budgetCalculator_budget';
+                this.tasksStorageKey = 'progressTracker_tasks';
+            }
+            
+            saveBudget(budget) {
+                try {
+                    localStorage.setItem(this.storageKey, budget.toString());
+                } catch (error) {
+                    console.warn('Unable to save to localStorage:', error);
                 }
-                return d;
             }
-            if (currentDate < 10) {
-                lastCriteriaDate = dateFns.set(new Date(currentYear, currentMonth - 1, 25), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                baseDay = dateFns.set(new Date(currentYear, currentMonth, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                nextCriteriaDate = nextWorkingDay(baseDay);
-            } else if (currentDate <= 25) {
-                lastCriteriaDate = dateFns.set(new Date(currentYear, currentMonth, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                baseDay = dateFns.set(new Date(currentYear, currentMonth, 25), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                nextCriteriaDate = nextWorkingDay(baseDay);
-            } else {
-                lastCriteriaDate = dateFns.set(new Date(currentYear, currentMonth, 25), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                baseDay = dateFns.set(new Date(currentYear, currentMonth + 1, 10), {hours: 14, minutes: 0, seconds: 0, milliseconds: 0});
-                nextCriteriaDate = nextWorkingDay(baseDay);
+            
+            loadBudget() {
+                try {
+                    const savedBudget = localStorage.getItem(this.storageKey);
+                    return savedBudget ? parseFloat(savedBudget) : null;
+                } catch (error) {
+                    console.warn('Unable to load from localStorage:', error);
+                    return null;
+                }
             }
-            const totalHours = dateFns.differenceInHours(nextCriteriaDate, lastCriteriaDate);
-            let hoursPassed = dateFns.differenceInHours(now, lastCriteriaDate);
-            hoursPassed = Math.max(0, Math.min(hoursPassed, totalHours));
-            const progressPercentage = Math.min(Math.max((hoursPassed / totalHours) * 100, 0), 100);
-            const totalDays = dateFns.differenceInCalendarDays(nextCriteriaDate, lastCriteriaDate);
-            const daysPassed = dateFns.differenceInCalendarDays(now, lastCriteriaDate);
-            return {
-                lastDate: lastCriteriaDate,
-                nextDate: nextCriteriaDate,
-                daysPassed,
-                totalDays,
-                progressPercentage
-            };
+            
+            clearBudget() {
+                try {
+                    localStorage.removeItem(this.storageKey);
+                } catch (error) {
+                    console.warn('Unable to clear localStorage:', error);
+                }
+            }
+            
+            saveTasks(tasks) {
+                try {
+                    localStorage.setItem(this.tasksStorageKey, JSON.stringify(tasks));
+                } catch (error) {
+                    console.warn('Unable to save tasks to localStorage:', error);
+                }
+            }
+            
+            loadTasks() {
+                try {
+                    const savedTasks = localStorage.getItem(this.tasksStorageKey);
+                    return savedTasks ? JSON.parse(savedTasks) : [];
+                } catch (error) {
+                    console.warn('Unable to load tasks from localStorage:', error);
+                    return [];
+                }
+            }
+            
+            clearTasks() {
+                try {
+                    localStorage.removeItem(this.tasksStorageKey);
+                } catch (error) {
+                    console.warn('Unable to clear tasks from localStorage:', error);
+                }
+            }
         }
-        function getWorkingHoursProgress() {
-            const now = new Date();
-            const currentDay = now.getDay();
-            const isWorkingDay = currentDay >= 1 && currentDay <= 5;
-            if (!isWorkingDay) {
-                return { isWorkingDay: false, hoursElapsed: 0, hoursRemaining: 8, progressPercentage: 0, status: 'Weekend' };
+        
+        // Task Management Class
+        class TaskManager {
+            constructor(storageManager) {
+                this.storageManager = storageManager;
+                this.tasks = [];
+                this.taskIdCounter = 1;
+                this.loadTasks();
             }
-            const workStart = dateFns.set(now, { hours: 10, minutes: 0, seconds: 0, milliseconds: 0 });
-            const workEnd = dateFns.set(now, { hours: 18, minutes: 0, seconds: 0, milliseconds: 0 });
-            const totalWorkMs = dateFns.differenceInMilliseconds(workEnd, workStart);
-            let hoursElapsed, hoursRemaining, progressPercentage, status;
-            if (dateFns.isBefore(now, workStart)) {
-                hoursElapsed = 0;
-                hoursRemaining = totalWorkMs / 3600000;
-                progressPercentage = 0;
-                status = 'Before hours';
-            } else if (dateFns.isAfter(now, workEnd)) {
-                hoursElapsed = totalWorkMs / 3600000;
-                hoursRemaining = 0;
-                progressPercentage = 100;
-                status = 'Complete';
-            } else {
-                hoursElapsed = dateFns.differenceInMilliseconds(now, workStart) / 3600000;
-                hoursRemaining = dateFns.differenceInMilliseconds(workEnd, now) / 3600000;
-                progressPercentage = (hoursElapsed / (totalWorkMs / 3600000)) * 100;
-                status = 'Active';
+            
+            loadTasks() {
+                const savedTasks = this.storageManager.loadTasks();
+                this.tasks = savedTasks;
+                
+                // Update counter to avoid ID conflicts
+                if (this.tasks.length > 0) {
+                    this.taskIdCounter = Math.max(...this.tasks.map(task => task.id)) + 1;
+                }
             }
-            return {
-                isWorkingDay: true,
-                hoursElapsed: Math.max(0, hoursElapsed),
-                hoursRemaining: Math.max(0, hoursRemaining),
-                progressPercentage: Math.min(Math.max(progressPercentage, 0), 100),
-                status
-            };
+            
+            saveTasks() {
+                this.storageManager.saveTasks(this.tasks);
+            }
+            
+            addTask(text) {
+                if (!text || text.trim() === '') {
+                    return false;
+                }
+                
+                const task = {
+                    id: this.taskIdCounter++,
+                    text: text.trim(),
+                    completed: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.tasks.push(task);
+                this.saveTasks();
+                return task;
+            }
+            
+            updateTask(id, updates) {
+                const taskIndex = this.tasks.findIndex(task => task.id === id);
+                if (taskIndex === -1) {
+                    return false;
+                }
+                
+                this.tasks[taskIndex] = { ...this.tasks[taskIndex], ...updates };
+                this.saveTasks();
+                return this.tasks[taskIndex];
+            }
+            
+            deleteTask(id) {
+                const initialLength = this.tasks.length;
+                this.tasks = this.tasks.filter(task => task.id !== id);
+                
+                if (this.tasks.length < initialLength) {
+                    this.saveTasks();
+                    return true;
+                }
+                return false;
+            }
+            
+            toggleTask(id) {
+                const task = this.tasks.find(task => task.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.saveTasks();
+                    return task;
+                }
+                return false;
+            }
+            
+            getTasks() {
+                return [...this.tasks];
+            }
+            
+            getTaskStats() {
+                const total = this.tasks.length;
+                const completed = this.tasks.filter(task => task.completed).length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                return {
+                    total,
+                    completed,
+                    remaining: total - completed,
+                    percentage
+                };
+            }
+            
+            clearAllTasks() {
+                this.tasks = [];
+                this.taskIdCounter = 1;
+                this.saveTasks();
+            }
         }
-        // --- LocalStorage helpers ---
-        function loadBudget() {
-            try {
-                const savedBudget = localStorage.getItem('budgetCalculator_budget');
-                return savedBudget ? parseFloat(savedBudget) : null;
-            } catch {
+        
+        // Open/Closed Principle: Open for extension, closed for modification
+        class BudgetCalculator {
+            constructor(dateCalculator) {
+                this.dateCalculator = dateCalculator;
+            }
+            
+            calculate(budget) {
+                if (!this.isValidBudget(budget)) {
+                    throw new Error('Budget must be a positive number');
+                }
+                
+                const dayInfo = this.dateCalculator.calculateDays();
+                if (dayInfo.totalDays === 0) {
+                    throw new Error('No days found in the specified period');
+                }
+                
+                return {
+                    dailyBudget: budget / dayInfo.totalDays, // Use total days instead of working days
+                    workingDays: dayInfo.workingDays,
+                    nonWorkingDays: dayInfo.nonWorkingDays,
+                    totalDays: dayInfo.totalDays,
+                    totalBudget: budget
+                };
+            }
+            
+            isValidBudget(budget) {
+                return budget && budget > 0 && !isNaN(budget);
+            }
+        }
+        
+        // Single Responsibility: Handles only display logic
+        class DisplayManager {
+            constructor(elements, dateCalculator) {
+                this.elements = elements;
+                this.dateCalculator = dateCalculator;
+            }
+            
+            updateResult(calculation, monthInfo) {
+                this.updateProgressBar(calculation);
+                this.clearError();
+            }
+            
+            // Generic progress bar updater
+            updateProgressBar(calculation = null) {
+                const progressInfo = this.dateCalculator.getProgressInfo();
+                setBar(this.elements.progressBar, this.elements.progressText, progressInfo.progressPercentage);
+                // Show remaining days and daily rate if budget is set
+                const savedBudget = storageManager.loadBudget && storageManager.loadBudget();
+                let rateInfo = '';
+                const daysRemaining = progressInfo.totalDays - progressInfo.daysPassed;
+                if (savedBudget && daysRemaining > 0) {
+                    const dailyRate = Math.round(savedBudget / daysRemaining);
+                    rateInfo = ` at ${dailyRate} RON/day`;
+                }
+                this.elements.progressTextInfo.textContent = `${daysRemaining} days${rateInfo}`;
+                // Show budget progress end date (next working day after 10th/25th)
+                let endDate = this.dateCalculator.findNextWorkingDay(progressInfo.nextDate);
+                this.elements.nextWorkingDayInfo.textContent = `${SHORT_MONTH_NAMES[endDate.getMonth()]} ${endDate.getDate()}`;
+                this.updateWorkingHoursProgress();
+            }
+            
+            updateWorkingHoursProgress() {
+                const hoursInfo = this.dateCalculator.getWorkingHoursProgress();
+                setBar(this.elements.hoursProgressBar, this.elements.hoursProgressTextHeader, hoursInfo.progressPercentage);
+                const remainingHours = Math.floor(hoursInfo.hoursRemaining);
+                const remainingMinutes = Math.round((hoursInfo.hoursRemaining - remainingHours) * 60);
+                if (!hoursInfo.isWorkingDay) {
+                    this.elements.hoursProgressText.textContent = 'Weekend - No work hours';
+                    this.elements.workingHoursInfo.textContent = 'N/A';
+                } else {
+                    if (hoursInfo.status === 'Complete') {
+                        this.elements.hoursProgressText.textContent = 'Work day completed';
+                    } else if (hoursInfo.status === 'Before hours') {
+                        this.elements.hoursProgressText.textContent = `${remainingHours}h ${remainingMinutes}m until end`;
+                    } else {
+                        this.elements.hoursProgressText.textContent = `${remainingHours}h ${remainingMinutes}m remaining`;
+                    }
+                    this.elements.workingHoursInfo.textContent = `18:00 (${hoursInfo.status})`;
+                }
+            }
+            
+            updateTasksProgress(taskStats) {
+                setBar(this.elements.tasksProgressBar, this.elements.tasksProgressTextHeader, taskStats.percentage);
+                this.elements.tasksInfo.textContent = `${Math.round(taskStats.completed)}/${Math.round(taskStats.total)}`;
+                if (taskStats.total > 0 && taskStats.completed === taskStats.total) {
+                    this.elements.tasksProgressBar.classList.add('completed');
+                } else {
+                    this.elements.tasksProgressBar.classList.remove('completed');
+                }
+                if (taskStats.total === 0) {
+                    this.elements.tasksProgressText.textContent = 'No tasks • Click to manage';
+                } else if (taskStats.completed === taskStats.total) {
+                    this.elements.tasksProgressText.textContent = 'All tasks completed!';
+                } else {
+                    this.elements.tasksProgressText.textContent = `${Math.round(taskStats.remaining)} tasks remaining`;
+                }
+            }
+            
+            renderTasks(tasks) {
+                const taskList = this.elements.taskList;
+                taskList.innerHTML = '';
+                
+                if (tasks.length === 0) {
+                    return;
+                }
+                
+                tasks.forEach(task => {
+                    const taskElement = this.createTaskElement(task);
+                    taskList.appendChild(taskElement);
+                });
+            }
+            
+            createTaskElement(task) {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.dataset.taskId = task.id;
+                taskItem.innerHTML = `
+                    <div class="task-checkbox ${task.completed ? 'completed' : ''}" data-action="toggle"></div>
+                    <div class="task-text ${task.completed ? 'completed' : ''}" data-action="edit">${task.text}</div>
+                    <div class="task-actions">
+                        <button class="task-action-btn edit-btn" data-action="edit" title="Edit">✎</button>
+                        <button class="task-action-btn delete-btn" data-action="delete" title="Delete">✗</button>
+                    </div>
+                `;
+                
+                return taskItem;
+            }
+            
+            getOrdinal(n) {
+                const s = ["th", "st", "nd", "rd"];
+                const v = n % 100;
+                return n + (s[(v - 20) % 10] || s[v] || s[0]);
+            }
+            
+            getShortMonthName(monthIndex) {
+                return SHORT_MONTH_NAMES[monthIndex];
+            }
+            
+            showError(message) {
+                this.updateProgressBar(); // Update with default values
+            }
+            
+            clearError() {
+                // No error display needed - UI is self-explanatory
+            }
+        }
+        
+        // Dependency Inversion: Depends on abstractions, not concretions
+        class BudgetApp {
+            constructor(calculator, displayManager, dateCalculator, storageManager, taskManager) {
+                this.calculator = calculator;
+                this.displayManager = displayManager;
+                this.dateCalculator = dateCalculator;
+                this.storageManager = storageManager;
+                this.taskManager = taskManager;
+                this.currentBudget = 0;
+            }
+            
+            handleBudgetInput(budget) {
+                try {
+                    this.currentBudget = parseFloat(budget);
+                    const calculation = this.calculator.calculate(this.currentBudget);
+                    const monthInfo = this.dateCalculator.getNextMonthInfo();
+                    this.displayManager.updateResult(calculation, monthInfo);
+                    
+                    // Save budget to localStorage
+                    this.storageManager.saveBudget(budget);
+                } catch (error) {
+                    this.displayManager.showError(error.message);
+                }
+            }
+            
+            adjustBudget(adjustmentType) {
+                if (!this.currentBudget || this.currentBudget <= 0) return;
+                try {
+                    const { roundedBase, roundedLarge } = getBudgetAdjustments(this.calculator, this.currentBudget);
+                    let budgetAdjustment = 0;
+                    switch(adjustmentType) {
+                        case 'decreaseHalf': budgetAdjustment = -roundedBase; break;
+                        case 'decreaseDouble': budgetAdjustment = -roundedLarge; break;
+                        case 'increaseHalf': budgetAdjustment = roundedBase; break;
+                        case 'increaseDouble': budgetAdjustment = roundedLarge; break;
+                    }
+                    const newBudget = Math.max(0, this.currentBudget + budgetAdjustment);
+                    this.handleBudgetInput(newBudget);
+                    elements.currentBudgetInput.value = newBudget.toFixed(0);
+                    this.updateAdjustmentButtonLabels();
+                } catch (error) { console.error('Error adjusting budget:', error); }
+            }
+            
+            showBudgetAdjustment() {
+                // Get the current budget from storage if currentBudget is not set
+                if (!this.currentBudget || this.currentBudget <= 0) {
+                    const savedBudget = this.storageManager.loadBudget();
+                    if (savedBudget && savedBudget > 0) {
+                        this.currentBudget = parseFloat(savedBudget);
+                    }
+                }
+                // Update current budget input field
+                if (this.currentBudget && this.currentBudget > 0) {
+                    elements.currentBudgetInput.value = this.currentBudget.toFixed(0);
+                } else {
+                    // Set a default budget if none exists
+                    elements.currentBudgetInput.value = '2000';
+                }
+                // Update button labels with current rate amounts
+                this.updateAdjustmentButtonLabels();
+                elements.budgetAdjustmentPanel.classList.remove('hide');
+                elements.budgetAdjustmentPanel.classList.add('show');
+            }
+            
+            updateAdjustmentButtonLabels() {
+                if (!this.currentBudget || this.currentBudget <= 0) return;
+                try {
+                    const { roundedBase, roundedLarge } = getBudgetAdjustments(this.calculator, this.currentBudget);
+                    elements.decreaseHalf.textContent = `-${roundedBase} RON`;
+                    elements.decreaseDouble.textContent = `-${roundedLarge} RON`;
+                    elements.increaseHalf.textContent = `+${roundedBase} RON`;
+                    elements.increaseDouble.textContent = `+${roundedLarge} RON`;
+                } catch (error) {
+                    console.error('Error updating button labels:', error);
+                    elements.decreaseHalf.textContent = '-Base';
+                    elements.decreaseDouble.textContent = '-Large';
+                    elements.increaseHalf.textContent = '+Base';
+                    elements.increaseDouble.textContent = '+Large';
+                }
+            }
+            
+            hideBudgetAdjustment() {
+                elements.budgetAdjustmentPanel.classList.remove('show');
+                elements.budgetAdjustmentPanel.classList.add('hide');
+            }
+            
+            loadSavedBudget() {
+                const savedBudget = this.storageManager.loadBudget();
+                if (savedBudget && savedBudget > 0) {
+                    return savedBudget;
+                }
                 return null;
             }
-        }
-        function saveBudget(budget) {
-            try {
-                localStorage.setItem('budgetCalculator_budget', budget.toString());
-            } catch {}
-        }
-        function loadTasks() {
-            try {
-                const savedTasks = localStorage.getItem('progressTracker_tasks');
-                return savedTasks ? JSON.parse(savedTasks) : [];
-            } catch {
-                return [];
+            
+            // Task Management Methods
+            showTaskManagement() {
+                this.refreshTaskDisplay();
+                elements.taskManagementPanel.classList.remove('hide');
+                elements.taskManagementPanel.classList.add('show');
             }
-        }
-        function saveTasks(tasks) {
-            try {
-                localStorage.setItem('progressTracker_tasks', JSON.stringify(tasks));
-            } catch {}
-        }
-        // --- React Components using MUI ---
-        function ProgressPanel({ budget, onBudgetChange }) {
-            const [progress, setProgress] = React.useState(getProgressInfo());
-            const [open, setOpen] = React.useState(false);
-            React.useEffect(() => {
-                const interval = setInterval(() => setProgress(getProgressInfo()), 60000);
-                return () => clearInterval(interval);
-            }, []);
-            const daysRemaining = progress.totalDays - progress.daysPassed;
-            const dailyRate = budget && daysRemaining > 0 ? Math.round(budget / daysRemaining) : 0;
-            return (
-                <Paper elevation={3} sx={{p:2, mt:2, bgcolor:'#2d3561', cursor:'pointer'}} onClick={e => { if (!open) setOpen(true); }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Typography fontWeight={600} color="#fff">Progress</Typography>
-                            <Typography fontWeight={600} color="#fff">{Math.round(progress.progressPercentage)}%</Typography>
-                        </Box>
-                        <Typography fontWeight={600} color="#fff">{SHORT_MONTH_NAMES[progress.nextDate.getMonth()]} {progress.nextDate.getDate()}</Typography>
-                    </Box>
-                    <Box position="relative" width="100%">
-                        <LinearProgress variant="determinate" value={progress.progressPercentage} sx={{height:16, borderRadius:2, bgcolor:'#222', '& .MuiLinearProgress-bar': {background:'#20b2ff'} }} />
-                        <Box position="absolute" top={0} left={0} width="100%" height="100%" display="flex" alignItems="center" justifyContent="center">
-                            <Typography fontWeight={600} color="#fff" fontSize={14}>{daysRemaining} days{budget && daysRemaining > 0 ? ` at ${dailyRate} RON/day` : ''}</Typography>
-                        </Box>
-                    </Box>
-                    <BudgetAdjustmentPanel open={open} onClose={()=>setOpen(false)} budget={budget} onBudgetChange={onBudgetChange} />
-                </Paper>
-            );
-        }
-        function BudgetAdjustmentPanel({ open, onClose, budget, onBudgetChange }) {
-            const [input, setInput] = React.useState(budget || '');
-            React.useEffect(() => { setInput(budget || ''); }, [budget]);
-            const getAdjustments = () => {
-                const dayInfo = calculateDays();
-                const daily = budget && dayInfo.totalDays > 0 ? budget / dayInfo.totalDays : 0;
-                const base = Math.round(daily * 0.7 / 10) * 10;
-                const large = Math.round(daily * 1.4 / 10) * 10;
-                return { base, large };
-            };
-            const { base, large } = getAdjustments();
-            const adjust = (delta) => {
-                const newBudget = Math.max(0, (parseFloat(budget) || 0) + delta);
-                onBudgetChange(newBudget);
-                setInput(newBudget);
-            };
-            const handleInput = e => {
-                setInput(e.target.value);
-                const val = parseFloat(e.target.value);
-                if (!isNaN(val) && val > 0) onBudgetChange(val);
-            };
-            return (
-                <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-                    <DialogTitle>Adjust Budget</DialogTitle>
-                    <DialogContent>
-                        <Box>
-                            <Stack direction="row" alignItems="center" spacing={2} mb={2}>
-                                <Typography>Budget</Typography>
-                                <TextField type="number" size="small" value={input} onChange={handleInput} inputProps={{min:0, step:0.01}} />
-                            </Stack>
-                            <Grid container spacing={1}>
-                                <Grid item xs={6}><Button variant="contained" color="error" fullWidth onClick={()=>adjust(-base)}>-{base} RON</Button></Grid>
-                                <Grid item xs={6}><Button variant="contained" color="success" fullWidth onClick={()=>adjust(base)}>+{base} RON</Button></Grid>
-                                <Grid item xs={6}><Button variant="contained" color="error" fullWidth onClick={()=>adjust(-large)}>-{large} RON</Button></Grid>
-                                <Grid item xs={6}><Button variant="contained" color="success" fullWidth onClick={()=>adjust(large)}>+{large} RON</Button></Grid>
-                            </Grid>
-                        </Box>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={onClose}>Close</Button>
-                    </DialogActions>
-                </Dialog>
-            );
-        }
-        function TodayPanel() {
-            const [hours, setHours] = React.useState(getWorkingHoursProgress());
-            const [open, setOpen] = React.useState(false);
-            const [earlyStart, setEarlyStart] = React.useState(() => localStorage.getItem('todayProgressStart'));
-            const [breaks, setBreaks] = React.useState(() => {
-                try { return JSON.parse(localStorage.getItem('todayProgressBreaks') || '[]'); } catch { return []; }
-            });
-            const [remaining, setRemaining] = React.useState({h: hours.hoursRemaining, m: 0});
-            React.useEffect(() => {
-                const update = () => {
-                    setHours(getWorkingHoursProgress());
-                    if (earlyStart) {
-                        let totalBreakMs = 0;
-                        breaks.forEach(b => { if (b.end) totalBreakMs += dateFns.differenceInMilliseconds(new Date(b.end), new Date(b.start)); });
-                        const start = new Date(earlyStart);
-                        const end = dateFns.addMilliseconds(dateFns.addHours(start, 8), totalBreakMs);
-                        const now = new Date();
-                        let ms = dateFns.differenceInMilliseconds(end, now);
-                        if (ms < 0) ms = 0;
-                        const h = Math.floor(ms / 3600000);
-                        const m = Math.floor((ms % 3600000) / 60000);
-                        setRemaining({h, m});
-                    } else {
-                        const h = Math.floor(hours.hoursRemaining);
-                        const m = Math.round((hours.hoursRemaining - h) * 60);
-                        setRemaining({h, m});
+            
+            hideTaskManagement() {
+                elements.taskManagementPanel.classList.remove('show');
+                elements.taskManagementPanel.classList.add('hide');
+            }
+            
+            refreshTaskDisplay() {
+                const tasks = this.taskManager.getTasks();
+                const stats = this.taskManager.getTaskStats();
+                
+                this.displayManager.updateTasksProgress(stats);
+                this.displayManager.renderTasks(tasks);
+            }
+            
+            addTask() {
+                const taskInput = elements.newTaskInput;
+                const taskText = taskInput.value.trim();
+                
+                if (taskText) {
+                    const task = this.taskManager.addTask(taskText);
+                    if (task) {
+                        taskInput.value = '';
+                        this.refreshTaskDisplay();
                     }
-                };
-                update();
-                const interval = setInterval(update, 60000);
-                return () => clearInterval(interval);
-            }, [earlyStart, breaks, hours.hoursRemaining]);
-            React.useEffect(() => {
-                localStorage.setItem('todayProgressBreaks', JSON.stringify(breaks));
-            }, [breaks]);
-            const handleEarlyStart = () => {
-                const start = new Date();
-                const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
-                localStorage.setItem('todayProgressStart', start.toISOString());
-                localStorage.setItem('todayProgressEnd', end.toISOString());
-                setEarlyStart(start.toISOString());
-            };
-            const handleStartBreak = () => setBreaks([...breaks, {start: new Date().toISOString()}]);
-            const handleEndBreak = () => setBreaks(breaks.map((b,i,arr) => i===arr.length-1 && !b.end ? {...b, end: new Date().toISOString()} : b));
-            const handleReset = () => {
-                localStorage.removeItem('todayProgressStart');
-                localStorage.removeItem('todayProgressEnd');
-                localStorage.removeItem('todayProgressBreaks');
-                setEarlyStart(null);
-                setBreaks([]);
-            };
-            let breakDetails = '';
-            breaks.forEach((b, i) => {
-                if (b.end) {
-                    const s = new Date(b.start), e = new Date(b.end);
-                    const dur = dateFns.differenceInMilliseconds(e, s);
-                    const min = Math.floor(dur/60000);
-                    breakDetails += `Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ${e.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} (${min} min)\n`;
-                } else {
-                    const s = new Date(b.start);
-                    breakDetails += `Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ...\n`;
                 }
-            });
-            let endTime = '18:00';
-            if (earlyStart) {
-                let totalBreakMs = 0;
-                breaks.forEach(b => { if (b.end) totalBreakMs += dateFns.differenceInMilliseconds(new Date(b.end), new Date(b.start)); });
-                const start = new Date(earlyStart);
-                const end = dateFns.addMilliseconds(dateFns.addHours(start, 8), totalBreakMs);
-                endTime = end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
             }
-            const percent = earlyStart && remaining ? (() => {
-                let totalBreakMs = 0;
-                breaks.forEach(b => { if (b.end) totalBreakMs += dateFns.differenceInMilliseconds(new Date(b.end), new Date(b.start)); });
-                const start = new Date(earlyStart);
-                const end = dateFns.addMilliseconds(dateFns.addHours(start, 8), totalBreakMs);
-                const now = new Date();
-                let elapsed = dateFns.differenceInMilliseconds(now, start);
-                let total = dateFns.differenceInMilliseconds(end, start);
-                let percent = Math.max(0, Math.min(100, (elapsed / total) * 100));
-                return Math.round(percent);
-            })() : Math.round(hours.progressPercentage);
-            return (
-                <Paper elevation={3} sx={{p:2, mt:2, bgcolor:'#2d3561', cursor:'pointer'}} onClick={()=>{ if (!open) setOpen(true); }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Typography fontWeight={600} color="#fff">Today</Typography>
-                            <Typography fontWeight={600} color="#fff">{percent}%</Typography>
-                        </Box>
-                        <Typography fontWeight={600} color="#fff">{endTime}</Typography>
-                    </Box>
-                    <Box position="relative" width="100%">
-                        <LinearProgress variant="determinate" value={percent} sx={{height:16, borderRadius:2, bgcolor:'#222', '& .MuiLinearProgress-bar': {background:'#20b2ff'} }} />
-                        <Box position="absolute" top={0} left={0} width="100%" height="100%" display="flex" alignItems="center" justifyContent="center">
-                            <Typography fontWeight={600} color="#fff" fontSize={14}>
-                                {!hours.isWorkingDay
-                                    ? 'Weekend - No work hours'
-                                    : hours.status === 'Complete'
-                                        ? 'Work day completed'
-                                        : earlyStart
-                                            ? `${remaining.h}h ${remaining.m}m remaining`
-                                            : hours.status === 'Before hours'
-                                                ? `${remaining.h}h ${remaining.m}m until end`
-                                                : `${remaining.h}h ${remaining.m}m remaining`
-                                }
-                            </Typography>
-                        </Box>
-                    </Box>
-                <Dialog open={open} onClose={()=>setOpen(false)} maxWidth="xs" fullWidth>
-                    <DialogTitle>Today Details</DialogTitle>
-                    <DialogContent>
-                        <Box>
-                            {!earlyStart && (new Date().getHours() < 10) ? (
-                                <Box textAlign="center" my={2}>
-                                    <Button variant="contained" color="success" onClick={handleEarlyStart}>Early Start</Button>
-                                </Box>
-                            ) : earlyStart ? (
-                                <Box textAlign="center">
-                                    <Typography fontWeight={600} fontSize={18} mb={1}>Start: {new Date(earlyStart).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</Typography>
-                                    {breakDetails && <pre style={{color:'#e0e0e0',marginBottom:8,fontFamily:'monospace',fontSize:'1em'}}>{breakDetails}</pre>}
-                                    <Grid container spacing={1} my={1}>
-                                        {(!breaks.length || breaks[breaks.length-1].end) ? (
-                                            <Grid item xs={6}><Button variant="contained" color="success" fullWidth onClick={handleStartBreak}>Start Break</Button></Grid>
-                                        ) : (
-                                            <Grid item xs={6}><Button variant="contained" color="primary" fullWidth onClick={handleEndBreak}>End Break</Button></Grid>
-                                        )}
-                                        <Grid item xs={6}><Button variant="contained" color="error" fullWidth onClick={handleReset}>Reset</Button></Grid>
-                                    </Grid>
-                                </Box>
-                            ) : <Typography color="text.secondary">TBD</Typography>}
-                        </Box>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={()=>setOpen(false)}>Close</Button>
-                    </DialogActions>
-                </Dialog>
-                </Paper>
-            );
-        }
-        function TasksPanel({ tasks, setTasks }) {
-            const stats = React.useMemo(() => {
-                const total = tasks.length;
-                const completed = tasks.filter(t => t.completed).length;
-                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-                return { total, completed, remaining: total - completed, percentage };
-            }, [tasks]);
-            const [newTask, setNewTask] = React.useState('');
-            const [open, setOpen] = React.useState(false);
-            const [editId, setEditId] = React.useState(null);
-            const [editText, setEditText] = React.useState('');
-            const addTask = () => {
-                if (newTask.trim()) {
-                    const task = { id: Date.now(), text: newTask.trim(), completed: false, createdAt: new Date().toISOString() };
-                    setTasks([...tasks, task]);
-                    setNewTask('');
+            
+            handleTaskAction(taskId, action) {
+                switch (action) {
+                    case 'toggle':
+                        this.taskManager.toggleTask(parseInt(taskId));
+                        this.refreshTaskDisplay();
+                        break;
+                    case 'delete':
+                        this.taskManager.deleteTask(parseInt(taskId));
+                        this.refreshTaskDisplay();
+                        break;
+                    case 'edit':
+                        this.editTask(parseInt(taskId));
+                        break;
                 }
-            };
-            const toggleTask = id => setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-            const deleteTask = id => setTasks(tasks.filter(t => t.id !== id));
-            const startEdit = (id, text) => { setEditId(id); setEditText(text); };
-            const saveEdit = id => {
-                if (editText.trim()) setTasks(tasks.map(t => t.id === id ? { ...t, text: editText.trim() } : t));
-                setEditId(null); setEditText('');
-            };
-            const cancelEdit = () => { setEditId(null); setEditText(''); };
-            return (
-                <Paper elevation={3} sx={{p:2, mt:2, bgcolor:'#2d3561', cursor:'pointer'}} onClick={()=>{ if (!open) setOpen(true); }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Box display="flex" alignItems="center" gap={1}>
-                            <Typography fontWeight={600} color="#fff">Tasks</Typography>
-                            <Typography fontWeight={600} color="#fff">{stats.percentage}%</Typography>
-                        </Box>
-                        <Typography fontWeight={600} color="#fff">{stats.completed}/{stats.total}</Typography>
-                    </Box>
-                    <Box position="relative" width="100%">
-                        <LinearProgress variant="determinate" value={stats.percentage} sx={{height:16, borderRadius:2, bgcolor:'#222', '& .MuiLinearProgress-bar': {background: stats.total > 0 && stats.completed === stats.total ? '#4caf50' : '#20b2ff'} }} />
-                        <Box position="absolute" top={0} left={0} width="100%" height="100%" display="flex" alignItems="center" justifyContent="center">
-                            <Typography fontWeight={600} color="#fff" fontSize={14}>
-                                {stats.total === 0 ? 'No tasks • Click to manage' :
-                                    stats.completed === stats.total ? 'All tasks completed!' :
-                                    `${stats.remaining} tasks remaining`}
-                            </Typography>
-                        </Box>
-                    </Box>
-                    <Dialog open={open} onClose={()=>setOpen(false)} maxWidth="xs" fullWidth>
-                        <DialogTitle>Tasks</DialogTitle>
-                        <DialogContent>
-                            <Box>
-                                <Stack direction="row" spacing={1} mb={2}>
-                                    <TextField fullWidth size="small" placeholder="Enter new task..." value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={e => e.key === 'Enter' && addTask()} />
-                                    <Button variant="contained" color="success" onClick={addTask}>Add</Button>
-                                </Stack>
-                                <Box maxHeight={180} overflow="auto">
-                                    {tasks.length === 0 ? <Typography color="text.secondary" align="center">No tasks yet</Typography> :
-                                        tasks.map(task => (
-                                            <Box key={task.id} display="flex" alignItems="center" gap={1} mb={1} p={1} borderRadius={1} bgcolor="#232344">
-                                                <Checkbox checked={task.completed} onChange={()=>toggleTask(task.id)} color="success" />
-                                                {editId === task.id ? (
-                                                    <TextField size="small" value={editText} autoFocus onChange={e => setEditText(e.target.value)} onBlur={()=>saveEdit(task.id)} onKeyDown={e => {if(e.key==='Enter')saveEdit(task.id);if(e.key==='Escape')cancelEdit();}} />
-                                                ) : (
-                                                    <Typography flex={1} color={task.completed ? 'text.disabled' : '#fff'} sx={{textDecoration: task.completed ? 'line-through' : 'none', cursor:'pointer'}} onClick={()=>startEdit(task.id, task.text)}>{task.text}</Typography>
-                                                )}
-                                                <IconButton size="small" color="error" onClick={()=>deleteTask(task.id)}><span className="material-icons">delete</span></IconButton>
-                                            </Box>
-                                        ))}
-                                </Box>
-                            </Box>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={()=>setOpen(false)}>Close</Button>
-                        </DialogActions>
-                    </Dialog>
-                </Paper>
-            );
+            }
+            
+            editTask(taskId) {
+                const tasks = this.taskManager.getTasks();
+                const task = tasks.find(t => t.id === taskId);
+                if (!task) return;
+                
+                const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+                const taskTextElement = taskElement.querySelector('.task-text');
+                
+                // Create an input field for editing
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = task.text;
+                input.className = 'task-text editing';
+                
+                // Replace the text with input
+                taskTextElement.replaceWith(input);
+                input.focus();
+                input.select();
+                
+                const saveEdit = () => {
+                    const newText = input.value.trim();
+                    if (newText && newText !== task.text) {
+                        this.taskManager.updateTask(taskId, { text: newText });
+                    }
+                    this.refreshTaskDisplay();
+                };
+                
+                const cancelEdit = () => {
+                    this.refreshTaskDisplay();
+                };
+                
+                input.addEventListener('blur', saveEdit);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEdit();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelEdit();
+                    }
+                });
+            }
         }
-        function App() {
-            const [budget, setBudget] = React.useState(loadBudget() || 2000);
-            const [tasks, setTasks] = React.useState(loadTasks());
-            React.useEffect(() => { saveBudget(budget); }, [budget]);
-            React.useEffect(() => { saveTasks(tasks); }, [tasks]);
-            return (
-                <ThemeProvider theme={theme}>
-                  <Box minHeight="100vh" bgcolor="background.default" p={2}>
-                      <Paper elevation={4} sx={{maxWidth:420, mx:'auto', p:2, mt:2}}>
-                          <Typography variant="h5" align="center" fontWeight={600} color="#e0e0e0" mb={2}>Progress Tracker</Typography>
-                          <ProgressPanel budget={budget} onBudgetChange={setBudget} />
-                          <TodayPanel />
-                          <TasksPanel tasks={tasks} setTasks={setTasks} />
-                      </Paper>
-                  </Box>
-                </ThemeProvider>
-            );
+        
+        // Utility: Get DOM elements by id (batch)
+        function getElements(ids) {
+            const obj = {};
+            ids.forEach(id => { obj[id] = document.getElementById(id); });
+            return obj;
         }
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-        </script>
+        const elements = getElements([
+            'progressContainer','progressBar','progressText','progressTextInfo','nextWorkingDayInfo',
+            'hoursProgressContainer','hoursProgressBar','hoursProgressText','hoursProgressTextHeader','workingHoursInfo',
+            'budgetAdjustmentPanel','currentBudgetInput','decreaseHalf','decreaseDouble','increaseHalf','increaseDouble',
+            'tasksProgressContainer','tasksProgressBar','tasksProgressText','tasksProgressTextHeader','tasksInfo',
+            'taskManagementPanel','newTaskInput','addTaskBtn','taskList','todayProgressPanel']
+        );
+        
+        // --- Optimized Event and App Initialization Logic ---
+        const dateCalculator = new DateCalculator();
+        const budgetCalculator = new BudgetCalculator(dateCalculator);
+        const storageManager = new StorageManager();
+        const taskManager = new TaskManager(storageManager);
+        const displayManager = new DisplayManager(elements, dateCalculator);
+        const app = new BudgetApp(budgetCalculator, displayManager, dateCalculator, storageManager, taskManager);
+
+
+        // --- Task Add and Action Delegation (abstracted) ---
+        addListeners(elements.addTaskBtn, ['click'], e => { app.addTask(); e.stopPropagation(); });
+        addListeners(elements.taskList, ['click'], e => {
+            const action = e.target.getAttribute('data-action');
+            const taskItem = e.target.closest('.task-item');
+            if (action && taskItem) {
+                app.handleTaskAction(taskItem.dataset.taskId, action);
+                e.stopPropagation();
+            }
+        });
+
+        // --- Budget/Tasks Panel Toggle (abstracted) ---
+        setupPanelToggle(
+            elements.progressContainer,
+            elements.budgetAdjustmentPanel,
+            () => app.showBudgetAdjustment(),
+            () => app.hideBudgetAdjustment()
+        );
+        setupPanelToggle(
+            elements.tasksProgressContainer,
+            elements.taskManagementPanel,
+            () => app.showTaskManagement(),
+            () => app.hideTaskManagement()
+        );
+
+        // --- Budget Adjustment Buttons (abstracted) ---
+        [
+            ['decreaseHalf','decreaseHalf'],['decreaseDouble','decreaseDouble'],
+            ['increaseHalf','increaseHalf'],['increaseDouble','increaseDouble']
+        ].forEach(([id, type]) => {
+            addListeners(elements[id], ['click'], e => app.adjustBudget(type));
+        });
+
+        // --- Progress Bar Mouse Events (hover, move, click) (abstracted) ---
+        const progressSections = [
+            {el: elements.progressContainer, update: () => displayManager.updateProgressBar()},
+            {el: elements.tasksProgressContainer, update: () => displayManager.updateTasksProgress(taskManager.getTaskStats())},
+            {el: elements.hoursProgressContainer, update: () => displayManager.updateWorkingHoursProgress()}
+        ];
+        ['mousemove','mouseenter','mouseleave','click'].forEach(eventType => {
+            progressSections.forEach(({el, update}) => el.addEventListener(eventType, update));
+        });
+        // Mouseover effect for all progress containers (abstracted)
+        [elements.progressContainer, elements.tasksProgressContainer, elements.hoursProgressContainer].forEach(el => {
+            addListeners(el, ['mouseenter','mouseleave'], evt => {
+                el.style.boxShadow = evt.type==='mouseenter' ? '0 0 0 3px #20b2ff55' : '';
+            });
+        });
+
+        // --- Today Progress Panel logic (Early Start, Breaks) ---
+        elements.hoursProgressContainer.addEventListener('click', (e) => {
+            // Only toggle if the click is directly on the hoursProgressContainer or its main children
+            if (e.target === elements.hoursProgressContainer || e.target.classList.contains('progress-bar') || e.target.classList.contains('progress-label') || e.target.classList.contains('progress-percentage') || e.target.classList.contains('progress-header') || e.target.classList.contains('progress-label-section')) {
+                todayPanelOpen = !todayPanelOpen;
+                if (todayPanelOpen) {
+                    const now = new Date();
+                    const savedStart = localStorage.getItem('todayProgressStart');
+                    if (now.getHours() < 10 && !savedStart) {
+                        elements.todayProgressPanel.innerHTML = `
+                            <div style="text-align:center;">
+                                <button id="earlyStartBtn" style="padding:12px 24px;font-size:1em;border-radius:8px;background:linear-gradient(135deg,#20b2ff,#4ac3ff);color:white;border:none;cursor:pointer;font-weight:600;box-shadow:0 2px 8px #20b2ff44;">Early Start</button>
+                            </div>
+                        `;
+                        document.getElementById('earlyStartBtn').onclick = function() {
+                            const start = new Date();
+                            const end = new Date(start.getTime() + 8 * 60 * 60 * 1000);
+                            localStorage.setItem('todayProgressStart', start.toISOString());
+                            localStorage.setItem('todayProgressEnd', end.toISOString());
+                            updateTodayProgressPanel();
+                        };
+                    } else {
+                        updateTodayProgressPanel();
+                    }
+                    elements.todayProgressPanel.classList.remove('hide');
+                    elements.todayProgressPanel.classList.add('show');
+                } else {
+                    elements.todayProgressPanel.classList.remove('show');
+                    elements.todayProgressPanel.classList.add('hide');
+                }
+            }
+        });
+
+        function updateTodayProgressPanel() {
+            const startStr = localStorage.getItem('todayProgressStart');
+            let breaks = [];
+            try { breaks = JSON.parse(localStorage.getItem('todayProgressBreaks') || '[]'); } catch (e) { breaks = []; }
+            if (startStr) {
+                const start = new Date(startStr);
+                let totalBreakMs = 0, breakDetails = '';
+                breaks.forEach((b, i) => {
+                    if (b.end) {
+                        const s = new Date(b.start), e = new Date(b.end), dur = e - s;
+                        totalBreakMs += dur;
+                        const min = Math.floor(dur/60000);
+                        breakDetails += `<div style=\"color:#fff;\">Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ${e.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} (${min} min)</div>`;
+                    } else {
+                        const s = new Date(b.start);
+                        breakDetails += `<div style=\"color:#fff;\">Break ${i+1}: ${s.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})} - ...</div>`;
+                    }
+                });
+                const end = new Date(start.getTime() + 8*60*60*1000 + totalBreakMs);
+                let html = `<div style=\"text-align:center;\">`;
+                html += `<div style=\"color:#fff;font-weight:600;font-size:1.1em;margin-bottom:12px;\">Start: ${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}</div>`;
+                if (breakDetails) html += `<div style=\"margin-bottom:8px;\">${breakDetails}</div>`;
+                html += `<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:8px;justify-items:stretch;align-items:center;margin:8px 0;\">`;
+                const ongoingBreak = breaks.length && !breaks[breaks.length-1].end;
+                if (!ongoingBreak) {
+                    html += `<button id=\"startBreakBtn\" class=\"btn btn-green\">Start Break</button>`;
+                    html += `<button id=\"resetTodayProgress\" class=\"btn btn-red\">Reset</button>`;
+                } else {
+                    html += `<button id=\"endBreakBtn\" class=\"btn btn-blue\">End Break</button>`;
+                    html += `<button id=\"resetTodayProgress\" class=\"btn btn-red\">Reset</button>`;
+                }
+                html += `</div></div>`;
+                elements.todayProgressPanel.innerHTML = html;
+                if (!ongoingBreak) {
+                    document.getElementById('startBreakBtn').onclick = function() {
+                        breaks.push({start: new Date().toISOString()});
+                        localStorage.setItem('todayProgressBreaks', JSON.stringify(breaks));
+                        updateTodayProgressPanel();
+                    };
+                } else {
+                    document.getElementById('endBreakBtn').onclick = function() {
+                        breaks[breaks.length-1].end = new Date().toISOString();
+                        localStorage.setItem('todayProgressBreaks', JSON.stringify(breaks));
+                        updateTodayProgressPanel();
+                    };
+                }
+                document.getElementById('resetTodayProgress').onclick = function() {
+                    localStorage.removeItem('todayProgressStart');
+                    localStorage.removeItem('todayProgressEnd');
+                    localStorage.removeItem('todayProgressBreaks');
+                    updateTodayProgressPanel();
+                };
+                localStorage.setItem('todayProgressEnd', end.toISOString());
+            } else {
+                elements.todayProgressPanel.innerHTML = `<div class=\"empty-tasks\">TBD</div>`;
+            }
+        }
+
+        // Patch working hours info and progress bar to use custom start/end time if set
+        const origUpdateWorkingHoursProgress = displayManager.updateWorkingHoursProgress.bind(displayManager);
+        displayManager.updateWorkingHoursProgress = function() {
+            const startStr = localStorage.getItem('todayProgressStart');
+            const endStr = localStorage.getItem('todayProgressEnd');
+            if (startStr && endStr) {
+                const start = new Date(startStr), end = new Date(endStr), now = new Date();
+                let elapsed = (now - start) / 1000, total = (end - start) / 1000;
+                let percent = Math.max(0, Math.min(100, (elapsed / total) * 100));
+                elements.hoursProgressBar.style.width = percent + '%';
+                elements.hoursProgressTextHeader.textContent = Math.round(percent) + '%';
+                let remaining = Math.max(0, total - elapsed);
+                let rh = Math.floor(remaining / 3600), rm = Math.floor((remaining % 3600) / 60);
+                elements.hoursProgressText.textContent = `${rh}h ${rm}m remaining`;
+                elements.workingHoursInfo.textContent = `${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false})}`;
+            } else {
+                origUpdateWorkingHoursProgress();
+            }
+        };
+
+        // --- Today panel close logic (keep for today panel only) ---
+        let todayPanelOpen = false;
+        document.addEventListener('click', e => {
+            const isClickInsideTodayPanel = elements.todayProgressPanel.contains(e.target);
+            const isClickOnTodayContainer = elements.hoursProgressContainer.contains(e.target);
+            if (todayPanelOpen && !isClickInsideTodayPanel && !isClickOnTodayContainer) {
+                elements.todayProgressPanel.style.display = 'none';
+                todayPanelOpen = false;
+            }
+        });
+        [elements.todayProgressPanel].forEach(panel => {
+            panel.addEventListener('click', e => e.stopPropagation());
+        });
+
+        // --- Helper: get budget adjustment values ---
+        function getBudgetAdjustments(calculator, currentBudget) {
+            const calculation = calculator.calculate(currentBudget);
+            const dailyRate = calculation.dailyBudget;
+            const baseAdjustment = Math.round(dailyRate * 0.7);
+            const largeAdjustment = Math.round(dailyRate * 1.4);
+            const roundedBase = Math.round(baseAdjustment / 10) * 10;
+            const roundedLarge = Math.round(largeAdjustment / 10) * 10;
+            return { roundedBase, roundedLarge };
+        }
+
+        // --- App Initialization ---
+        function initializeApp() {
+            try {
+                const savedBudget = app.loadSavedBudget();
+                if (savedBudget) app.handleBudgetInput(savedBudget);
+                else displayManager.updateProgressBar();
+                app.refreshTaskDisplay();
+                setInterval(() => {
+                    try { displayManager.updateWorkingHoursProgress(); } catch (error) { console.error('Error updating working hours:', error); }
+                }, 60000);
+                console.log('✓ Progress Tracker initialized successfully');
+            } catch (error) {
+                console.error('✗ Initialization failed:', error);
+                try { displayManager.showError('Initialization error - please refresh'); } catch (fallbackError) { console.error('✗ Critical error - unable to show UI:', fallbackError); }
+            }
+        }
+        initializeApp();
+    </script>
 </body>
 </html>
