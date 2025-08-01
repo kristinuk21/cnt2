@@ -29,82 +29,517 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-    <div id="root"></div>
-    <!-- ReusableDialog is loaded globally from js/ReusableDialog.jsx -->
-    <script type="text/babel">
-                    const { Box, Paper, Typography, Button, TextField, LinearProgress, Checkbox, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Grid, Stack, Snackbar, Alert, createTheme, ThemeProvider } = MaterialUI;
-                    // Import ReusableDialog from global if available
-                    let ReusableDialog = window.ReusableDialog;
+    <div class="panel">
+        <div class="header">
+            <h1 style="display: inline-block; vertical-align: middle;">Progress Tracker</h1>
+            <span id="sqlSummaryIcon" title="View SQL List" style="cursor:pointer; margin-left:8px; vertical-align: middle;">
+                <!-- List icon -->
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3" cy="6" r="1"></circle><circle cx="3" cy="12" r="1"></circle><circle cx="3" cy="18" r="1"></circle></svg>
+            </span>
+            <span id="chartIcon" title="View Chart" style="cursor:pointer; margin-left:8px; vertical-align: middle;">
+                <!-- Chart icon -->
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+            </span>
+            <div id="sqlSummaryPanel" style="display:none; position:absolute; top:60px; left:40px; background:#fff; border:1px solid #ccc; box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:1000; padding:16px; min-width:320px; max-width:90vw; max-height:60vh; overflow:auto;">
+                <h3>SQL Database Summary</h3>
+                <div id="sqlSummaryContent">Loading...</div>
+                <button id="closeSqlSummary" style="margin-top:10px;">Close</button>
+                <button id="resetSqlContent" style="margin-top:10px; margin-left:10px; background:#f44336; color:white;">Reset Content</button>
+            </div>
+            <div id="chartPanel" style="display:none; position:absolute; top:60px; left:340px; background:#fff; border:1px solid #ccc; box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:1000; padding:16px; min-width:320px; max-width:90vw; max-height:60vh; overflow:auto;">
+                <h3>Chart View</h3>
+                <canvas id="budgetChart" width="300" height="180" style="margin-bottom:16px;"></canvas>
+                <button id="closeChartPanel" style="margin-top:10px;">Close</button>
+            </div>
+        
+        <div class="panel panel-alt mt-10" id="progressContainer">
+            <div class="progress-header">
+                <div class="progress-label-section">
+                    <span class="progress-label">Progress</span>
+                    <span class="progress-percentage" id="progressText">0%</span>
+                </div>
+                <div class="cycle-end" id="nextWorkingDayInfo">Ends: -</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                <div class="progress-stats-overlay">
+                    <span class="progress-text-info" id="progressTextInfo">0 days at 0 RON/day</span>
+                </div>
+            </div>
+            <!-- Budget Adjustment Panel -->
+            <div class="panel panel-sm budget-adjustment-panel hide" id="budgetAdjustmentPanel">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px; justify-content: center;">
+                    <div class="budget-adjustment-title" style="margin-bottom: 0;">Buget</div>
+                    <input type="number" class="input input-center" id="currentBudgetInput" min="0" step="0.01" placeholder="Enter budget" style="margin-bottom: 0; width: 90px; min-width: 0;">
+                </div>
+                <div class="budget-adjustment-buttons">
+                    <button class="btn btn-red" id="decreaseHalf">-½ Rate</button>
+                    <button class="btn btn-green" id="increaseHalf">+½ Rate</button>
+                    <button class="btn btn-red" id="decreaseDouble">-2x Rate</button>
+                    <button class="btn btn-green" id="increaseDouble">+2x Rate</button>
+                </div>
+            </div>
+        </div>
+        
+    <div class="panel panel-alt mt-10" id="hoursProgressContainer">
+            <div class="progress-header">
+                <div class="progress-label-section">
+                    <span class="progress-label">Today</span>
+                    <span class="progress-percentage" id="hoursProgressTextHeader">0%</span>
+                </div>
+                <div class="cycle-end" id="workingHoursInfo">18:00</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="hours-progress-bar progress-bar" id="hoursProgressBar" style="width: 0%"></div>
+                <div class="progress-stats-overlay">
+                    <span class="progress-text-info" id="hoursProgressText">8h 0m remaining</span>
+                </div>
+            </div>
+            <!-- Today Progress Panel -->
+            <div class="panel panel-sm task-management-panel hide" id="todayProgressPanel">
+                <div class="empty-tasks">TBD</div>
+            </div>
+        </div>
+        
+    <div class="panel panel-alt mt-10" id="tasksProgressContainer">
+            <div class="progress-header">
+                <div class="progress-label-section">
+                    <span class="progress-label">Tasks</span>
+                    <span class="progress-percentage" id="tasksProgressTextHeader">0%</span>
+                </div>
+                <div class="cycle-end" id="tasksInfo">0/0</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="tasks-progress-bar progress-bar" id="tasksProgressBar" style="width: 0%"></div>
+                <div class="progress-stats-overlay">
+                    <span class="progress-text-info" id="tasksProgressText">No tasks • Click to manage</span>
+                </div>
+            </div>
+            <!-- Task Management Panel -->
+            <div class="panel panel-sm task-management-panel hide" id="taskManagementPanel">
+                <!-- Add New Task -->
+                <div class="add-task-section">
+                    <input type="text" class="input" id="newTaskInput" placeholder="Enter new task...">
+                    <button class="btn btn-green add-task-btn" id="addTaskBtn">Add Task</button>
+                </div>
+                <!-- Task List -->
+                <div class="task-list" id="taskList">
+                    <!-- Tasks will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    // --- Dark Theme Setup ---
-                    const theme = createTheme({
-                        palette: {
-                            mode: 'dark',
-                            background: {
-                                default: '#1a1a2e',
-                                paper: '#232344',
-                            },
-                            primary: { main: '#357abd' },
-                            secondary: { main: '#2d3561' },
-                            success: { main: '#4caf50' },
-                            error: { main: '#c0392b' },
-                            info: { main: '#20b2ff' },
-                        },
-                        shape: {
-                            borderRadius: 8,
-                        },
-                        typography: {
-                            fontFamily: 'Roboto, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif',
-                            fontWeightBold: 600,
-                            h5: { color: '#e0e0e0', fontWeight: 600 },
-                        },
-                        components: {
-                            MuiPaper: {
-                                styleOverrides: {
-                                    root: {
-                                        backgroundColor: '#232344',
-                                    },
-                                },
-                            },
-                            MuiDialog: {
-                                styleOverrides: {
-                                    paper: {
-                                        backgroundColor: '#232344',
-                                        color: '#fff',
-                                    },
-                                },
-                            },
-                            MuiDialogTitle: {
-                                styleOverrides: {
-                                    root: {
-                                        color: '#e0e0e0',
-                                    },
-                                },
-                            },
-                            MuiDialogContent: {
-                                styleOverrides: {
-                                    root: {
-                                        color: '#fff',
-                                    },
-                                },
-                            },
-                        },
-                    });
-        // --- Utility functions ---
-        const SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        function calculateDays() {
+    <script>
+    // Load sql.js from CDN
+    const SQL_JS_URL = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js";
+    let SQL, db;
+    function loadSqlJs() {
+        return new Promise((resolve, reject) => {
+            if (window.initSqlJs) return resolve(window.initSqlJs);
+            const script = document.createElement('script');
+            script.src = SQL_JS_URL;
+            script.onload = () => resolve(window.initSqlJs);
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+    async function initDatabase() {
+        SQL = await loadSqlJs().then(f => f({ locateFile: filename => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${filename}` }));
+        // Try to load from IndexedDB
+        const dbData = await loadDbFromIndexedDB();
+        db = dbData ? new SQL.Database(new Uint8Array(dbData)) : new SQL.Database();
+        db.run(`CREATE TABLE IF NOT EXISTS actions (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, details TEXT, ts DATETIME DEFAULT CURRENT_TIMESTAMP)`);
+        saveDbToIndexedDB();
+    }
+    function saveDbToIndexedDB() {
+        if (!db) return;
+        const data = db.export();
+        const request = window.indexedDB.open('ProgressTrackerDB', 1);
+        request.onupgradeneeded = function(e) {
+            const dbx = e.target.result;
+            if (!dbx.objectStoreNames.contains('sqlite')) dbx.createObjectStore('sqlite');
+        };
+        request.onsuccess = function(e) {
+            const dbx = e.target.result;
+            const tx = dbx.transaction('sqlite', 'readwrite');
+            tx.objectStore('sqlite').put(data, 'main');
+        };
+    }
+    function loadDbFromIndexedDB() {
+        return new Promise(resolve => {
+            const request = window.indexedDB.open('ProgressTrackerDB', 1);
+            request.onupgradeneeded = function(e) {
+                const dbx = e.target.result;
+                if (!dbx.objectStoreNames.contains('sqlite')) dbx.createObjectStore('sqlite');
+            };
+            request.onsuccess = function(e) {
+                const dbx = e.target.result;
+                const tx = dbx.transaction('sqlite', 'readonly');
+                const getReq = tx.objectStore('sqlite').get('main');
+                getReq.onsuccess = function() {
+                    resolve(getReq.result || null);
+                };
+                getReq.onerror = function() { resolve(null); };
+            };
+            request.onerror = function() { resolve(null); };
+        });
+    }
+    function insertAction(type, details) {
+        db.run(`INSERT INTO actions (type, details) VALUES (?, ?)`, [type, JSON.stringify(details)]);
+        saveDbToIndexedDB();
+    }
+    function getSummary() {
+        const res = db.exec('SELECT type, COUNT(*) as count FROM actions GROUP BY type');
+        return res.length ? res[0].values : [];
+    }
+    function getAllActions() {
+        const res = db.exec('SELECT * FROM actions ORDER BY ts DESC LIMIT 50');
+        return res.length ? res[0].values : [];
+    }
+    // Load Chart.js from CDN
+    const CHART_JS_URL = "https://cdn.jsdelivr.net/npm/chart.js";
+    function loadChartJs() {
+        return new Promise((resolve, reject) => {
+            if (window.Chart) return resolve(window.Chart);
+            const script = document.createElement('script');
+            script.src = CHART_JS_URL;
+            script.onload = () => resolve(window.Chart);
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+        const icon = document.getElementById('sqlSummaryIcon');
+        const panel = document.getElementById('sqlSummaryPanel');
+        const closeBtn = document.getElementById('closeSqlSummary');
+        const resetBtn = document.getElementById('resetSqlContent');
+        const chartIcon = document.getElementById('chartIcon');
+        const chartPanel = document.getElementById('chartPanel');
+        const closeChartBtn = document.getElementById('closeChartPanel');
+        icon.addEventListener('click', () => {
+            panel.style.display = 'block';
+            chartPanel.style.display = 'none';
+            updateSqlSummaryPanel();
+        });
+        closeBtn.addEventListener('click', () => panel.style.display = 'none');
+        resetBtn.addEventListener('click', () => {
+            db.run('DELETE FROM actions');
+            saveDbToIndexedDB();
+            updateSqlSummaryPanel();
+        });
+        chartIcon.addEventListener('click', async () => {
+            chartPanel.style.display = 'block';
+            panel.style.display = 'none';
+            await loadChartJs();
+            renderBudgetChart();
+        });
+        closeChartBtn.addEventListener('click', () => chartPanel.style.display = 'none');
+
+        function renderBudgetChart() {
+            if (!window.Chart) return;
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+            // Get all budget actions from SQLite
+            const res = db.exec('SELECT ts, details FROM actions WHERE type = "budget_adjust" ORDER BY ts ASC');
+            let data = [];
+            if (res.length && res[0].values) {
+                data = res[0].values.map(([ts, details]) => {
+                    let val = 0;
+                    try { val = JSON.parse(details).value || 0; } catch(e) {}
+                    return { ts, val };
+                });
+            }
+            // Find last 10/25 and next 10/25
             const now = new Date();
-            const nextMonth = dateFns.addMonths(new Date(now.getFullYear(), now.getMonth(), 1), 1);
-            const startDate = dateFns.setDate(nextMonth, 10);
-            const endDate = dateFns.setDate(nextMonth, 25);
-            let workingDays = 0, nonWorkingDays = 0, totalDays = 0;
-            let currentDate = startDate;
-            while (!dateFns.isAfter(currentDate, endDate)) {
-                const dayOfWeek = currentDate.getDay();
-                totalDays++;
-                if (dayOfWeek === 0 || dayOfWeek === 6) nonWorkingDays++;
-                else workingDays++;
-                currentDate = dateFns.addDays(currentDate, 1);
+            let lastDate, nextDate;
+            const d = now.getDate();
+            const m = now.getMonth();
+            const y = now.getFullYear();
+            if (d < 10) {
+                lastDate = new Date(y, m-1, 25);
+                nextDate = new Date(y, m, 10);
+            } else if (d <= 25) {
+                lastDate = new Date(y, m, 10);
+                nextDate = new Date(y, m, 25);
+            } else {
+                lastDate = new Date(y, m, 25);
+                nextDate = new Date(y, m+1, 10);
+            }
+            // Prepare daily labels and budget values
+            const startTime = lastDate.getTime();
+            const endTime = nextDate.getTime();
+            const numDays = Math.ceil((endTime - startTime) / (1000*60*60*24));
+            const labels = [];
+            const actualValues = [];
+            // Find last known budget before period
+            let initialBudget = 0;
+            if (data.length) {
+                for (let i = data.length - 1; i >= 0; i--) {
+                    if (new Date(data[i].ts).getTime() < startTime) {
+                        initialBudget = parseFloat(data[i].val);
+                        break;
+                    }
+                }
+            }
+            // If no previous budget, try localStorage
+            if (!initialBudget) {
+                try {
+                    initialBudget = parseFloat(localStorage.getItem('budgetCalculator_budget')) || 0;
+                } catch(e) {}
+            }
+            let currentBudget = initialBudget;
+            let dataIdx = 0;
+            const todayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            for (let i = 0; i < numDays; i++) {
+                const dayTime = startTime + i * 24 * 60 * 60 * 1000;
+                const dateLabel = new Date(dayTime).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                labels.push(dateLabel);
+                // Find if there is a budget entry for this day
+                let found = false;
+                for (let j = 0; j < data.length; j++) {
+                    const entryTime = new Date(data[j].ts).getTime();
+                    if (entryTime >= dayTime && entryTime < dayTime + 24*60*60*1000) {
+                        actualValues.push(parseFloat(data[j].val));
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found || dayTime > todayTime) {
+                    actualValues.push(null);
+                }
+            }
+            // Find current budget for today
+            let todayBudget = initialBudget;
+            for (let j = 0; j < data.length; j++) {
+                const entryTime = new Date(data[j].ts).getTime();
+                if (entryTime >= todayTime && entryTime < todayTime + 24*60*60*1000) {
+                    todayBudget = parseFloat(data[j].val);
+                }
+            }
+            // Projected budget: linear decrease from todayBudget to 0
+            const projectedValues = [];
+            for (let i = 0; i < numDays; i++) {
+                if (i < (todayTime - startTime) / (24*60*60*1000)) {
+                    projectedValues.push(null);
+                } else {
+                    const daysFromToday = i - ((todayTime - startTime) / (24*60*60*1000));
+                    const daysToEnd = numDays - 1 - ((todayTime - startTime) / (24*60*60*1000));
+                    const val = daysToEnd > 0 ? todayBudget * (1 - daysFromToday / daysToEnd) : todayBudget;
+                    projectedValues.push(Math.max(0, val));
+                }
+            }
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Budget', data: actualValues, borderColor: '#4ac3ff', backgroundColor: 'rgba(76,195,255,0.2)', fill: true, stepped: true },
+                        { label: 'Projected Budget', data: projectedValues, borderColor: '#ff9800', backgroundColor: 'rgba(255,152,0,0.1)', fill: false, borderDash: [5,5] }
+                    ]
+                },
+                options: {
+                    plugins: { legend: { display: true } },
+                    scales: {
+                        x: { title: { display: true, text: 'Date' } },
+                        y: { title: { display: true, text: 'Budget' } }
+                    }
+                }
+            });
+        }
+        function updateSqlSummaryPanel() {
+            const content = document.getElementById('sqlSummaryContent');
+            let html = '<b>Action Summary:</b><br><ul>';
+            for (const [type, count] of getSummary()) {
+                html += `<li>${type}: ${count}</li>`;
+            }
+            html += '</ul><b>Recent Actions:</b><br><table border="1" style="width:100%;"><tr><th>Type</th><th>Details</th><th>Time</th></tr>';
+            for (const row of getAllActions()) {
+                html += `<tr><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`;
+            }
+            html += '</table>';
+            content.innerHTML = html;
+        }
+        // Initialize DB on load
+        document.addEventListener('DOMContentLoaded', () => { initDatabase(); });
+    // Utility: Month names
+    const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const SHORT_MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // --- Utility: set progress bar width and text (reusable) ---
+    function setBar(barEl, textEl, percent) {
+        barEl.style.width = `${percent}%`;
+        textEl.textContent = `${Math.round(percent)}%`;
+    }
+
+    // --- Utility: Add multiple event listeners (reusable) ---
+    function addListeners(target, events, handler) {
+        events.forEach(ev => target.addEventListener(ev, handler));
+    }
+
+    // --- Utility: Panel toggling abstraction ---
+    function setupPanelToggle(container, panel, showFn, hideFn) {
+        let open = false;
+        container.addEventListener('click', (e) => {
+            // Only toggle if the click is directly on the container or its main children
+            if (
+                e.target === container ||
+                e.target.classList.contains('progress-bar') ||
+                e.target.classList.contains('progress-label') ||
+                e.target.classList.contains('progress-percentage') ||
+                e.target.classList.contains('progress-header') ||
+                e.target.classList.contains('progress-label-section')
+            ) {
+                open = !open;
+                open ? showFn() : hideFn();
+            }
+        });
+        // Close panel when clicking outside
+        document.addEventListener('click', (e) => {
+            if (open && !panel.contains(e.target) && !container.contains(e.target)) {
+                hideFn();
+                open = false;
+            }
+        });
+        // Prevent panel clicks from propagating
+        panel.addEventListener('click', e => e.stopPropagation());
+    }
+
+        class DateCalculator {
+            constructor() {}
+            // Calculate working and non-working days between 10th and 25th of next month
+            calculateDays() {
+                const now = new Date();
+                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                const startDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 10);
+                const endDate = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 25);
+                let workingDays = 0, nonWorkingDays = 0, totalDays = 0;
+                const currentDate = new Date(startDate);
+                while (currentDate <= endDate) {
+                    const dayOfWeek = currentDate.getDay();
+                    totalDays++;
+                    if (dayOfWeek === 0 || dayOfWeek === 6) nonWorkingDays++;
+                    else workingDays++;
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                return { workingDays, nonWorkingDays, totalDays };
+            }
+            getNextMonthInfo() {
+                const now = new Date();
+                const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                return {
+                    month: MONTH_NAMES[nextMonth.getMonth()],
+                    year: nextMonth.getFullYear()
+                };
+            }
+            getNextWorkingDayInfo() {
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                const currentDate = now.getDate();
+                if (currentDate < 10) {
+                    const targetDate = new Date(currentYear, currentMonth, 10);
+                    const nextWorkingDay = this.findNextWorkingDay(targetDate);
+                    return {
+                        date: nextWorkingDay,
+                        monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
+                        isCurrentMonth: true
+                    };
+                } else if (currentDate <= 25) {
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(now.getDate() + 1);
+                    const nextWorkingDay = this.findNextWorkingDay(tomorrow);
+                    if (nextWorkingDay.getMonth() === currentMonth && nextWorkingDay.getDate() <= 25) {
+                        return {
+                            date: nextWorkingDay,
+                            monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
+                            isCurrentMonth: true
+                        };
+                    } else {
+                        const nextMonth = new Date(currentYear, currentMonth + 1, 10);
+                        const nextWorkingDay = this.findNextWorkingDay(nextMonth);
+                        return {
+                            date: nextWorkingDay,
+                            monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
+                            isCurrentMonth: false
+                        };
+                    }
+                } else {
+                    const nextMonth = new Date(currentYear, currentMonth + 1, 10);
+                    const nextWorkingDay = this.findNextWorkingDay(nextMonth);
+                    return {
+                        date: nextWorkingDay,
+                        monthName: MONTH_NAMES[nextWorkingDay.getMonth()],
+                        isCurrentMonth: false
+                    };
+                }
+            }
+            findNextWorkingDay(startDate) {
+                const date = new Date(startDate);
+                while (date.getDay() === 0 || date.getDay() === 6) date.setDate(date.getDate() + 1);
+                return date;
+            }
+            getProgressInfo() {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
+                const currentDate = now.getDate();
+                let lastCriteriaDate, nextCriteriaDate;
+                if (currentDate < 10) {
+                    lastCriteriaDate = new Date(currentYear, currentMonth - 1, 25, 14, 0, 0, 0);
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0);
+                } else if (currentDate <= 25) {
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 10, 14, 0, 0, 0);
+                    nextCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0);
+                } else {
+                    lastCriteriaDate = new Date(currentYear, currentMonth, 25, 14, 0, 0, 0);
+                    nextCriteriaDate = new Date(currentYear, currentMonth + 1, 10, 14, 0, 0, 0);
+                }
+                const totalHours = (nextCriteriaDate - lastCriteriaDate) / (1000 * 60 * 60);
+                let hoursPassed = (now - lastCriteriaDate) / (1000 * 60 * 60);
+                hoursPassed = Math.max(0, Math.min(hoursPassed, totalHours));
+                const progressPercentage = Math.min(Math.max((hoursPassed / totalHours) * 100, 0), 100);
+                let totalDays = 0;
+                let temp = new Date(lastCriteriaDate);
+                while (temp < nextCriteriaDate) { totalDays++; temp.setDate(temp.getDate() + 1); }
+                let daysPassed = 0;
+                temp = new Date(lastCriteriaDate);
+                while (temp < now) { daysPassed++; temp.setDate(temp.getDate() + 1); }
+                return {
+                    lastDate: lastCriteriaDate,
+                    nextDate: nextCriteriaDate,
+                    daysPassed,
+                    totalDays,
+                    progressPercentage
+                };
+            }
+            getWorkingHoursProgress() {
+                const now = new Date();
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                const currentDay = now.getDay();
+                const isWorkingDay = currentDay >= 1 && currentDay <= 5;
+                if (!isWorkingDay) {
+                    return { isWorkingDay: false, hoursElapsed: 0, hoursRemaining: 8, progressPercentage: 0, status: 'Weekend' };
+                }
+                const workStart = 10, workEnd = 18, totalWorkHours = workEnd - workStart;
+                const currentTimeInHours = currentHour + (currentMinute / 60);
+                let hoursElapsed, hoursRemaining, progressPercentage, status;
+                if (currentTimeInHours < workStart) {
+                    hoursElapsed = 0; hoursRemaining = totalWorkHours; progressPercentage = 0; status = 'Before hours';
+                } else if (currentTimeInHours >= workEnd) {
+                    hoursElapsed = totalWorkHours; hoursRemaining = 0; progressPercentage = 100; status = 'Complete';
+                } else {
+                    hoursElapsed = currentTimeInHours - workStart;
+                    hoursRemaining = workEnd - currentTimeInHours;
+                    progressPercentage = (hoursElapsed / totalWorkHours) * 100;
+                    status = 'Active';
+                }
+                return {
+                    isWorkingDay: true,
+                    hoursElapsed: Math.max(0, hoursElapsed),
+                    hoursRemaining: Math.max(0, hoursRemaining),
+                    progressPercentage: Math.min(Math.max(progressPercentage, 0), 100),
+                    status
+                };
             }
             return { workingDays, nonWorkingDays, totalDays };
         }
