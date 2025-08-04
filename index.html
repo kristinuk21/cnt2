@@ -693,18 +693,19 @@
             updateProgressBar(calculation = null) {
                 const progressInfo = this.dateCalculator.getProgressInfo();
                 setBar(this.elements.progressBar, this.elements.progressText, progressInfo.progressPercentage);
-                // Show remaining days and daily rate if budget is set
+                // Use fixed end date August 11, 2025 for correct days remaining
+                const today = new Date();
+                const endDate = new Date(2025, 7, 11); // August is month 7 (0-based)
+                const daysRemaining = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
                 const savedBudget = storageManager.loadBudget && storageManager.loadBudget();
                 let rateInfo = '';
-                const daysRemaining = progressInfo.totalDays - progressInfo.daysPassed;
                 if (savedBudget && daysRemaining > 0) {
                     const dailyRate = Math.round(savedBudget / daysRemaining);
                     rateInfo = ` at ${dailyRate} RON/day`;
                 }
                 this.elements.progressTextInfo.textContent = `${daysRemaining} days${rateInfo}`;
-                // Show budget progress end date (next working day after 10th/25th)
-                let endDate = this.dateCalculator.findNextWorkingDay(progressInfo.nextDate);
-                this.elements.nextWorkingDayInfo.textContent = `${SHORT_MONTH_NAMES[endDate.getMonth()]} ${endDate.getDate()}`;
+                // Show budget progress end date (fixed to August 11, 2025)
+                this.elements.nextWorkingDayInfo.textContent = `Aug 11`;
                 this.updateWorkingHoursProgress();
             }
             
